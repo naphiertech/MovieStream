@@ -37,38 +37,34 @@ export function HeroSection({ movies }: HeroSectionProps) {
 
   const slideVariants: Variants = {
     enter: (direction: number) => ({
+      x: direction > 0 ? '100%' : '-100%',
       opacity: 0,
-      scale: 1.1,
-      filter: 'blur(20px)',
     }),
     center: {
       zIndex: 1,
+      x: 0,
       opacity: 1,
-      scale: 1,
-      filter: 'blur(0px)',
       transition: {
-        duration: 1.2,
-        ease: [0.25, 1, 0.5, 1], // Custom cinematic ease
+        x: { type: "spring", stiffness: 300, damping: 30 },
+        opacity: { duration: 0.5 }
       }
     },
     exit: (direction: number) => ({
       zIndex: 0,
+      x: direction < 0 ? '100%' : '-100%',
       opacity: 0,
-      scale: 0.95,
-      filter: 'blur(20px)',
       transition: {
-        duration: 0.8,
-        ease: 'easeInOut'
+        x: { type: "spring", stiffness: 300, damping: 30 },
+        opacity: { duration: 0.5 }
       }
     })
   };
 
   const contentVariants: Variants = {
-    hidden: { opacity: 0, x: -50, filter: 'blur(10px)' },
+    hidden: { opacity: 0, x: -30 },
     visible: { 
       opacity: 1, 
       x: 0, 
-      filter: 'blur(0px)',
       transition: { 
         duration: 0.8, 
         delay: 0.5,
@@ -84,8 +80,8 @@ export function HeroSection({ movies }: HeroSectionProps) {
   };
 
   return (
-    <div className="relative w-full h-[100dvh] md:h-[95vh] -mt-[80px] md:-mt-[100px] flex flex-col justify-center overflow-hidden bg-black z-30">
-      <AnimatePresence initial={false} custom={direction} mode="popLayout">
+    <div className="relative w-full h-[100dvh] md:h-[100vh] lg:h-[105vh] -mt-[80px] md:-mt-[100px] flex flex-col justify-center overflow-hidden bg-black z-30">
+      <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={currentMovie.id}
           custom={direction}
@@ -108,6 +104,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
               src={currentMovie.bannerUrl || PLACEHOLDERS.BANNER}
               alt={currentMovie.title}
               fill
+              sizes="100vw"
               className="object-cover opacity-60 md:opacity-70"
               priority
               referrerPolicy="no-referrer"
@@ -144,6 +141,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
                       src={currentMovie.logoUrl}
                       alt={currentMovie.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, 600px"
                       className="object-contain object-left drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]"
                       priority
                     />
