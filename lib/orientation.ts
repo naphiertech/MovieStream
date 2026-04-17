@@ -16,11 +16,20 @@ export async function lockLandscape(element: HTMLElement) {
 
   try {
     // 1. Enter Fullscreen (required for orientation lock on most browsers)
-    if (element.requestFullscreen) {
-      await element.requestFullscreen();
-    } else if ((element as any).webkitRequestFullscreen) {
-      /* Safari/iOS support check */
-      await (element as any).webkitRequestFullscreen();
+    // If we're already in fullscreen, skip this to avoid re-triggering transitions
+    const isAlreadyFullscreen = !!(
+      document.fullscreenElement || 
+      (document as any).webkitFullscreenElement || 
+      (document as any).mozFullScreenElement
+    );
+
+    if (!isAlreadyFullscreen) {
+      if (element.requestFullscreen) {
+        await element.requestFullscreen();
+      } else if ((element as any).webkitRequestFullscreen) {
+        /* Safari/iOS support check */
+        await (element as any).webkitRequestFullscreen();
+      }
     }
 
     // 2. Attempt Orientation Lock

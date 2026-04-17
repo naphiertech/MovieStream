@@ -37,6 +37,34 @@ export default function WatchPage() {
     };
   }, []);
 
+  // Fullscreen → Auto-Landscape Link
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFs = !!(
+        document.fullscreenElement || 
+        (document as any).webkitFullscreenElement || 
+        (document as any).mozFullScreenElement
+      );
+
+      if (isFs && isMobile()) {
+        // Trigger landscape lock if we entered fullscreen
+        if (playerRef.current) {
+          lockLandscape(playerRef.current);
+        }
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   useEffect(() => {
     const fetchMovie = async () => {
       try {
