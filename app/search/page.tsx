@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Movie } from '@/lib/db';
+import { Movie } from '@/lib/tmdb';
 import { MovieCard } from '@/components/MovieCard';
 import { Search as SearchIcon } from 'lucide-react';
 import { motion } from 'framer-motion';

@@ -75,6 +75,11 @@ export interface CastMember {
   profileUrl: string | null;
 }
 
+export interface Genre {
+  id: number;
+  name: string;
+}
+
 export interface Season {
   id: number;
   name: string;
@@ -246,6 +251,16 @@ export async function getRecommendations(id: string, type: 'movie' | 'tv' = 'mov
     return data.results.map((m: any) => mapMovie(m, type));
   } catch (error) {
     console.error(`Error fetching recommendations for ${type} ${id}:`, error);
+    return [];
+  }
+}
+
+export async function getGenres(type: 'movie' | 'tv' = 'movie'): Promise<string[]> {
+  try {
+    const data = await fetchTMDB(`/genre/${type}/list`);
+    return data.genres.map((g: any) => g.name);
+  } catch (error) {
+    console.error(`Error fetching genres for ${type}:`, error);
     return [];
   }
 }

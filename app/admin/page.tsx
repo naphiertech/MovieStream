@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { movies, genres } from '@/lib/db';
+// Mock data removed - Admin needs redesign for live API
+const movies: any[] = [];
+const genres: any[] = [];
 import { Settings, Film, Plus, Edit, Trash2 } from 'lucide-react';
 
 export default function AdminPage() {
