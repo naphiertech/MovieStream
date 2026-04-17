@@ -87,5 +87,5 @@ This project is licensed under the MIT License.
 ---
 
 <p align="center">
-  Built with ❤️ for the Cinematic Community
+  Built with ❤️ for the Cinematic Community - Naphier Awalie
 </p>

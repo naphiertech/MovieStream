@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, Calendar, ArrowLeft, Tv } from 'lucide-react';
+import { Star, Calendar, ArrowLeft, Tv, ArrowDown } from 'lucide-react';
 import { getTVDetails, getRecommendations, PLACEHOLDERS } from '@/lib/tmdb';
 import { notFound } from 'next/navigation';
 import { SeasonSelector } from '@/components/SeasonSelector';
@@ -102,6 +102,14 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
             <p className="text-white/60 text-lg lg:text-xl leading-relaxed font-medium">
               {show.description}
             </p>
+
+            <Link 
+              href="#episodes" 
+              className="mt-10 inline-flex items-center gap-3 bg-[#2dd4bf] text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[3px] shadow-[0_20px_40px_rgba(45,212,191,0.2)] hover:bg-[#0ed2f7] hover:scale-110 transition-all duration-500 group"
+            >
+              Watch
+              <ArrowDown size={20} className="group-hover:translate-y-1.5 transition-transform duration-500 ease-out" />
+            </Link>
           </div>
         </div>
 
@@ -110,7 +118,7 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
         </div>
 
         {/* Season Selector Component - Full Width below poster/info */}
-        <div className="mt-20 pt-16 border-t border-white/5">
+        <div id="episodes" className="mt-20 pt-16 border-t border-white/5 scroll-mt-24">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-1.5 h-8 bg-[#2dd4bf] rounded-full shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
             <h2 className="text-2xl font-black text-white uppercase tracking-tight italic">Select Episode</h2>

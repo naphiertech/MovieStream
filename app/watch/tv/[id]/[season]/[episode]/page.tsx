@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Server, Settings, Loader2, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Server, Settings, Loader2, ChevronRight, Zap, Smartphone } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getTVDetails, getSeasonDetails, TVShow, Episode } from '@/lib/tmdb';
 import { ActorList } from '@/components/ActorList';
+import { lockLandscape, isMobile } from '@/lib/orientation';
 
 export default function TVWatchPage() {
   const params = useParams();
@@ -22,6 +23,24 @@ export default function TVWatchPage() {
   const [activeSource, setActiveSource] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [showShield, setShowShield] = useState(true);
+  const [isPortrait, setIsPortrait] = useState(false);
+  const playerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOrientation = () => {
+      setIsPortrait(window.innerHeight > window.innerWidth);
+    };
+    
+    handleOrientation();
+    window.addEventListener('resize', handleOrientation);
+    window.addEventListener('orientationchange', handleOrientation);
+    
+    return () => {
+      window.removeEventListener('resize', handleOrientation);
+      window.removeEventListener('orientationchange', handleOrientation);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -140,14 +159,64 @@ export default function TVWatchPage() {
       </div>
 
       {/* Video Player Container */}
-      <div className="w-full max-w-[1400px] mx-auto aspect-video bg-black relative shadow-[0_30px_100px_rgba(45,212,191,0.15)] border-y border-white/5 md:border md:rounded-[2rem] overflow-hidden">
+      <div ref={playerRef} className="w-full max-w-[1400px] mx-auto aspect-video bg-black relative shadow-[0_30px_100px_rgba(45,212,191,0.15)] border-y border-white/5 md:border md:rounded-[2rem] overflow-hidden">
         {activeSource ? (
-          <iframe
-            src={activeSource.url}
-            className="w-full h-full border-0"
-            allowFullScreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          ></iframe>
+          <div className="relative w-full h-full">
+            <iframe
+              src={activeSource.url}
+              className="w-full h-full border-0"
+              allowFullScreen
+              sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+              referrerPolicy="no-referrer"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            ></iframe>
+            
+            {/* Ad Blocking Shield Overlay */}
+            <AnimatePresence>
+              {showShield && (
+                <motion.div 
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={async () => {
+                    setShowShield(false);
+                    if (playerRef.current && isMobile()) {
+                      await lockLandscape(playerRef.current);
+                    }
+                  }}
+                  className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] cursor-pointer group/shield flex items-center justify-center"
+                >
+                  <div className="bg-black/60 backdrop-blur-3xl border border-white/10 px-8 py-5 rounded-3xl flex flex-col items-center gap-4 transform group-hover/shield:scale-105 transition-all duration-500 shadow-2xl overflow-hidden">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-[#2dd4bf]/10 flex items-center justify-center text-[#2dd4bf]">
+                        <Zap className="fill-[#2dd4bf]" size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-black text-xs uppercase tracking-[3px]">Secure Signal Ready</h4>
+                        <p className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[1px] mt-1">Click to Initialize Player</p>
+                      </div>
+                    </div>
+
+                    {/* Mobile Orientation Hint */}
+                    {isPortrait && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-4 flex items-center gap-3 px-4 py-2 bg-[#2dd4bf]/10 rounded-xl border border-[#2dd4bf]/20 sm:hidden"
+                      >
+                        <motion.div
+                          animate={{ rotate: 90 }}
+                          transition={{ repeat: Infinity, duration: 2, repeatDelay: 1 }}
+                        >
+                          <Smartphone size={16} className="text-[#2dd4bf]" />
+                        </motion.div>
+                        <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[1px]">Landscape recommended</span>
+                      </motion.div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
             <Settings size={48} className="animate-spin-slow mb-4" />
