@@ -1,24 +1,66 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, User, Zap, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Search, User, Zap, Sparkles, Star, Clapperboard, MonitorPlay } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
     };
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchQuery.length < 1) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
+        const data = await response.json();
+        setSuggestions(data.slice(0, 6)); // Top 6 suggestions
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Search failed:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const timer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleSignInClick = () => {
     setShowComingSoon(true);
@@ -28,7 +70,20 @@ export function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      setShowSuggestions(false);
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: any) => {
+    setSearchQuery('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+    
+    if (suggestion.type === 'tv') {
+      router.push(`/tv/${suggestion.id}`);
+    } else {
+      router.push(`/movie/${suggestion.id}`);
     }
   };
 
@@ -72,18 +127,72 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-4 md:gap-6">
-            <form onSubmit={handleSearch} className="hidden md:flex items-center group">
+            <div ref={searchRef} className="hidden md:flex items-center group relative">
+            <form onSubmit={handleSearch} className="flex items-center">
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search movies..."
+                  placeholder="Search titles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery.length > 0 && setShowSuggestions(true)}
                   className="bg-white/5 border border-white/10 text-white text-[13px] rounded-full pl-11 pr-5 py-2.5 focus:outline-none focus:border-[#2dd4bf]/40 focus:bg-white/10 w-[240px] lg:w-[320px] transition-all duration-500 placeholder:text-white/20"
                 />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#2dd4bf] transition-colors" size={16} />
+                <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isSearching ? 'text-[#2dd4bf] animate-pulse' : 'text-white/20 group-focus-within:text-[#2dd4bf]'}`} size={16} />
               </div>
             </form>
+
+            <AnimatePresence>
+              {showSuggestions && suggestions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full mt-3 right-0 w-[320px] lg:w-[400px] bg-black/60 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] z-50"
+                >
+                  <div className="p-2">
+                    {suggestions.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => handleSuggestionClick(item)}
+                        className="w-full flex items-center gap-4 p-2 hover:bg-white/5 rounded-xl transition-all group text-left"
+                      >
+                        <div className="relative w-12 h-16 flex-shrink-0 overflow-hidden rounded-lg bg-white/5">
+                          {item.posterUrl ? (
+                            <Image 
+                              src={item.posterUrl} 
+                              alt={item.title} 
+                              fill 
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              sizes="48px"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white/20">
+                              <Clapperboard size={16} />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white text-[13px] font-black uppercase tracking-tight truncate group-hover:text-[#2dd4bf] transition-colors">{item.title}</h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="flex items-center gap-1 text-[10px] font-bold py-0.5 px-1.5 rounded bg-white/5 text-white/40 uppercase tracking-tighter">
+                              {item.type === 'tv' ? <MonitorPlay size={10} /> : <Clapperboard size={10} />}
+                              {item.type === 'tv' ? 'Series' : 'Movie'}
+                            </span>
+                            <span className="text-[10px] text-white/20 font-bold">{item.year}</span>
+                            <span className="flex items-center gap-0.5 text-[10px] text-[#2dd4bf] font-black">
+                              <Star size={10} fill="currentColor" />
+                              {item.rating}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
             <div className="flex items-center gap-3">
               <motion.button 

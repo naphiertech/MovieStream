@@ -194,6 +194,13 @@ export async function searchMovies(query: string) {
   return data.results.map((m: any) => mapMovie(m, 'movie'));
 }
 
+export async function searchMulti(query: string) {
+  const data = await fetchTMDB('/search/multi', { query });
+  return data.results
+    .filter((m: any) => m.media_type === 'movie' || m.media_type === 'tv')
+    .map((m: any) => mapMovie(m, m.media_type));
+}
+
 export async function getMovieDetails(id: string) {
   const data = await fetchTMDB(`/movie/${id}`);
   const credits = await fetchTMDB(`/movie/${id}/credits`);
