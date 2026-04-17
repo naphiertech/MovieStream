@@ -12,7 +12,11 @@ export function WatchHistory() {
 
   useEffect(() => {
     const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
-    setWatchHistory(history);
+    // Use timeout to avoid synchronous cascading render warning
+    const timer = setTimeout(() => {
+      setWatchHistory(history);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleRemove = (id: string, e: React.MouseEvent) => {
@@ -37,7 +41,7 @@ export function WatchHistory() {
       whileInView="visible"
       viewport={{ once: true }}
       variants={fadeIn}
-      className="relative mt-[40px] md:-mt-[100px] pt-[60px] md:pt-[120px] px-6 md:px-10 lg:px-14"
+      className="relative mt-[40px] md:-mt-[100px] pt-[60px] md:pt-[120px] px-6 md:px-14 lg:px-20"
     >
 
       <h2 className="text-[20px] md:text-[24px] font-black text-white mb-[25px] uppercase tracking-[1px] flex items-center gap-3 relative z-20">
