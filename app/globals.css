@@ -1,11 +1,88 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Inter", "Outfit", "Geist", system-ui, sans-serif;
+  --color-brand: #2dd4bf;
+  --color-brand-cyan: #0ed2f7;
+  --color-bg-dark: #060606;
+  --color-accent-glow: rgba(45, 212, 191, 0.15);
+}
+
+:root {
+  --background: #060606;
+  --foreground: #ffffff;
+  --accent-cyan: #0ed2f7;
+  --accent-teal: #2dd4bf;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  /* Atmospheric Foundation */
+  background-image: 
+    radial-gradient(circle at 50% -20%, #001529 0%, transparent 50%),
+    radial-gradient(circle at -10% 40%, #060606 0%, transparent 30%);
+}
+
 @layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+  
+  .glass-heavy {
+    @apply bg-black/60 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-white/5;
+  }
+
+  .text-neon {
+    text-shadow: 0 0 10px var(--accent-teal), 0 0 20px rgba(45, 212, 191, 0.4);
+  }
+
+  .text-outline {
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.2);
+    color: transparent;
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-teal);
+  }
+  
+  .hero-vignette {
+    background: linear-gradient(to top, #060606 0%, rgba(6, 6, 6, 0.8) 15%, transparent 50%),
+                linear-gradient(to right, #060606 0%, rgba(6, 6, 6, 0.3) 10%, transparent 40%),
+                linear-gradient(to bottom, #060606 0%, transparent 20%);
+  }
+
+  .card-hover-glow:hover {
+    box-shadow: 0 0 25px rgba(45, 212, 191, 0.1);
+    border-color: rgba(45, 212, 191, 0.3);
   }
 }

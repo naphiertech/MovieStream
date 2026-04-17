@@ -2,21 +2,23 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Server, Settings } from 'lucide-react';
+import { ArrowLeft, Server, Settings, Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { Movie, VideoSource } from '@/lib/db';
+import { motion } from 'framer-motion';
+import { RecommendationCard } from '@/components/RecommendationCard';
+import { ActorList } from '@/components/ActorList';
 
 export default function WatchPage() {
   const params = useParams();
   const id = params.id as string;
   
-  const [movie, setMovie] = useState<Movie | null>(null);
-  const [sources, setSources] = useState<VideoSource[]>([]);
-  const [activeSource, setActiveSource] = useState<VideoSource | null>(null);
+  const [movie, setMovie] = useState<any>(null);
+  const [sources, setSources] = useState<any[]>([]);
+  const [activeSource, setActiveSource] = useState<any | null>(null);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch movie and sources from our API
     const fetchMovie = async () => {
       try {
         const res = await fetch(`/api/movies/${id}`);
@@ -24,9 +26,18 @@ export default function WatchPage() {
           const data = await res.json();
           setMovie(data);
           setSources(data.sources || []);
-          if (data.sources && data.sources.length > 0) {
-            setActiveSource(data.sources[0]);
-          }
+          setRecommendations(data.recommendations || []);
+          
+          // Default to Vidking if possible, else the first API source
+          const vidkingSource = {
+            id: 'vidking',
+            name: 'Vidking (HQ)',
+            url: `https://www.vidking.net/embed/movie/${data.id}`,
+            quality: '1080p'
+          };
+          
+          setSources([vidkingSource, ...(data.sources || [])]);
+          setActiveSource(vidkingSource);
           
           // Save to watch history
           const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
@@ -37,7 +48,7 @@ export default function WatchPage() {
             posterUrl: data.posterUrl,
             timestamp: Date.now()
           });
-          localStorage.setItem('watchHistory', JSON.stringify(newHistory.slice(0, 20))); // Keep last 20
+          localStorage.setItem('watchHistory', JSON.stringify(newHistory.slice(0, 20)));
         }
       } catch (error) {
         console.error("Failed to fetch movie", error);
@@ -52,26 +63,47 @@ export default function WatchPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#141414] text-white">Loading...</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white">
+        <div className="relative w-20 h-20 mb-8">
+          <div className="absolute inset-0 rounded-full border-4 border-[#2dd4bf]/20"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-t-[#2dd4bf] animate-spin shadow-[0_0_20px_rgba(45,212,191,0.5)]"></div>
+        </div>
+        <p className="text-white font-black text-[12px] uppercase tracking-[4px] animate-pulse">Entering Theater Mode</p>
+      </div>
+    );
   }
 
   if (!movie) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#141414] text-white">Movie not found</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#060606] text-white">
+        <div className="text-center">
+          <h2 className="text-3xl font-black mb-6 uppercase tracking-tight italic">Resource Not Found</h2>
+          <Link href="/" className="px-8 py-3 bg-[#2dd4bf] text-black font-black uppercase tracking-widest rounded-full hover:bg-[#0ed2f7] transition-all">
+            Return Home
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col pt-16">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href={`/movie/${movie.id}`} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-          <ArrowLeft size={20} />
-          <span>Back to Details</span>
+    <div className="min-h-screen bg-[#060606] flex flex-col pt-24">
+      <div className="container mx-auto px-6 md:px-14 py-6 flex items-center justify-between">
+        <Link href={`/movie/${movie.id}`} className="group flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 px-5 py-2.5 rounded-2xl text-white/50 hover:text-white hover:border-[#2dd4bf]/40 transition-all duration-300">
+          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-[11px] font-black uppercase tracking-[2px]">Back to details</span>
         </Link>
-        <h1 className="text-white font-bold text-lg md:text-xl truncate max-w-[50%]">{movie.title}</h1>
-        <div className="w-24"></div> {/* Spacer for centering */}
+        <h1 className="text-white font-black text-lg md:text-2xl uppercase italic tracking-tight truncate max-w-[50%] drop-shadow-lg">
+          {movie.title}
+        </h1>
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 border border-[#2dd4bf]/50 text-[#2dd4bf] rounded-lg font-black text-[10px] tracking-[2px] uppercase bg-[#2dd4bf]/5">
+          Pro Mode
+        </div>
       </div>
 
-      {/* Video Player Container */}
-      <div className="w-full max-w-6xl mx-auto aspect-video bg-black relative shadow-2xl shadow-black/50 border border-gray-800 rounded-lg overflow-hidden">
+      {/* Video Player Container - Elite High Fidelity Shadow */}
+      <div className="w-full max-w-[1400px] mx-auto aspect-video bg-black relative shadow-[0_30px_100px_rgba(45,212,191,0.15)] border-y border-white/5 md:border md:rounded-[2rem] overflow-hidden group">
         {activeSource ? (
           <iframe
             src={activeSource.url}
@@ -80,35 +112,39 @@ export default function WatchPage() {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           ></iframe>
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-500">
-            No video sources available
+          <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
+            <Settings size={48} className="animate-spin-slow mb-4" />
+            <p className="font-black uppercase tracking-[2px] text-xs">Awaiting signal...</p>
           </div>
         )}
       </div>
 
       {/* Controls & Server Switch */}
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="bg-[#141414] rounded-xl p-6 border border-gray-800">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="container mx-auto px-6 py-12 max-w-[1400px]">
+        <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-12 border border-white/5 shadow-2xl">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
             
             {/* Server Selection */}
-            <div>
-              <div className="flex items-center gap-2 text-gray-400 mb-3">
-                <Server size={18} />
-                <h3 className="font-semibold text-sm uppercase tracking-wider">Select Server</h3>
+            <div className="flex-grow">
+              <div className="flex items-center gap-3 text-white/30 mb-6">
+                <Server size={18} className="text-[#2dd4bf]" />
+                <h3 className="font-black text-[11px] uppercase tracking-[2px]">Switch Provider</h3>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-4">
                 {sources.map(source => (
                   <button
                     key={source.id}
                     onClick={() => setActiveSource(source)}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                    className={`px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all duration-500 relative overflow-hidden group/btn ${
                       activeSource?.id === source.id 
-                        ? 'bg-red-600 text-white' 
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        ? 'bg-[#2dd4bf] text-black shadow-[0_10px_30px_rgba(45,212,191,0.4)] scale-105' 
+                        : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5 hover:border-white/20'
                     }`}
                   >
                     {source.name}
+                    {activeSource?.id === source.id && (
+                      <motion.div layoutId="activeServer" className="absolute inset-0 bg-white/20 pointer-events-none" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -116,23 +152,50 @@ export default function WatchPage() {
 
             {/* Quality Info */}
             {activeSource && (
-              <div className="flex items-center gap-4 bg-gray-900 px-4 py-3 rounded-lg border border-gray-800">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Settings size={18} />
-                  <span className="text-sm">Quality:</span>
+              <div className="flex items-center gap-6 bg-white/5 px-8 py-6 rounded-3xl border border-white/5 shadow-lg">
+                <div className="flex items-center gap-3 text-white/30">
+                  <Settings size={20} className="text-[#2dd4bf]" />
+                  <span className="text-[11px] font-black uppercase tracking-[2px]">Delivery:</span>
                 </div>
-                <span className="text-green-500 font-bold">{activeSource.quality}</span>
+                <div className="flex flex-col">
+                  <span className="text-white font-black text-xl leading-none italic">{activeSource.quality}</span>
+                  <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[1px] mt-1">Ultra Smooth</span>
+                </div>
               </div>
             )}
           </div>
+
+          {movie.cast && <ActorList cast={movie.cast} />}
           
-          <div className="mt-8 pt-6 border-t border-gray-800">
-            <p className="text-sm text-gray-500">
-              If the current server doesn't work, please try another one. We do not host any files on our servers.
+          <div className="mt-12 pt-8 border-t border-white/5 flex items-center justify-between">
+            <p className="text-[10px] text-white/20 uppercase tracking-[4px] font-black italic">
+              Cinema Support • High Fidelity Streaming Platform
             </p>
+            <div className="hidden sm:flex items-center gap-4">
+              <div className="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[2px]">
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                System Balanced
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* You May Like - Cineby Style */}
+      {recommendations.length > 0 && (
+        <div className="container mx-auto px-6 py-12 max-w-[1400px]">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-1.5 h-8 bg-red-600 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
+            <h2 className="text-2xl font-black text-white uppercase tracking-tight italic">You May Like</h2>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {recommendations.slice(0, 12).map((rec) => (
+              <RecommendationCard key={rec.id} movie={rec} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

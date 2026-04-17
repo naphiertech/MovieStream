@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { movies } from '@/lib/db';
+import { searchMovies } from '@/lib/tmdb';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,10 +9,10 @@ export async function GET(request: Request) {
     return NextResponse.json([]);
   }
 
-  const results = movies.filter(m => 
-    m.title.toLowerCase().includes(q) || 
-    m.description.toLowerCase().includes(q)
-  );
-
-  return NextResponse.json(results);
+  try {
+    const results = await searchMovies(q);
+    return NextResponse.json(results);
+  } catch (error) {
+    return NextResponse.json({ error: 'Search failed' }, { status: 500 });
+  }
 }
