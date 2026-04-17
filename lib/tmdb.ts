@@ -65,6 +65,14 @@ export interface Movie {
   latest: boolean;
   tmdbId: string;
   type?: 'movie' | 'tv';
+  cast?: CastMember[];
+}
+
+export interface CastMember {
+  id: number;
+  name: string;
+  character: string;
+  profileUrl: string | null;
 }
 
 export interface Season {
@@ -183,21 +191,37 @@ export async function searchMovies(query: string) {
 
 export async function getMovieDetails(id: string) {
   const data = await fetchTMDB(`/movie/${id}`);
+  const credits = await fetchTMDB(`/movie/${id}/credits`);
+  
   return {
     ...mapMovie(data, 'movie'),
     duration: `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m`,
     genres: data.genres.map((g: any) => g.name),
+    cast: credits.cast.slice(0, 10).map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      character: c.character,
+      profileUrl: c.profile_path ? `${TMDB_IMAGE_BASE}/w185${c.profile_path}` : null
+    }))
   };
 }
 
 export async function getTVDetails(id: string): Promise<TVShow> {
   const data = await fetchTMDB(`/tv/${id}`);
+  const credits = await fetchTMDB(`/tv/${id}/credits`);
+
   return {
     ...mapMovie(data, 'tv'),
     genres: data.genres.map((g: any) => g.name),
     numberOfSeasons: data.number_of_seasons,
     numberOfEpisodes: data.number_of_episodes,
     seasons: data.seasons,
+    cast: credits.cast.slice(0, 10).map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      character: c.character,
+      profileUrl: c.profile_path ? `${TMDB_IMAGE_BASE}/w185${c.profile_path}` : null
+    }))
   } as TVShow;
 }
 
