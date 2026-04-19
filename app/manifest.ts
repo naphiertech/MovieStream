@@ -41,14 +41,14 @@ export default function manifest(): MetadataRoute.Manifest {
     screenshots: [
       {
         src: '/screenshots/desktop.png',
-        sizes: '1920x1080',
+        sizes: '1584x784',
         type: 'image/png',
         form_factor: 'wide',
         label: 'MovieStream Desktop Experience'
       },
       {
         src: '/screenshots/mobile.png',
-        sizes: '390x844',
+        sizes: '625x939',
         type: 'image/png',
         form_factor: 'narrow',
         label: 'MovieStream Mobile Experience'
