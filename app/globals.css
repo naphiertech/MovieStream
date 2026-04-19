@@ -27,6 +27,29 @@ body {
     radial-gradient(circle at -10% 40%, #060606 0%, transparent 30%);
 }
 
+/* --- Global Elite Scrollbar --- */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #060606;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  border: 3px solid #060606; /* Slimming effect */
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-teal);
+  border: 3px solid #060606;
+  background-clip: padding-box;
+}
+
+
 @layer utilities {
   .glass {
     @apply bg-white/5 backdrop-blur-md border border-white/10;
