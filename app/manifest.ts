@@ -14,53 +14,17 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ['entertainment', 'movies', 'video'],
     icons: [
       {
-        src: '/icons/icon-192.png',
-        sizes: '144x144',
-        type: 'image/jpeg',
+        src: '/icons/icon-640.png',
+        sizes: '640x640',
+        type: 'image/png',
         purpose: 'any',
       },
       {
-        src: '/icons/icon-192.png',
-        sizes: '144x144',
-        type: 'image/jpeg',
+        src: '/icons/icon-640.png',
+        sizes: '640x640',
+        type: 'image/png',
         purpose: 'maskable',
-      },
-      {
-        src: '/icons/icon-192.png',
-        sizes: '192x192',
-        type: 'image/jpeg',
-        purpose: 'any',
-      },
-      {
-        src: '/icons/icon-192.png',
-        sizes: '192x192',
-        type: 'image/jpeg',
-        purpose: 'maskable',
-      },
-      {
-        src: '/icons/icon-512.png',
-        sizes: '384x384',
-        type: 'image/jpeg',
-        purpose: 'any',
-      },
-      {
-        src: '/icons/icon-512.png',
-        sizes: '384x384',
-        type: 'image/jpeg',
-        purpose: 'maskable',
-      },
-      {
-        src: '/icons/icon-512.png',
-        sizes: '512x512',
-        type: 'image/jpeg',
-        purpose: 'any',
-      },
-      {
-        src: '/icons/icon-512.png',
-        sizes: '512x512',
-        type: 'image/jpeg',
-        purpose: 'maskable',
-      },
+      }
     ],
     screenshots: [
       {
