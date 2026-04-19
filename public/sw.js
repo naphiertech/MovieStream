@@ -1,15 +1,19 @@
-const CACHE_NAME = 'moviestream-v1';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'moviestream-pro-v2';
+
+// Standard assets to precache
+const PRECACHE_ASSETS = [
   '/',
-  '/manifest.webmanifest',
+  '/manifest.json',
   '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/icon-512.png',
+  '/screenshots/mobile.png',
+  '/screenshots/desktop.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(PRECACHE_ASSETS);
     })
   );
   self.skipWaiting();
@@ -17,13 +21,9 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
       );
     })
   );
@@ -31,9 +31,28 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Stale-while-revalidate strategy for the most responsive feel
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        // Return cached response but refresh it in the background
+        fetch(event.request).then((networkResponse) => {
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, networkResponse);
+          });
+        });
+        return cachedResponse;
+      }
+
+      return fetch(event.request).then((networkResponse) => {
+        return caches.open(CACHE_NAME).then((cache) => {
+          // Cache the new resource for future use
+          if (event.request.method === 'GET') {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        });
+      });
     })
   );
 });
