@@ -123,18 +123,18 @@ const mapMovie = (m: any, type: 'movie' | 'tv' = 'movie'): Movie => ({
   type,
 });
 
-export async function getTrendingMovies() {
-  const data = await fetchTMDB('/trending/movie/week');
+export async function getTrendingMovies(page: number = 1) {
+  const data = await fetchTMDB('/trending/movie/week', { page: page.toString() });
   return data.results.map((m: any) => mapMovie(m, 'movie'));
 }
 
-export async function getTrendingTV() {
-  const data = await fetchTMDB('/trending/tv/week');
+export async function getTrendingTV(page: number = 1) {
+  const data = await fetchTMDB('/trending/tv/week', { page: page.toString() });
   return data.results.map((m: any) => mapMovie(m, 'tv'));
 }
 
-export async function getTrendingAll() {
-  const data = await fetchTMDB('/trending/all/week');
+export async function getTrendingAll(page: number = 1) {
+  const data = await fetchTMDB('/trending/all/week', { page: page.toString() });
   return data.results.map((m: any) => mapMovie(m, m.media_type));
 }
 
@@ -169,23 +169,23 @@ export async function getTrendingMediaWithLogos(type: 'all' | 'movie' | 'tv' = '
   return mediaWithLogos;
 }
 
-export async function getUpcomingMovies() {
-  const data = await fetchTMDB('/movie/upcoming');
+export async function getUpcomingMovies(page: number = 1) {
+  const data = await fetchTMDB('/movie/upcoming', { page: page.toString() });
   return data.results.map((m: any) => mapMovie(m, 'movie'));
 }
 
-export async function getTopRatedMovies() {
-  const data = await fetchTMDB('/movie/top_rated');
+export async function getTopRatedMovies(page: number = 1) {
+  const data = await fetchTMDB('/movie/top_rated', { page: page.toString() });
   return data.results.map((m: any) => mapMovie(m, 'movie'));
 }
 
-export async function getTopRatedTV() {
-  const data = await fetchTMDB('/tv/top_rated');
+export async function getTopRatedTV(page: number = 1) {
+  const data = await fetchTMDB('/tv/top_rated', { page: page.toString() });
   return data.results.map((m: any) => mapMovie(m, 'tv'));
 }
 
-export async function getPopularTV() {
-  const data = await fetchTMDB('/tv/popular');
+export async function getPopularTV(page: number = 1) {
+  const data = await fetchTMDB('/tv/popular', { page: page.toString() });
   return data.results.map((m: any) => mapMovie(m, 'tv'));
 }
 
@@ -242,13 +242,13 @@ export async function getSeasonDetails(tvId: string, seasonNumber: number) {
   return data;
 }
 
-export async function getMoviesByGenre(genreId: string) {
-  const data = await fetchTMDB('/discover/movie', { with_genres: genreId });
+export async function getMoviesByGenre(genreId: string, page: number = 1) {
+  const data = await fetchTMDB('/discover/movie', { with_genres: genreId, page: page.toString() });
   return data.results.map((m: any) => mapMovie(m, 'movie'));
 }
 
-export async function getTVByGenre(genreId: string) {
-  const data = await fetchTMDB('/discover/tv', { with_genres: genreId });
+export async function getTVByGenre(genreId: string, page: number = 1) {
+  const data = await fetchTMDB('/discover/tv', { with_genres: genreId, page: page.toString() });
   return data.results.map((m: any) => mapMovie(m, 'tv'));
 }
 
@@ -262,10 +262,10 @@ export async function getRecommendations(id: string, type: 'movie' | 'tv' = 'mov
   }
 }
 
-export async function getGenres(type: 'movie' | 'tv' = 'movie'): Promise<string[]> {
+export async function getGenres(type: 'movie' | 'tv' = 'movie'): Promise<Genre[]> {
   try {
     const data = await fetchTMDB(`/genre/${type}/list`);
-    return data.genres.map((g: any) => g.name);
+    return data.genres;
   } catch (error) {
     console.error(`Error fetching genres for ${type}:`, error);
     return [];
