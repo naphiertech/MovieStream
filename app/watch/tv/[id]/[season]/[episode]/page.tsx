@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Server, Settings, Loader2, ChevronRight, Zap, Smartphone } from 'lucide-react';
+import { ArrowLeft, Server, Settings, Loader2, ChevronRight, Zap, Smartphone, Timer } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getTVDetails, getSeasonDetails, TVShow, Episode } from '@/lib/tmdb';
 import { ActorList } from '@/components/ActorList';
+import { SubtitleOverlay } from '@/components/SubtitleOverlay';
 import { lockLandscape, isMobile } from '@/lib/orientation';
 
 export default function TVWatchPage() {
@@ -24,6 +25,7 @@ export default function TVWatchPage() {
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showShield, setShowShield] = useState(true);
+  const [showSubtitleSync, setShowSubtitleSync] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
 
@@ -98,24 +100,12 @@ export default function TVWatchPage() {
         }
         setNextEpisode(next);
 
-        // Map sources
+        // Map sources - Only Vidking is working reliably
         const sourcesList = [
           {
             id: 'vk1',
             name: "Vidking (HQ)",
             url: `https://www.vidking.net/embed/tv/${id}/${season}/${episode}`,
-            quality: "1080p"
-          },
-          {
-            id: 'vs1',
-            name: "VidSrc Pro (4K)",
-            url: `https://vidsrc.to/embed/tv/${id}/${season}/${episode}`,
-            quality: "4K HDR"
-          },
-          {
-            id: 'vs2',
-            name: "SuperStream (HD)",
-            url: `https://vidsrc.me/embed/tv?tmdb=${id}&sea=${season}&epi=${episode}`,
             quality: "1080p"
           }
         ];
@@ -198,6 +188,9 @@ export default function TVWatchPage() {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             ></iframe>
             
+            {/* Custom Subtitle Overlay */}
+            {showSubtitleSync && <SubtitleOverlay />}
+            
             {/* Ad Blocking Shield Overlay */}
             <AnimatePresence>
               {showShield && (
@@ -276,6 +269,19 @@ export default function TVWatchPage() {
                       {source.name}
                     </button>
                   ))}
+                  
+                  {/* Subtitle Sync Toggle */}
+                  <button
+                    onClick={() => setShowSubtitleSync(!showSubtitleSync)}
+                    className={`px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 border border-white/5 ${
+                      showSubtitleSync 
+                        ? 'bg-[#2dd4bf]/20 text-[#2dd4bf] border-[#2dd4bf]/40 shadow-[0_0_15px_rgba(45,212,191,0.2)]' 
+                        : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <Timer size={14} className={showSubtitleSync ? 'animate-pulse' : ''} />
+                    Sync Subtitles
+                  </button>
                 </div>
               </div>
               
@@ -303,7 +309,9 @@ export default function TVWatchPage() {
             </div>
           </div>
 
-          {show.cast && <ActorList cast={show.cast} />}
+          <div className="mt-16">
+            {show.cast && <ActorList cast={show.cast} />}
+          </div>
 
         </div>
       </div>
