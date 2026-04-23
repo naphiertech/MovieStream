@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Server, Settings, Loader2, Zap, Smartphone } from 'lucide-react';
+import { ArrowLeft, Server, Settings, Loader2, Zap, Smartphone, Timer } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RecommendationCard } from '@/components/RecommendationCard';
 import { ActorList } from '@/components/ActorList';
+import { SubtitleOverlay } from '@/components/SubtitleOverlay';
 import { lockLandscape, isMobile } from '@/lib/orientation';
 
 export default function WatchPage() {
@@ -19,6 +20,7 @@ export default function WatchPage() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showShield, setShowShield] = useState(true);
+  const [showSubtitleSync, setShowSubtitleSync] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
 
@@ -162,6 +164,9 @@ export default function WatchPage() {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             ></iframe>
             
+            {/* Custom Subtitle Overlay */}
+            {showSubtitleSync && <SubtitleOverlay />}
+            
             {/* Ad Blocking Shield Overlay */}
             <AnimatePresence>
               {showShield && (
@@ -244,6 +249,21 @@ export default function WatchPage() {
                     )}
                   </button>
                 ))}
+                
+                {/* Subtitle Sync Toggle */}
+                <button
+                  onClick={() => setShowSubtitleSync(!showSubtitleSync)}
+                  className={`px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all duration-500 relative overflow-hidden group/btn border border-white/5 ${
+                    showSubtitleSync 
+                      ? 'bg-[#2dd4bf]/20 text-[#2dd4bf] border-[#2dd4bf]/40' 
+                      : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Timer size={16} className={showSubtitleSync ? 'animate-pulse' : ''} />
+                    Sync Pro Subtitles
+                  </div>
+                </button>
               </div>
             </div>
 
@@ -262,7 +282,9 @@ export default function WatchPage() {
             )}
           </div>
 
-          {movie.cast && <ActorList cast={movie.cast} />}
+          <div className="mt-16">
+            {movie.cast && <ActorList cast={movie.cast} />}
+          </div>
           
           <div className="mt-12 pt-8 border-t border-white/5 flex items-center justify-between">
             <p className="text-[10px] text-white/20 uppercase tracking-[4px] font-black italic">
