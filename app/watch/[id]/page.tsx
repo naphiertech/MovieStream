@@ -19,7 +19,9 @@ export default function WatchPage() {
   const [activeSource, setActiveSource] = useState<any | null>(null);
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showShield, setShowShield] = useState(true);
+  const [shieldClicks, setShieldClicks] = useState(0);
   const [showSubtitleSync, setShowSubtitleSync] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
@@ -69,56 +71,81 @@ export default function WatchPage() {
 
   useEffect(() => {
     const fetchMovie = async () => {
+      setLoading(true);
+      setError(null);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
       try {
-        const res = await fetch(`/api/movies/${id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setMovie(data);
-          setSources(data.sources || []);
-          setRecommendations(data.recommendations || []);
-          
-          // Default to Vidking if possible, else the first API source
-          const vidkingSource = {
-            id: 'vidking',
-            name: 'Vidking (HQ)',
-            url: `https://www.vidking.net/embed/movie/${data.id}`,
-            quality: '1080p'
-          };
-          
-          setSources([vidkingSource, ...(data.sources || [])]);
-          setActiveSource(vidkingSource);
-          
-          // Save to watch history
-          const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
-          const newHistory = history.filter((h: any) => h.id !== data.id);
-          newHistory.unshift({
-            id: data.id,
-            title: data.title,
-            posterUrl: data.posterUrl,
-            timestamp: Date.now()
-          });
-          localStorage.setItem('watchHistory', JSON.stringify(newHistory.slice(0, 20)));
-        }
-      } catch (error) {
-        console.error("Failed to fetch movie", error);
+        const res = await fetch(`/api/movies/${id}`, { signal: controller.signal });
+        if (!res.ok) throw new Error('Could not connect to Movie Server');
+        const data = await res.json();
+        
+        setMovie(data);
+        setRecommendations(data.recommendations || []);
+        
+        // Default to Vidking if possible
+        const vidkingSource = {
+          id: 'vidking',
+          name: 'Vidking (HQ)',
+          url: `https://www.vidking.net/embed/movie/${data.id}`,
+          quality: '1080p'
+        };
+        
+        const sourcesList = [vidkingSource, ...(data.sources || [])];
+        setSources(sourcesList);
+        setActiveSource(sourcesList[0]);
+        
+        // Save history
+        const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
+        const newHistory = history.filter((h: any) => h.id !== data.id);
+        newHistory.unshift({
+          id: data.id,
+          title: data.title,
+          posterUrl: data.posterUrl,
+          timestamp: Date.now(),
+          type: 'movie'
+        });
+        localStorage.setItem('watchHistory', JSON.stringify(newHistory.slice(0, 20)));
+
+      } catch (err: any) {
+        console.error("Movie Data Fetch Error:", err);
+        setError(err.name === 'AbortError' ? 'Signal Timeout: Server is taking too long to respond.' : err.message);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchMovie();
-    }
+    if (id) fetchMovie();
   }, [id]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white">
-        <div className="relative w-20 h-20 mb-8">
-          <div className="absolute inset-0 rounded-full border-4 border-[#2dd4bf]/20"></div>
-          <div className="absolute inset-0 rounded-full border-4 border-t-[#2dd4bf] animate-spin shadow-[0_0_20px_rgba(45,212,191,0.5)]"></div>
+        <Loader2 className="animate-spin text-[#2dd4bf] mb-8" size={64} />
+        <p className="text-white font-black text-[12px] uppercase tracking-[4px] animate-pulse">Syncing Signal...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white px-10 text-center">
+        <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-8 border border-red-500/20">
+          <Settings size={40} className="animate-pulse" />
         </div>
-        <p className="text-white font-black text-[12px] uppercase tracking-[4px] animate-pulse">Entering Theater Mode</p>
+        <h2 className="text-white font-black text-2xl uppercase italic tracking-tight mb-4">Signal Interrupted</h2>
+        <p className="text-white/40 text-[10px] font-black uppercase tracking-[2px] max-w-md leading-relaxed mb-10">
+          {error}
+        </p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-10 py-4 bg-white text-black font-black text-[12px] uppercase tracking-[2px] rounded-2xl hover:bg-[#2dd4bf] transition-all"
+        >
+          Re-initialize Signal
+        </button>
       </div>
     );
   }
@@ -173,30 +200,68 @@ export default function WatchPage() {
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={async () => {
-                    setShowShield(false);
-                    if (playerRef.current && isMobile()) {
-                      await lockLandscape(playerRef.current);
+                    const newCount = shieldClicks + 1;
+                    if (newCount >= 3) {
+                      setShowShield(false);
+                      if (playerRef.current && isMobile()) {
+                        await lockLandscape(playerRef.current);
+                      }
+                    } else {
+                      setShieldClicks(newCount);
                     }
                   }}
-                  className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] cursor-pointer group/shield flex items-center justify-center"
+                  className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[4px] cursor-pointer group/shield flex items-center justify-center"
                 >
-                  <div className="bg-black/60 backdrop-blur-3xl border border-white/10 px-8 py-5 rounded-3xl flex flex-col items-center gap-4 transform group-hover/shield:scale-105 transition-all duration-500 shadow-2xl overflow-hidden">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-[#2dd4bf]/10 flex items-center justify-center text-[#2dd4bf]">
-                        <Zap className="fill-[#2dd4bf]" size={24} />
+                  <div className="bg-black/80 backdrop-blur-3xl border border-[#2dd4bf]/20 px-10 py-8 rounded-[2.5rem] flex flex-col items-center gap-6 transform group-hover/shield:scale-105 transition-all duration-500 shadow-[0_0_50px_rgba(45,212,191,0.2)] overflow-hidden relative">
+                    
+                    {/* Progress Ring */}
+                    <div className="absolute inset-0 opacity-10 pointer-events-none">
+                      <div 
+                        className="w-full h-full border-[10px] border-[#2dd4bf] rounded-[2.5rem] transition-all duration-500"
+                        style={{ clipPath: `inset(${100 - (shieldClicks * 33.3)}% 0 0 0)` }}
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-5">
+                      <div className="relative">
+                        <div className="w-16 h-16 rounded-full bg-[#2dd4bf]/10 flex items-center justify-center text-[#2dd4bf]">
+                          <Zap className={shieldClicks > 0 ? "fill-[#2dd4bf] animate-pulse" : ""} size={32} />
+                        </div>
+                        {shieldClicks > 0 && (
+                          <motion.div 
+                            initial={{ scale: 0 }} 
+                            animate={{ scale: 1 }} 
+                            className="absolute -top-1 -right-1 w-6 h-6 bg-[#2dd4bf] rounded-full flex items-center justify-center text-black text-[10px] font-black"
+                          >
+                            {shieldClicks}/3
+                          </motion.div>
+                        )}
                       </div>
                       <div>
-                        <h4 className="text-white font-black text-xs uppercase tracking-[3px]">Secure Signal Ready</h4>
-                        <p className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[1px] mt-1">Click to Initialize Player</p>
+                        <h4 className="text-white font-black text-sm uppercase tracking-[4px]">
+                          {shieldClicks === 0 ? 'Initialize Signal' : shieldClicks === 1 ? 'Clearing Node 1' : 'Clearing Node 2'}
+                        </h4>
+                        <p className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[1px] mt-1.5 opacity-60">
+                          {shieldClicks === 0 ? 'Triple-click to secure player' : 'Keep clicking to stabilize'}
+                        </p>
                       </div>
                     </div>
 
+                    <div className="flex gap-2">
+                      {[1, 2, 3].map((i) => (
+                        <div 
+                          key={i} 
+                          className={`w-12 h-1.5 rounded-full transition-all duration-300 ${i <= shieldClicks ? 'bg-[#2dd4bf] shadow-[0_0_10px_rgba(45,212,191,0.5)]' : 'bg-white/10'}`} 
+                        />
+                      ))}
+                    </div>
+
                     {/* Mobile Orientation Hint */}
-                    {isPortrait && (
+                    {isPortrait && shieldClicks === 0 && (
                       <motion.div 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-4 flex items-center gap-3 px-4 py-2 bg-[#2dd4bf]/10 rounded-xl border border-[#2dd4bf]/20 sm:hidden"
+                        className="mt-2 flex items-center gap-3 px-5 py-2.5 bg-[#2dd4bf]/10 rounded-2xl border border-[#2dd4bf]/20 sm:hidden"
                       >
                         <motion.div
                           animate={{ rotate: 90 }}
@@ -204,7 +269,7 @@ export default function WatchPage() {
                         >
                           <Smartphone size={16} className="text-[#2dd4bf]" />
                         </motion.div>
-                        <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[1px]">Landscape recommended</span>
+                        <span className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[1px]">Landscape recommended</span>
                       </motion.div>
                     )}
                   </div>
