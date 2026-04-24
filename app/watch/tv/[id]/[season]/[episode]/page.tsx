@@ -183,7 +183,6 @@ export default function TVWatchPage() {
               src={activeSource.url}
               className="w-full h-full border-0"
               allowFullScreen
-              sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
               referrerPolicy="no-referrer"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             ></iframe>
