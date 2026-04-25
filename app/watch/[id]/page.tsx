@@ -22,6 +22,7 @@ export default function WatchPage() {
   const [error, setError] = useState<string | null>(null);
   const [showShield, setShowShield] = useState(true);
   const [shieldClicks, setShieldClicks] = useState(0);
+  const [isStabilizing, setIsStabilizing] = useState(false);
   const [showSubtitleSync, setShowSubtitleSync] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
@@ -200,12 +201,18 @@ export default function WatchPage() {
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={async () => {
+                    if (isStabilizing) return;
                     const newCount = shieldClicks + 1;
                     if (newCount >= 3) {
-                      setShowShield(false);
-                      if (playerRef.current && isMobile()) {
-                        await lockLandscape(playerRef.current);
-                      }
+                      setShieldClicks(3);
+                      setIsStabilizing(true);
+                      // Visual delay to "exhaust" ad triggers
+                      setTimeout(async () => {
+                        setShowShield(false);
+                        if (playerRef.current && isMobile()) {
+                          await lockLandscape(playerRef.current);
+                        }
+                      }, 1500);
                     } else {
                       setShieldClicks(newCount);
                     }
@@ -221,13 +228,16 @@ export default function WatchPage() {
                         style={{ clipPath: `inset(${100 - (shieldClicks * 33.3)}% 0 0 0)` }}
                       />
                     </div>
+                    {isStabilizing && (
+                      <div className="absolute inset-0 bg-[#2dd4bf]/5 animate-pulse pointer-events-none" />
+                    )}
 
                     <div className="flex items-center gap-5">
                       <div className="relative">
                         <div className="w-16 h-16 rounded-full bg-[#2dd4bf]/10 flex items-center justify-center text-[#2dd4bf]">
                           <Zap className={shieldClicks > 0 ? "fill-[#2dd4bf] animate-pulse" : ""} size={32} />
                         </div>
-                        {shieldClicks > 0 && (
+                        {shieldClicks > 0 && !isStabilizing && (
                           <motion.div 
                             initial={{ scale: 0 }} 
                             animate={{ scale: 1 }} 
@@ -239,10 +249,10 @@ export default function WatchPage() {
                       </div>
                       <div>
                         <h4 className="text-white font-black text-sm uppercase tracking-[4px]">
-                          {shieldClicks === 0 ? 'Initialize Signal' : shieldClicks === 1 ? 'Clearing Node 1' : 'Clearing Node 2'}
+                          {isStabilizing ? 'Stabilizing Signal...' : shieldClicks === 0 ? 'Initialize Signal' : shieldClicks === 1 ? 'Clearing Node 1' : 'Clearing Node 2'}
                         </h4>
                         <p className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[1px] mt-1.5 opacity-60">
-                          {shieldClicks === 0 ? 'Triple-click to secure player' : 'Keep clicking to stabilize'}
+                          {isStabilizing ? 'Blocking latent ad nodes...' : shieldClicks === 0 ? 'Triple-click to secure player' : 'Keep clicking to stabilize'}
                         </p>
                       </div>
                     </div>
