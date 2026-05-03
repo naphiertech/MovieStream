@@ -110,22 +110,28 @@ export default function TVWatchPage() {
         // Map sources
         const sourcesList = [
           {
-            id: 'vk1',
-            name: "Vidking (HQ)",
+            id: 'vidlink',
+            name: 'VidLink (Pro)',
+            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf`,
+            quality: '1080p'
+          },
+          {
+            id: 'vidsrc-pro',
+            name: 'VidSrc (Pro)',
+            url: `https://vidsrc.pro/embed/tv/${id}/${season}/${episode}`,
+            quality: '1080p'
+          },
+          {
+            id: 'vixsrc',
+            name: 'VixSrc (Direct)',
+            url: `https://vixsrc.to/embed/tv/${id}/${season}/${episode}`,
+            quality: '1080p'
+          },
+          {
+            id: 'vidking',
+            name: 'Vidking (HQ)',
             url: `https://www.vidking.net/embed/tv/${id}/${season}/${episode}`,
-            quality: "1080p"
-          },
-          {
-            id: 'vl1',
-            name: "VidLink (Pro)",
-            url: `https://vidlink.pro/tv/${id}/${season}/${episode}`,
-            quality: "1080p"
-          },
-          {
-            id: 'vix1',
-            name: "VixSrc (Fast)",
-            url: `https://vixsrc.to/tv/${id}/${season}/${episode}`,
-            quality: "1080p"
+            quality: '1080p'
           }
         ];
         setSources(sourcesList);
@@ -193,31 +199,34 @@ export default function TVWatchPage() {
     );
   }
 
-  if (!show || !currentEpisode) return notFound();
+  if (!show || !currentEpisode) return null;
 
   return (
-    <div className="min-h-screen bg-[#060606] flex flex-col pt-24">
-      
-      <div className="container mx-auto px-5 md:px-14 py-4 md:py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <Link href={`/tv/${show.id}`} className="group flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-2xl text-white/50 hover:text-white hover:border-[#2dd4bf]/40 transition-all duration-300">
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="text-[10px] font-black uppercase tracking-[2px]">Back to series</span>
-        </Link>
-        <div className="flex flex-col items-center flex-grow text-center">
-            <h1 className="text-white font-black text-base md:text-2xl uppercase italic tracking-tight truncate max-w-[280px] md:max-w-[80%] drop-shadow-lg">
-            {show.title}
-            </h1>
-            <p className="text-[#2dd4bf] text-[9px] md:text-[10px] font-black uppercase tracking-[3px] mt-1">
-                S{season} • E{episode} • {currentEpisode.name}
-            </p>
-        </div>
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 border border-[#2dd4bf]/50 text-[#2dd4bf] rounded-lg font-black text-[10px] tracking-[2px] uppercase bg-[#2dd4bf]/5">
-          HQ Stable
+    <div className="min-h-screen bg-[#060606] flex flex-col">
+      {/* Cinematic Header Overlay */}
+      <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none">
+        <div className="bg-gradient-to-b from-black/80 to-transparent pt-10 pb-20 px-6 md:px-14">
+          <div className="container mx-auto flex items-center justify-between pointer-events-auto">
+            <div className="w-20" />
+            
+            <div className="flex flex-col items-center text-center">
+              <h1 className="text-white font-black text-lg md:text-2xl uppercase italic tracking-tight truncate max-w-[300px] md:max-w-xl drop-shadow-2xl">
+                {show.title}
+              </h1>
+              <div className="flex items-center gap-3 mt-1">
+                <span className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[2px]">S{season} E{episode}</span>
+                <div className="w-1 h-1 rounded-full bg-white/20" />
+                <span className="text-white/40 text-[10px] font-black uppercase tracking-[2px] truncate max-w-[150px]">{currentEpisode.name}</span>
+              </div>
+            </div>
+
+            <div className="w-20" />
+          </div>
         </div>
       </div>
 
-      {/* Video Player Container */}
-      <div ref={playerRef} className="w-full max-w-[1400px] mx-auto aspect-video bg-black relative shadow-[0_30px_100px_rgba(45,212,191,0.15)] border-y border-white/5 md:border md:rounded-[2rem] overflow-hidden">
+      {/* Video Player - Full Viewport Elite Mode */}
+      <div ref={playerRef} className="w-full h-[60vh] md:h-[85vh] bg-black relative overflow-hidden group">
         {activeSource ? (
           <div className="relative w-full h-full">
             <iframe
@@ -231,7 +240,7 @@ export default function TVWatchPage() {
             {/* Custom Subtitle Overlay */}
             {showSubtitleSync && <SubtitleOverlay />}
             
-            {/* Ad Blocking Shield Overlay */}
+            {/* Ad Blocking Shield Overlay - Premium Play Button Style */}
             <AnimatePresence>
               {showShield && (
                 <motion.div 
@@ -243,81 +252,57 @@ export default function TVWatchPage() {
                     if (newCount >= 3) {
                       setShieldClicks(3);
                       setIsStabilizing(true);
-                      // Visual delay to "exhaust" ad triggers
                       setTimeout(async () => {
                         setShowShield(false);
                         if (playerRef.current && isMobile()) {
                           await lockLandscape(playerRef.current);
                         }
-                      }, 1500);
+                      }, 1200);
                     } else {
                       setShieldClicks(newCount);
                     }
                   }}
-                  className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[4px] cursor-pointer group/shield flex items-center justify-center"
+                  className="absolute inset-0 z-20 bg-black/40 backdrop-blur-[2px] cursor-pointer flex items-center justify-center"
                 >
-                  <div className="bg-black/80 backdrop-blur-3xl border border-[#2dd4bf]/20 px-10 py-8 rounded-[2.5rem] flex flex-col items-center gap-6 transform group-hover/shield:scale-105 transition-all duration-500 shadow-[0_0_50px_rgba(45,212,191,0.2)] overflow-hidden relative">
+                  {/* Premium Play Button */}
+                  <div className="relative group/play">
+                    {/* Ripple Effects */}
+                    <div className="absolute inset-0 bg-[#2dd4bf]/20 rounded-full animate-ping scale-150 opacity-20" />
+                    <div className="absolute inset-0 bg-[#2dd4bf]/10 rounded-full animate-pulse scale-125 opacity-30" />
                     
-                    {/* Progress Ring */}
-                    <div className="absolute inset-0 opacity-10 pointer-events-none">
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-white/10 backdrop-blur-3xl border border-white/20 flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 group-hover/play:scale-110 group-hover/play:border-[#2dd4bf]/50 group-hover/play:shadow-[0_0_50px_rgba(45,212,191,0.3)]">
+                      {isStabilizing ? (
+                        <Loader2 className="text-[#2dd4bf] animate-spin" size={48} />
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <Zap 
+                            className={`transition-all duration-300 ${shieldClicks > 0 ? "fill-[#2dd4bf] text-[#2dd4bf]" : "text-white"}`} 
+                            size={shieldClicks > 0 ? 48 : 40} 
+                          />
+                          {shieldClicks > 0 && (
+                            <span className="text-white text-[10px] font-black mt-2">
+                              {3 - shieldClicks} CLICKS LEFT
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Progress Fill Overlay */}
                       <div 
-                        className="w-full h-full border-[10px] border-[#2dd4bf] rounded-[2.5rem] transition-all duration-500"
-                        style={{ clipPath: `inset(${100 - (shieldClicks * 33.3)}% 0 0 0)` }}
+                        className="absolute bottom-0 left-0 right-0 bg-[#2dd4bf]/20 transition-all duration-500 pointer-events-none"
+                        style={{ height: `${(shieldClicks / 3) * 100}%` }}
                       />
                     </div>
-                    {isStabilizing && (
-                      <div className="absolute inset-0 bg-[#2dd4bf]/5 animate-pulse pointer-events-none" />
-                    )}
-
-                    <div className="flex items-center gap-5">
-                      <div className="relative">
-                        <div className="w-16 h-16 rounded-full bg-[#2dd4bf]/10 flex items-center justify-center text-[#2dd4bf]">
-                          <Zap className={shieldClicks > 0 ? "fill-[#2dd4bf] animate-pulse" : ""} size={32} />
-                        </div>
-                        {shieldClicks > 0 && !isStabilizing && (
-                          <motion.div 
-                            initial={{ scale: 0 }} 
-                            animate={{ scale: 1 }} 
-                            className="absolute -top-1 -right-1 w-6 h-6 bg-[#2dd4bf] rounded-full flex items-center justify-center text-black text-[10px] font-black"
-                          >
-                            {shieldClicks}/3
-                          </motion.div>
-                        )}
-                      </div>
-                      <div>
-                        <h4 className="text-white font-black text-sm uppercase tracking-[4px]">
-                          {isStabilizing ? 'Stabilizing Signal...' : shieldClicks === 0 ? 'Initialize Signal' : shieldClicks === 1 ? 'Clearing Node 1' : 'Clearing Node 2'}
-                        </h4>
-                        <p className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[1px] mt-1.5 opacity-60">
-                          {isStabilizing ? 'Blocking latent ad nodes...' : shieldClicks === 0 ? 'Triple-click to secure player' : 'Keep clicking to stabilize'}
+                    
+                    {!isStabilizing && shieldClicks === 0 && (
+                      <div className="absolute top-full mt-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                        <p className="text-white font-black text-[12px] uppercase tracking-[4px] drop-shadow-lg text-center">
+                          Initialize TV Signal
+                        </p>
+                        <p className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[2px] mt-2 text-center opacity-70">
+                          Secure Episode Link Active
                         </p>
                       </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      {[1, 2, 3].map((i) => (
-                        <div 
-                          key={i} 
-                          className={`w-12 h-1.5 rounded-full transition-all duration-300 ${i <= shieldClicks ? 'bg-[#2dd4bf] shadow-[0_0_10px_rgba(45,212,191,0.5)]' : 'bg-white/10'}`} 
-                        />
-                      ))}
-                    </div>
-
-                    {/* Mobile Orientation Hint */}
-                    {isPortrait && shieldClicks === 0 && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-2 flex items-center gap-3 px-5 py-2.5 bg-[#2dd4bf]/10 rounded-2xl border border-[#2dd4bf]/20 sm:hidden"
-                      >
-                        <motion.div
-                          animate={{ rotate: 90 }}
-                          transition={{ repeat: Infinity, duration: 2, repeatDelay: 1 }}
-                        >
-                          <Smartphone size={16} className="text-[#2dd4bf]" />
-                        </motion.div>
-                        <span className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[1px]">Landscape recommended</span>
-                      </motion.div>
                     )}
                   </div>
                 </motion.div>
@@ -326,8 +311,8 @@ export default function TVWatchPage() {
           </div>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
-            <Settings size={48} className="animate-spin-slow mb-4" />
-            <p className="font-black uppercase tracking-[2px] text-xs">Connecting to Node...</p>
+            <Loader2 className="animate-spin mb-4" />
+            <p className="font-black uppercase tracking-[2px] text-xs">Awaiting TV signal...</p>
           </div>
         )}
       </div>
