@@ -34,19 +34,25 @@ const fetchTMDB = async (endpoint: string, params: Record<string, string> = {}) 
   const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
   Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${process.env.TMDB_ACCESS_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    next: { revalidate: 3600 }, // Cache for 1 hour
-  });
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${process.env.TMDB_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    });
 
-  if (!response.ok) {
-    throw new Error(`TMDB API Error: ${response.statusText}`);
+    if (!response.ok) {
+      console.error(`TMDB API Error: ${response.status} ${response.statusText} for ${url.toString()}`);
+      throw new Error(`TMDB API Error: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error(`Fetch failed for ${url.toString()}:`, error);
+    throw error;
   }
-
-  return response.json();
 };
 
 export interface Movie {
