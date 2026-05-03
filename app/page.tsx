@@ -1,6 +1,6 @@
 import { HeroSection } from '@/components/HeroSection';
-import { MovieRow } from '@/components/MovieRow';
-import { RankedMovieCard } from '@/components/RankedMovieCard';
+import { CarouselRow } from '@/components/CarouselRow';
+import { RankedCarousel } from '@/components/RankedCarousel';
 import { WatchHistory } from '@/components/WatchHistory';
 import { 
   getTrendingMovies, 
@@ -10,35 +10,50 @@ import {
   Movie, 
   getTrendingMediaWithLogos,
   getPopularTV,
-  getTopRatedTV
+  getTopRatedTV,
+  getTrendingTV
 } from '@/lib/tmdb';
 import * as motion from 'framer-motion/client';
 import { Variants } from 'framer-motion';
 
 export default async function Home() {
+  // Safe fetch wrapper to prevent whole page crash on one fetch failure
+  const safeFetch = async <T,>(promise: Promise<T>, fallback: T): Promise<T> => {
+    try {
+      return await promise;
+    } catch (e) {
+      console.error('Data fetch failed, using fallback:', e);
+      return fallback;
+    }
+  };
+
   const [
     heroMedia,
     trendingMovies,
+    trendingTV,
     topRatedMovies,
-    popularTV,
     topRatedTV,
+    popularTV,
     upcomingMovies,
     actionMovies,
-    sciFiMovies
+    sciFiMovies,
+    comedyMovies
   ] = await Promise.all([
-    getTrendingMediaWithLogos('all', 6), // 6 items for the mixed hero
-    getTrendingMovies(),
-    getTopRatedMovies(),
-    getPopularTV(),
-    getTopRatedTV(),
-    getUpcomingMovies(),
-    getMoviesByGenre('28'),
-    getMoviesByGenre('878')
+    safeFetch(getTrendingMediaWithLogos('all', 6), []),
+    safeFetch(getTrendingMovies(), []),
+    safeFetch(getTrendingTV(), []),
+    safeFetch(getTopRatedMovies(), []),
+    safeFetch(getTopRatedTV(), []),
+    safeFetch(getPopularTV(), []),
+    safeFetch(getUpcomingMovies(), []),
+    safeFetch(getMoviesByGenre('28'), []),
+    safeFetch(getMoviesByGenre('878'), []),
+    safeFetch(getMoviesByGenre('35'), [])
   ]);
 
   const fadeIn: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
   };
 
   return (
@@ -49,55 +64,57 @@ export default async function Home() {
         {/* Watch History Section (Client Side) */}
         <WatchHistory />
 
-        {/* Top 10 Ranked Section */}
-        <motion.section 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeIn}
-          className="pt-[40px] pb-[60px] px-6 md:px-14 lg:px-20 overflow-hidden"
-        >
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-[24px] font-black text-white uppercase tracking-[1px] flex items-center gap-3">
-              <span className="w-2 h-7 bg-[#2dd4bf] rounded-full shadow-[0_0_15px_rgba(45,212,191,0.5)]" />
-              Top 10 This Week
-            </h2>
-          </div>
-          <div className="flex gap-[30px] overflow-x-auto pb-10 custom-scrollbar scroll-smooth">
-            {trendingMovies.slice(0, 10).map((movie: Movie, index: number) => (
-              <div key={movie.id} className="flex-shrink-0 w-[240px]">
-                <RankedMovieCard movie={movie} index={index} />
-              </div>
-            ))}
-          </div>
-        </motion.section>
+        {/* Top 10 This Week - Enhanced with arrows */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <RankedCarousel title="Top 10 Today" movies={trendingMovies.slice(0, 10)} />
+        </motion.div>
 
-        {/* Combined Media Rows */}
-        <div className="px-6 md:px-14 lg:px-20 flex flex-col gap-10">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-            <MovieRow title="Popular TV Series" movies={popularTV} />
-          </motion.div>
+        {/* Trending Today - With Movies/Series Toggle */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <CarouselRow 
+            title="Trending Today" 
+            movies={trendingMovies} 
+            altMovies={trendingTV}
+            mainLabel="Movies"
+            altLabel="Series"
+          />
+        </motion.div>
 
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-            <MovieRow title="Latest Action Hits" movies={actionMovies} viewAllLink="/genres/Action" />
-          </motion.div>
+        {/* Popular TV Series */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <CarouselRow title="Popular TV Series" movies={popularTV} />
+        </motion.div>
 
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-            <MovieRow title="Acclaimed Series" movies={topRatedTV} />
-          </motion.div>
-          
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-            <MovieRow title="Trending Sci-Fi" movies={sciFiMovies} viewAllLink="/genres/Sci-Fi" />
-          </motion.div>
+        {/* Top Rated - With Movies/Series Toggle */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <CarouselRow 
+            title="Top Rated" 
+            movies={topRatedMovies} 
+            altMovies={topRatedTV}
+            mainLabel="Movies"
+            altLabel="Series"
+          />
+        </motion.div>
 
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-            <MovieRow title="Top Rated Classics" movies={topRatedMovies} viewAllLink="/movies?filter=top" />
-          </motion.div>
+        {/* Action Hits */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <CarouselRow title="Latest Action Hits" movies={actionMovies} viewAllLink="/genres/Action" />
+        </motion.div>
 
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-            <MovieRow title="Coming Soon" movies={upcomingMovies} viewAllLink="/movies?filter=upcoming" />
-          </motion.div>
-        </div>
+        {/* Sci-Fi */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <CarouselRow title="Trending Sci-Fi" movies={sciFiMovies} viewAllLink="/genres/Sci-Fi" />
+        </motion.div>
+
+        {/* Comedy */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <CarouselRow title="Comedy" movies={comedyMovies} viewAllLink="/genres/Comedy" />
+        </motion.div>
+
+        {/* Coming Soon */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <CarouselRow title="Coming Soon" movies={upcomingMovies} />
+        </motion.div>
       </div>
     </div>
   );
