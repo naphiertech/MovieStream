@@ -21,32 +21,37 @@ export default async function TvShowsPage({
   let title = "All Series";
   let subtitle = "Exploring the Pro Catalog";
 
-  if (genre) {
-    const activeGenre = genres.find(g => g.id.toString() === genre);
-    initialItems = await getTVByGenre(genre);
-    title = activeGenre ? `${activeGenre.name} Series` : "Genre Collection";
-    subtitle = "Sector Specific Discovery";
-  } else if (filter === 'trending') {
-    initialItems = await getTrendingTV();
-    title = "Trending Now";
-    subtitle = "Most watched this week";
-  } else if (filter === 'popular') {
-    initialItems = await getPopularTV();
-    title = "Popular Shows";
-    subtitle = "Most loved by the community";
-  } else if (filter === 'top') {
-    initialItems = await getTopRatedTV();
-    title = "Top Rated";
-    subtitle = "All-time television legends";
-  } else if (filter === 'anime') {
-    const animeGenre = genres.find(g => g.name === 'Animation');
-    initialItems = await getTVByGenre(animeGenre?.id.toString() || '16');
-    title = "Epic Anime";
-    subtitle = "The best in global animation";
-  } else {
-    initialItems = await getTrendingTV();
-    title = "TV Show Catalog";
-    subtitle = "Premium high-fidelity titles";
+  try {
+    if (genre) {
+      const activeGenre = genres.find(g => g.id.toString() === genre);
+      initialItems = await getTVByGenre(genre);
+      title = activeGenre ? `${activeGenre.name} Series` : "Genre Collection";
+      subtitle = "Sector Specific Discovery";
+    } else if (filter === 'trending') {
+      initialItems = await getTrendingTV();
+      title = "Trending Now";
+      subtitle = "Most watched this week";
+    } else if (filter === 'popular') {
+      initialItems = await getPopularTV();
+      title = "Popular Shows";
+      subtitle = "Most loved by the community";
+    } else if (filter === 'top') {
+      initialItems = await getTopRatedTV();
+      title = "Top Rated";
+      subtitle = "All-time television legends";
+    } else if (filter === 'anime') {
+      const animeGenre = genres.find(g => g.name === 'Animation');
+      initialItems = await getTVByGenre(animeGenre?.id.toString() || '16');
+      title = "Epic Anime";
+      subtitle = "The best in global animation";
+    } else {
+      initialItems = await getTrendingTV();
+      title = "TV Show Catalog";
+      subtitle = "Premium high-fidelity titles";
+    }
+  } catch (error) {
+    console.error("Failed to fetch TV shows:", error);
+    initialItems = [];
   }
 
   return (
