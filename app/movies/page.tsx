@@ -21,27 +21,32 @@ export default async function MoviesPage({
   let title = "All Movies";
   let subtitle = "Exploring the Pro Catalog";
 
-  if (genre) {
-    const activeGenre = genres.find(g => g.id.toString() === genre);
-    initialItems = await getMoviesByGenre(genre);
-    title = activeGenre ? `${activeGenre.name} Movies` : "Genre Collection";
-    subtitle = "Sector Specific Discovery";
-  } else if (filter === 'trending') {
-    initialItems = await getTrendingMovies();
-    title = "Trending Now";
-    subtitle = "Most watched this week";
-  } else if (filter === 'latest' || filter === 'upcoming') {
-    initialItems = await getUpcomingMovies();
-    title = "Coming Soon";
-    subtitle = "Be the first to watch";
-  } else if (filter === 'top') {
-    initialItems = await getTopRatedMovies();
-    title = "Top Rated";
-    subtitle = "All-time cinematic classics";
-  } else {
-    initialItems = await getTrendingMovies();
-    title = "Movie Catalog";
-    subtitle = "Premium high-fidelity titles";
+  try {
+    if (genre) {
+      const activeGenre = genres.find(g => g.id.toString() === genre);
+      initialItems = await getMoviesByGenre(genre);
+      title = activeGenre ? `${activeGenre.name} Movies` : "Genre Collection";
+      subtitle = "Sector Specific Discovery";
+    } else if (filter === 'trending') {
+      initialItems = await getTrendingMovies();
+      title = "Trending Now";
+      subtitle = "Most watched this week";
+    } else if (filter === 'latest' || filter === 'upcoming') {
+      initialItems = await getUpcomingMovies();
+      title = "Coming Soon";
+      subtitle = "Be the first to watch";
+    } else if (filter === 'top') {
+      initialItems = await getTopRatedMovies();
+      title = "Top Rated";
+      subtitle = "All-time cinematic classics";
+    } else {
+      initialItems = await getTrendingMovies();
+      title = "Movie Catalog";
+      subtitle = "Premium high-fidelity titles";
+    }
+  } catch (error) {
+    console.error("Failed to fetch movies:", error);
+    initialItems = [];
   }
 
   return (
