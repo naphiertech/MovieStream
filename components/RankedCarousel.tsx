@@ -47,7 +47,7 @@ export function RankedCarousel({ title, movies }: RankedCarouselProps) {
   if (!movies.length) return null;
 
   return (
-    <section className="pt-8 pb-10 md:pt-10 md:pb-14 relative group/section overflow-hidden">
+    <section className="pt-0 pb-10 md:pt-0 md:pb-14 relative group/section overflow-hidden">
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6 md:mb-8 px-6 md:px-14 lg:px-20">
         <h2 className="text-[20px] md:text-[24px] font-black text-white uppercase tracking-[0.5px] flex items-center gap-3">
