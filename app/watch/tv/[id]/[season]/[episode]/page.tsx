@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getTVDetails, getSeasonDetails, TVShow, Episode } from '@/lib/tmdb';
 import { ActorList } from '@/components/ActorList';
 import { SubtitleOverlay } from '@/components/SubtitleOverlay';
-import { lockLandscape, isMobile } from '@/lib/orientation';
+import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
 
 export default function TVWatchPage() {
   const params = useParams();
@@ -112,19 +112,19 @@ export default function TVWatchPage() {
           {
             id: 'vidlink',
             name: 'VidLink (Pro)',
-            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf`,
+            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf&autoplay=1`,
             quality: '1080p'
           },
           {
             id: 'vidsrc-pro',
             name: 'VidSrc (Pro)',
-            url: `https://vidsrc.pro/embed/tv/${id}/${season}/${episode}`,
+            url: `https://vidsrc.pro/embed/tv/${id}/${season}/${episode}?autoplay=1`,
             quality: '1080p'
           },
           {
             id: 'vixsrc',
             name: 'VixSrc (Direct)',
-            url: `https://vixsrc.to/embed/tv/${id}/${season}/${episode}`,
+            url: `https://vixsrc.to/embed/tv/${id}/${season}/${episode}?autoplay=1`,
             quality: '1080p'
           },
           {
@@ -207,7 +207,18 @@ export default function TVWatchPage() {
       <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none">
         <div className="bg-gradient-to-b from-black/80 to-transparent pt-10 pb-20 px-6 md:px-14">
           <div className="container mx-auto flex items-center justify-between pointer-events-auto">
-            <div className="w-20" />
+            <Link 
+              href={`/tv/${id}`} 
+              onClick={() => {
+                if (typeof window !== 'undefined' && (document.fullscreenElement || (document as any).webkitFullscreenElement)) {
+                  unlockOrientation();
+                }
+              }}
+              className="group flex items-center gap-3 bg-white/5 backdrop-blur-3xl border border-white/10 px-5 py-2.5 rounded-2xl text-white/50 hover:text-white hover:border-[#2dd4bf]/40 transition-all duration-300"
+            >
+              <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+              <span className="text-[11px] font-black uppercase tracking-[2px]">Exit</span>
+            </Link>
             
             <div className="flex flex-col items-center text-center">
               <h1 className="text-white font-black text-lg md:text-2xl uppercase italic tracking-tight truncate max-w-[300px] md:max-w-xl drop-shadow-2xl">
@@ -220,7 +231,7 @@ export default function TVWatchPage() {
               </div>
             </div>
 
-            <div className="w-20" />
+            <div className="w-24 hidden sm:block" />
           </div>
         </div>
       </div>
