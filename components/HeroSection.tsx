@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Play, Info, Star, Calendar, Clock, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Movie, PLACEHOLDERS } from '@/lib/tmdb';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { TrailerModal } from './TrailerModal';
 
 interface HeroSectionProps {
   movies: Movie[];
@@ -14,6 +15,8 @@ interface HeroSectionProps {
 export function HeroSection({ movies }: HeroSectionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
+  const [trailerKey, setTrailerKey] = useState<string | null>(null);
 
   const nextSlide = useCallback(() => {
     setDirection(1);
@@ -27,9 +30,28 @@ export function HeroSection({ movies }: HeroSectionProps) {
 
   // Auto-play timer (10 seconds)
   useEffect(() => {
+    if (isTrailerOpen) return; // Pause auto-play if trailer is open
     const timer = setInterval(nextSlide, 10000);
     return () => clearInterval(timer);
-  }, [nextSlide]);
+  }, [nextSlide, isTrailerOpen]);
+
+  const handlePlayTrailer = async () => {
+    try {
+      const res = await fetch(`/api/videos/${currentMovie.type}/${currentMovie.id}`);
+      if (!res.ok) throw new Error('Failed to fetch videos');
+      const videos = await res.json();
+      
+      const trailer = videos.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube') || 
+                      videos.find((v: any) => v.site === 'YouTube');
+      
+      setTrailerKey(trailer?.key || null);
+      setIsTrailerOpen(true);
+    } catch (error) {
+      console.error('Trailer Error:', error);
+      setIsTrailerOpen(true); // Still open to show the "No trailer" state
+      setTrailerKey(null);
+    }
+  };
 
   if (!movies || movies.length === 0) return null;
 
@@ -185,19 +207,27 @@ export function HeroSection({ movies }: HeroSectionProps) {
                   <Play size={16} fill="currentColor" className="md:w-5 md:h-5 transition-transform group-hover:scale-110" />
                   Watch Now
                 </Link>
-                <Link 
-                  href={currentMovie.type === 'tv' ? `/tv/${currentMovie.id}` : `/movie/${currentMovie.id}`}
+                <button 
+                  onClick={handlePlayTrailer}
                   className="flex items-center gap-2 md:gap-4 bg-white/5 text-white px-5 md:px-12 py-3.5 md:py-6 rounded-full font-black text-[12px] md:text-[16px] uppercase tracking-wider hover:bg-white/10 transition-all duration-300 backdrop-blur-3xl border border-white/10 hover:border-white/20 active:scale-95 group"
                 >
-                  <Info size={16} className="md:w-5 md:h-5 transition-transform group-hover:rotate-12" />
-                  <span className="hidden sm:inline">Details</span>
-                  <span className="sm:hidden">Info</span>
-                </Link>
+                  <div className="w-5 h-5 md:w-8 md:h-8 rounded-full bg-[#2dd4bf]/20 flex items-center justify-center text-[#2dd4bf] group-hover:bg-[#2dd4bf] group-hover:text-black transition-all">
+                     <Play size={10} fill="currentColor" className="md:w-3 md:h-3" />
+                  </div>
+                  Watch Trailer
+                </button>
               </motion.div>
             </motion.div>
           </div>
         </motion.div>
       </AnimatePresence>
+
+      <TrailerModal 
+        isOpen={isTrailerOpen}
+        onClose={() => setIsTrailerOpen(false)}
+        videoKey={trailerKey}
+        title={currentMovie.title}
+      />
 
       {/* Navigation Controls - Hidden on mobile, except dots */}
       <div className="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-10 md:translate-x-0 bottom-12 md:bottom-10 flex items-center gap-4 z-30">
