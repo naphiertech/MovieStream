@@ -208,11 +208,15 @@ export async function searchMulti(query: string) {
 }
 
 export async function getMovieDetails(id: string) {
-  const data = await fetchTMDB(`/movie/${id}`);
-  const credits = await fetchTMDB(`/movie/${id}/credits`);
+  const [data, credits, logoUrl] = await Promise.all([
+    fetchTMDB(`/movie/${id}`),
+    fetchTMDB(`/movie/${id}/credits`),
+    getMovieLogo(id, 'movie')
+  ]);
   
   return {
     ...mapMovie(data, 'movie'),
+    logoUrl,
     duration: `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m`,
     genres: data.genres.map((g: any) => g.name),
     cast: credits.cast.slice(0, 10).map((c: any) => ({
@@ -225,11 +229,15 @@ export async function getMovieDetails(id: string) {
 }
 
 export async function getTVDetails(id: string): Promise<TVShow> {
-  const data = await fetchTMDB(`/tv/${id}`);
-  const credits = await fetchTMDB(`/tv/${id}/credits`);
+  const [data, credits, logoUrl] = await Promise.all([
+    fetchTMDB(`/tv/${id}`),
+    fetchTMDB(`/tv/${id}/credits`),
+    getMovieLogo(id, 'tv')
+  ]);
 
   return {
     ...mapMovie(data, 'tv'),
+    logoUrl,
     genres: data.genres.map((g: any) => g.name),
     numberOfSeasons: data.number_of_seasons,
     numberOfEpisodes: data.number_of_episodes,
@@ -274,6 +282,16 @@ export async function getGenres(type: 'movie' | 'tv' = 'movie'): Promise<Genre[]
     return data.genres;
   } catch (error) {
     console.error(`Error fetching genres for ${type}:`, error);
+    return [];
+  }
+}
+
+export async function getMovieVideos(id: string, type: 'movie' | 'tv' = 'movie') {
+  try {
+    const data = await fetchTMDB(`/${type}/${id}/videos`);
+    return data.results;
+  } catch (error) {
+    console.error(`Error fetching videos for ${type} ${id}:`, error);
     return [];
   }
 }
