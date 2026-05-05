@@ -1,0 +1,16 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getMovieVideos } from '@/lib/tmdb';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { type: string, id: string } }
+) {
+  try {
+    const { type, id } = await params;
+    const videos = await getMovieVideos(id, type as any);
+    return NextResponse.json(videos);
+  } catch (error) {
+    console.error('Video API Error:', error);
+    return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });
+  }
+}
