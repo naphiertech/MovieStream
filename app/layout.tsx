@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Navbar } from '@/components/Navbar';
-import { MobileNav } from '@/components/MobileNav';
-import { Footer } from '@/components/Footer';
 import { ClientTransition } from '@/components/ClientTransition';
+import { ConditionalLayout } from '@/components/ConditionalLayout';
 import { AntiInspect } from '@/components/AntiInspect';
 import Script from 'next/script';
 
@@ -43,14 +41,11 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           `}
         </Script>
         <AntiInspect />
-        <Navbar />
-        <main className="flex-grow">
+        <ConditionalLayout>
           <ClientTransition>
             {children}
           </ClientTransition>
-        </main>
-        <MobileNav />
-        <Footer />
+        </ConditionalLayout>
       </body>
     </html>
   );
