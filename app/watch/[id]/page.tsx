@@ -89,22 +89,16 @@ export default function WatchPage() {
         // Premium Sources
         const sourcesList = [
           {
+            id: 'moviesapi',
+            name: 'MoviesAPI (Elite)',
+            url: `https://moviesapi.to/movie/${data.id}`,
+            quality: '1080p'
+          },
+          {
             id: 'vidlink',
             name: 'VidLink (Pro)',
             url: `https://vidlink.pro/movie/${data.id}?primaryColor=2dd4bf&autoplay=1`,
             quality: '4K/1080p'
-          },
-          {
-            id: 'vidsrc-pro',
-            name: 'VidSrc (Pro)',
-            url: `https://vidsrc.pro/embed/movie/${data.id}?autoplay=1`,
-            quality: '1080p'
-          },
-          {
-            id: 'vixsrc',
-            name: 'VixSrc (Direct)',
-            url: `https://vixsrc.to/embed/movie/${data.id}?autoplay=1`,
-            quality: '1080p'
           },
           {
             id: 'vidking',
@@ -208,7 +202,7 @@ export default function WatchPage() {
       </div>
 
       {/* Video Player - Full Viewport Elite Mode */}
-      <div ref={playerRef} className="w-full h-[60vh] md:h-[85vh] bg-black relative overflow-hidden group">
+      <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group">
         {activeSource ? (
           <div className="relative w-full h-full">
             <iframe
