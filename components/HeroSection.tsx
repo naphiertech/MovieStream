@@ -3,10 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Play, Info, Star, Calendar, Clock, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, Info, Star, Calendar, Clock, TrendingUp, ChevronLeft, ChevronRight, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { Movie, PLACEHOLDERS } from '@/lib/tmdb';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { TrailerModal } from './TrailerModal';
 
 interface HeroSectionProps {
   movies: Movie[];
@@ -15,7 +14,10 @@ interface HeroSectionProps {
 export function HeroSection({ movies }: HeroSectionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
-  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
+  
+  // Inline Trailer States
+  const [isPlayingTrailer, setIsPlayingTrailer] = useState(false);
+  const [isLoadingTrailer, setIsLoadingTrailer] = useState(false);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
 
   const nextSlide = useCallback(() => {
@@ -28,15 +30,33 @@ export function HeroSection({ movies }: HeroSectionProps) {
     setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
   }, [movies.length]);
 
+  // Reset trailer state when slide changes
+  useEffect(() => {
+    setIsPlayingTrailer(false);
+    setTrailerKey(null);
+    setIsLoadingTrailer(false);
+  }, [currentIndex]);
+
   // Auto-play timer (10 seconds)
   useEffect(() => {
-    if (isTrailerOpen) return; // Pause auto-play if trailer is open
+    if (isPlayingTrailer || isLoadingTrailer) return; // Pause auto-play if trailer is playing or loading
     const timer = setInterval(nextSlide, 10000);
     return () => clearInterval(timer);
-  }, [nextSlide, isTrailerOpen]);
+  }, [nextSlide, isPlayingTrailer, isLoadingTrailer]);
 
-  const handlePlayTrailer = async () => {
+  const toggleInlineTrailer = async () => {
+    if (isPlayingTrailer) {
+      setIsPlayingTrailer(false);
+      return;
+    }
+
+    if (trailerKey) {
+      setIsPlayingTrailer(true);
+      return;
+    }
+
     try {
+      setIsLoadingTrailer(true);
       const res = await fetch(`/api/videos/${currentMovie.type}/${currentMovie.id}`);
       if (!res.ok) throw new Error('Failed to fetch videos');
       const videos = await res.json();
@@ -44,12 +64,14 @@ export function HeroSection({ movies }: HeroSectionProps) {
       const trailer = videos.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube') || 
                       videos.find((v: any) => v.site === 'YouTube');
       
-      setTrailerKey(trailer?.key || null);
-      setIsTrailerOpen(true);
+      if (trailer?.key) {
+        setTrailerKey(trailer.key);
+        setIsPlayingTrailer(true);
+      }
     } catch (error) {
       console.error('Trailer Error:', error);
-      setIsTrailerOpen(true); // Still open to show the "No trailer" state
-      setTrailerKey(null);
+    } finally {
+      setIsLoadingTrailer(false);
     }
   };
 
@@ -103,6 +125,8 @@ export function HeroSection({ movies }: HeroSectionProps) {
 
   return (
     <div className="relative w-full h-[100dvh] md:h-[100vh] lg:h-[105vh] -mt-[80px] md:-mt-[100px] flex flex-col justify-center overflow-hidden bg-black z-30">
+      
+
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={currentMovie.id}
@@ -120,29 +144,61 @@ export function HeroSection({ movies }: HeroSectionProps) {
           }}
           className="absolute inset-0 cursor-grab active:cursor-grabbing z-0"
         >
-          {/* Background Image */}
-          <div className="absolute inset-0">
-            <Image
-              src={currentMovie.bannerUrl || PLACEHOLDERS.BANNER}
-              alt={currentMovie.title}
-              fill
-              sizes="100vw"
-              className="object-cover opacity-60 md:opacity-70"
-              priority
-              referrerPolicy="no-referrer"
-              unoptimized={!currentMovie.bannerUrl}
-            />
+          {/* Background Media */}
+          <div className="absolute inset-0 bg-black">
+            <AnimatePresence mode="wait">
+              {isPlayingTrailer && trailerKey ? (
+                <motion.div 
+                  key="trailer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none"
+                >
+                  <iframe
+                    width="1920"
+                    height="1080"
+                    src={`https://www.youtube-nocookie.com/embed/${trailerKey}?autoplay=1&mute=0&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&loop=1&playlist=${trailerKey}&modestbranding=1&playsinline=1&enablejsapi=1&vq=hd1080`}
+                    className="absolute top-1/2 left-1/2 w-[300vw] h-[300vh] md:w-[150vw] md:h-[150vh] -translate-x-1/2 -translate-y-1/2"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                  {/* Subtle dark tint over video to keep text readable */}
+                  <div className="absolute inset-0 bg-black/20" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="image"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={currentMovie.bannerUrl || PLACEHOLDERS.BANNER}
+                    alt={currentMovie.title}
+                    fill
+                    sizes="100vw"
+                    className="object-cover opacity-60 md:opacity-70"
+                    priority
+                    referrerPolicy="no-referrer"
+                    unoptimized={!currentMovie.bannerUrl}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Cinematic Vignette Overlay */}
             <div className="absolute inset-0 hero-vignette bg-gradient-to-t from-black via-black/20 to-transparent md:bg-gradient-to-r md:from-black md:via-black/40 md:to-transparent" />
           </div>
 
           {/* Content Wrapper */}
-          <div className="relative h-full flex flex-col justify-end md:justify-center px-6 md:px-14 lg:px-20 z-50 pb-20 md:pb-0 md:pt-[200px]">
+          <div className="relative h-full flex flex-col justify-end md:justify-center px-6 md:px-14 lg:px-20 z-50 pb-20 md:pb-0 md:pt-[200px] pointer-events-none">
             <motion.div
               variants={contentVariants}
               initial="hidden"
               animate="visible"
-              className="max-w-[900px] mb-8 flex flex-col items-start"
+              className="max-w-[900px] mb-8 flex flex-col items-start pointer-events-auto"
             >
               {/* Badge */}
               <motion.div variants={itemVariants} className="flex items-center gap-3 mb-4 md:mb-6">
@@ -208,13 +264,17 @@ export function HeroSection({ movies }: HeroSectionProps) {
                   Watch Now
                 </Link>
                 <button 
-                  onClick={handlePlayTrailer}
-                  className="flex items-center gap-2 md:gap-4 bg-white/5 text-white px-5 md:px-12 py-3.5 md:py-6 rounded-full font-black text-[12px] md:text-[16px] uppercase tracking-wider hover:bg-white/10 transition-all duration-300 backdrop-blur-3xl border border-white/10 hover:border-white/20 active:scale-95 group"
+                  onClick={toggleInlineTrailer}
+                  className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-90 group"
+                  title="Toggle Trailer"
                 >
-                  <div className="w-5 h-5 md:w-8 md:h-8 rounded-full bg-[#2dd4bf]/20 flex items-center justify-center text-[#2dd4bf] group-hover:bg-[#2dd4bf] group-hover:text-black transition-all">
-                     <Play size={10} fill="currentColor" className="md:w-3 md:h-3" />
-                  </div>
-                  Watch Trailer
+                  {isLoadingTrailer ? (
+                    <Loader2 size={24} className="animate-spin text-[#2dd4bf] md:w-7 md:h-7" />
+                  ) : isPlayingTrailer ? (
+                    <Volume2 size={24} className="md:w-7 md:h-7 group-hover:text-[#2dd4bf] transition-colors" />
+                  ) : (
+                    <VolumeX size={24} className="md:w-7 md:h-7 group-hover:text-[#2dd4bf] transition-colors" />
+                  )}
                 </button>
               </motion.div>
             </motion.div>
@@ -222,15 +282,8 @@ export function HeroSection({ movies }: HeroSectionProps) {
         </motion.div>
       </AnimatePresence>
 
-      <TrailerModal 
-        isOpen={isTrailerOpen}
-        onClose={() => setIsTrailerOpen(false)}
-        videoKey={trailerKey}
-        title={currentMovie.title}
-      />
-
       {/* Navigation Controls - Hidden on mobile, except dots */}
-      <div className="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-10 md:translate-x-0 bottom-12 md:bottom-10 flex items-center gap-4 z-30">
+      <div className="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-10 md:translate-x-0 bottom-12 md:bottom-10 flex items-center gap-4 z-[70]">
         <button 
           onClick={prevSlide}
           className="hidden md:flex w-14 h-14 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-90"
