@@ -3,6 +3,7 @@ import './globals.css';
 import { ClientTransition } from '@/components/ClientTransition';
 import { ConditionalLayout } from '@/components/ConditionalLayout';
 import { AntiInspect } from '@/components/AntiInspect';
+import { SmoothScroll } from '@/components/SmoothScroll';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
@@ -42,9 +43,11 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         </Script>
         <AntiInspect />
         <ConditionalLayout>
-          <ClientTransition>
-            {children}
-          </ClientTransition>
+          <SmoothScroll>
+            <ClientTransition>
+              {children}
+            </ClientTransition>
+          </SmoothScroll>
         </ConditionalLayout>
       </body>
     </html>
