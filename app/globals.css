@@ -59,6 +59,16 @@ body {
   }
 }
 
+/* ── Reduced Motion (Accessibility) ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* --- Global Elite Scrollbar --- */
 ::-webkit-scrollbar {
   width: 10px;
@@ -88,7 +98,7 @@ body {
   }
   
   .glass-heavy {
-    @apply bg-black/60 backdrop-blur-xl border border-white/10;
+    @apply bg-black/70 border border-white/10;
   }
   
   .glass-dark {
@@ -149,5 +159,21 @@ body {
 
   .carousel-track > * {
     scroll-snap-align: start;
+  }
+
+  /* CSS entrance for ranked cards */
+  .ranked-card-enter {
+    animation: rankReveal 0.5s cubic-bezier(0.25, 1, 0.5, 1) both;
+  }
+}
+
+@keyframes rankReveal {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }

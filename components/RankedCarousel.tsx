@@ -57,7 +57,7 @@ export function RankedCarousel({ title, movies }: RankedCarouselProps) {
       </div>
 
       {/* Carousel Container */}
-      <div className="relative">
+      <div className="relative px-6 md:px-14 lg:px-20">
         {/* Left Arrow */}
         {canScrollLeft && (
           <button
@@ -80,20 +80,12 @@ export function RankedCarousel({ title, movies }: RankedCarouselProps) {
           </button>
         )}
 
-        {/* Left Fade */}
-        {canScrollLeft && (
-          <div className="absolute left-0 top-0 bottom-0 w-12 md:w-20 bg-gradient-to-r from-[#060606] to-transparent z-10 pointer-events-none" />
-        )}
 
-        {/* Right Fade */}
-        {canScrollRight && (
-          <div className="absolute right-0 top-0 bottom-0 w-12 md:w-20 bg-gradient-to-l from-[#060606] to-transparent z-10 pointer-events-none" />
-        )}
 
         {/* Scrollable Track */}
         <div
           ref={scrollRef}
-          className="flex gap-[30px] overflow-x-auto scrollbar-hide scroll-smooth px-6 md:px-14 lg:px-20 pb-6"
+          className="flex gap-[30px] overflow-x-auto scrollbar-hide scroll-smooth pb-6"
           style={{ scrollSnapType: 'x mandatory' }}
         >
           {movies.map((movie, index) => (
