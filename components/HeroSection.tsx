@@ -14,6 +14,11 @@ interface HeroSectionProps {
 export function HeroSection({ movies }: HeroSectionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+  }, []);
   
   // Inline Trailer States
   const [isPlayingTrailer, setIsPlayingTrailer] = useState(false);
@@ -79,75 +84,81 @@ export function HeroSection({ movies }: HeroSectionProps) {
 
   const currentMovie = movies[currentIndex];
 
+  // Cinematic crossfade with subtle zoom — smooth Netflix-style transition
   const slideVariants: Variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? '100%' : '-100%',
+    enter: {
       opacity: 0,
-    }),
+      scale: 1.06,
+    },
     center: {
       zIndex: 1,
-      x: 0,
       opacity: 1,
+      scale: 1,
       transition: {
-        x: { type: "spring", stiffness: 300, damping: 30 },
-        opacity: { duration: 0.5 }
+        opacity: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+        scale: { duration: 1.2, ease: [0.22, 1, 0.36, 1] },
       }
     },
-    exit: (direction: number) => ({
+    exit: {
       zIndex: 0,
-      x: direction < 0 ? '100%' : '-100%',
       opacity: 0,
+      scale: 1.04,
       transition: {
-        x: { type: "spring", stiffness: 300, damping: 30 },
-        opacity: { duration: 0.5 }
+        opacity: { duration: 0.6, ease: 'easeIn' },
+        scale: { duration: 0.8, ease: 'easeIn' },
       }
-    })
+    }
   };
 
   const contentVariants: Variants = {
-    hidden: { opacity: 0, x: -30 },
+    hidden: { opacity: 0, y: 15 },
     visible: { 
       opacity: 1, 
-      x: 0, 
+      y: 0, 
       transition: { 
-        duration: 0.8, 
-        delay: 0.5,
-        staggerChildren: 0.1,
+        duration: 0.6, 
+        delay: 0.3,
+        staggerChildren: 0.08,
         ease: [0.25, 1, 0.5, 1] 
       }
     }
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+    hidden: { opacity: 0, y: 12 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5, ease: [0.25, 1, 0.5, 1] }
+    }
   };
 
   return (
     <div className="relative w-full h-[100dvh] md:h-[100vh] lg:h-[105vh] -mt-[80px] md:-mt-[100px] flex flex-col justify-center overflow-hidden bg-black z-30">
       
 
-      <AnimatePresence initial={false} custom={direction}>
+      <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={currentMovie.id}
-          custom={direction}
           variants={slideVariants}
           initial="enter"
           animate="center"
           exit="exit"
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.2}
-          onDragEnd={(_, info) => {
-            if (info.offset.x > 100) prevSlide();
-            else if (info.offset.x < -100) nextSlide();
-          }}
-          className="absolute inset-0 cursor-grab active:cursor-grabbing z-0"
+          {...(!isMobile && {
+            drag: "x" as const,
+            dragConstraints: { left: 0, right: 0 },
+            dragElastic: 0.2,
+            onDragEnd: (_: any, info: any) => {
+              if (info.offset.x > 100) prevSlide();
+              else if (info.offset.x < -100) nextSlide();
+            },
+          })}
+          className={`absolute inset-0 z-0 ${!isMobile ? 'cursor-grab active:cursor-grabbing' : ''}`}
         >
           {/* Background Media */}
           <div className="absolute inset-0 bg-black">
             <AnimatePresence mode="wait">
-              {isPlayingTrailer && trailerKey ? (
+              {!isMobile && isPlayingTrailer && trailerKey ? (
                 <motion.div 
                   key="trailer"
                   initial={{ opacity: 0 }}
@@ -159,7 +170,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
                     width="1920"
                     height="1080"
                     src={`https://www.youtube-nocookie.com/embed/${trailerKey}?autoplay=1&mute=0&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&loop=1&playlist=${trailerKey}&modestbranding=1&playsinline=1&enablejsapi=1&vq=hd1080`}
-                    className="absolute top-1/2 left-1/2 w-[300vw] h-[300vh] md:w-[150vw] md:h-[150vh] -translate-x-1/2 -translate-y-1/2"
+                    className="absolute top-1/2 left-1/2 w-[150vw] h-[150vh] -translate-x-1/2 -translate-y-1/2"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
@@ -206,7 +217,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
                   <TrendingUp size={10} className="stroke-[3px] md:w-3 md:h-3" />
                   {currentMovie.trending ? 'Trending' : 'Featured'}
                 </div>
-                <div className="bg-white/10 backdrop-blur-xl border border-white/10 text-white/70 px-3 md:px-4 py-1 rounded-full font-bold text-[9px] md:text-[10px] uppercase tracking-[1.5px] md:tracking-[2px]">
+                <div className="bg-white/10 md:backdrop-blur-xl border border-white/10 text-white/70 px-3 md:px-4 py-1 rounded-full font-bold text-[9px] md:text-[10px] uppercase tracking-[1.5px] md:tracking-[2px]">
                   4K Ultra HD
                 </div>
               </motion.div>
@@ -265,7 +276,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
                 </Link>
                 <button 
                   onClick={toggleInlineTrailer}
-                  className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-90 group"
+                  className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 md:bg-white/5 md:backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-90 group"
                   title="Toggle Trailer"
                 >
                   {isLoadingTrailer ? (
@@ -286,7 +297,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
       <div className="absolute left-1/2 -translate-x-1/2 md:left-auto md:right-10 md:translate-x-0 bottom-12 md:bottom-10 flex items-center gap-4 z-[70]">
         <button 
           onClick={prevSlide}
-          className="hidden md:flex w-14 h-14 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-90"
+          className="hidden md:flex w-14 h-14 rounded-full bg-black/40 md:bg-white/5 md:backdrop-blur-xl border border-white/10 items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-90"
         >
           <ChevronLeft size={24} />
         </button>
@@ -301,7 +312,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
         </div>
         <button 
           onClick={nextSlide}
-          className="hidden md:flex w-14 h-14 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-90"
+          className="hidden md:flex w-14 h-14 rounded-full bg-black/40 md:bg-white/5 md:backdrop-blur-xl border border-white/10 items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-90"
         >
           <ChevronRight size={24} />
         </button>

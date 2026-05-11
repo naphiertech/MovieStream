@@ -89,7 +89,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className={`fixed top-0 w-full z-50 transition-all duration-700 ${isScrolled ? 'bg-black/30 backdrop-blur-xl border-b border-white/5 py-2 md:py-3' : 'bg-transparent py-4 md:py-6'}`}>
+      <header className={`fixed top-0 w-full z-50 transition-all duration-700 ${isScrolled ? 'bg-[#0a0a0a]/90 md:bg-black/30 md:backdrop-blur-xl border-b border-white/5 py-2 md:py-3' : 'bg-transparent py-4 md:py-6'}`}>
         <div className="px-5 md:px-14 flex items-center justify-between max-w-[1920px] mx-auto">
           <div className="flex items-center gap-[60px]">
             <Link href="/">

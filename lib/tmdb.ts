@@ -219,7 +219,7 @@ export async function getMovieDetails(id: string) {
     logoUrl,
     duration: `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m`,
     genres: data.genres.map((g: any) => g.name),
-    cast: credits.cast.slice(0, 10).map((c: any) => ({
+    cast: credits.cast.slice(0, 30).map((c: any) => ({
       id: c.id,
       name: c.name,
       character: c.character,
@@ -242,7 +242,7 @@ export async function getTVDetails(id: string): Promise<TVShow> {
     numberOfSeasons: data.number_of_seasons,
     numberOfEpisodes: data.number_of_episodes,
     seasons: data.seasons,
-    cast: credits.cast.slice(0, 10).map((c: any) => ({
+    cast: credits.cast.slice(0, 30).map((c: any) => ({
       id: c.id,
       name: c.name,
       character: c.character,
@@ -292,6 +292,16 @@ export async function getMovieVideos(id: string, type: 'movie' | 'tv' = 'movie')
     return data.results;
   } catch (error) {
     console.error(`Error fetching videos for ${type} ${id}:`, error);
+    return [];
+  }
+}
+
+export async function getSimilar(id: string, type: 'movie' | 'tv' = 'movie') {
+  try {
+    const data = await fetchTMDB(`/${type}/${id}/similar`);
+    return data.results.map((m: any) => mapMovie(m, type));
+  } catch (error) {
+    console.error(`Error fetching similar for ${type} ${id}:`, error);
     return [];
   }
 }

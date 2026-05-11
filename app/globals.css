@@ -21,10 +21,42 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
-  /* Atmospheric Foundation */
+  /* Atmospheric Foundation — desktop only */
   background-image: 
     radial-gradient(circle at 50% -20%, #001529 0%, transparent 50%),
     radial-gradient(circle at -10% 40%, #060606 0%, transparent 30%);
+}
+
+/* ── Mobile Performance ── */
+@media (max-width: 767px) {
+  body {
+    /* Remove background gradients on mobile — saves a compositing layer */
+    background-image: none;
+  }
+
+  /* Force GPU compositing for fixed/sticky elements */
+  header, nav, [class*="fixed"] {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Disable hover effects that cause layout recalculation on touch */
+  .card-hover-glow:hover {
+    box-shadow: none !important;
+  }
+
+  /* Smoother touch scrolling */
+  .carousel-track {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+  }
+
+  /* Reduce paint complexity on iframe containers */
+  iframe {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
 }
 
 /* --- Global Elite Scrollbar --- */

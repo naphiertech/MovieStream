@@ -16,10 +16,19 @@ export function CinematicBackground({
 }: CinematicBackgroundProps) {
   const [videoKey, setVideoKey] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile once on mount
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+  }, []);
 
   useEffect(() => {
     setVideoKey(null);
     setIsReady(false);
+
+    // Skip YouTube iframe on mobile — use static image only
+    if (isMobile) return;
 
     const fetchTrailer = async () => {
       try {
@@ -50,115 +59,81 @@ export function CinematicBackground({
     };
 
     fetchTrailer();
-  }, [id, type]);
+  }, [id, type, isMobile]);
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#060606]">
       {/* ───────────────────────────────────────────── */}
-      {/* VIDEO BACKGROUND */}
+      {/* VIDEO BACKGROUND (desktop only) */}
       {/* ───────────────────────────────────────────── */}
 
-      <AnimatePresence mode="wait">
-        {videoKey ? (
-          <motion.div
-            key={`video-${id}`}
-            initial={{
-              opacity: 0,
-              scale: 1.06,
-              filter: 'blur(14px)',
-            }}
-            animate={{
-              opacity: isReady ? 1 : 0,
-              scale: isReady ? 1 : 1.03,
-              filter: isReady ? 'blur(0px)' : 'blur(10px)',
-            }}
-            exit={{
-              opacity: 0,
-            }}
-            transition={{
-              duration: 1.8,
-              ease: 'easeOut',
-            }}
-            className="absolute inset-0 z-0"
-          >
-            {/* 
-              300% trick pushes YouTube controls/icons
-              outside visible viewport
-            */}
-            <div
-              className="absolute pointer-events-none"
-              style={{
-                width: '300%',
-                height: '100%',
-                left: '-100%',
-                top: 0,
-              }}
+      {!isMobile && (
+        <AnimatePresence mode="wait">
+          {videoKey ? (
+            <motion.div
+              key={`video-${id}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isReady ? 1 : 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: 'easeOut' }}
+              className="absolute inset-0 z-0"
             >
-              <iframe
-                title="Background Trailer"
-                className="w-full h-full border-0"
-                allow="autoplay; encrypted-media"
-                loading="eager"
-                src={`https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoKey}&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1&cc_load_policy=0&fs=0&showinfo=0&branding=0&vq=hd1080`}
-                onLoad={() => {
-                  /*
-                    Delay visibility so YouTube has time
-                    to fully autoplay before iframe fades in.
-                    Prevents play/pause icon flash.
-                  */
-                  setTimeout(() => {
-                    setIsReady(true);
-                  }, 2500);
+              {/* 
+                300% trick pushes YouTube controls/icons
+                outside visible viewport
+              */}
+              <div
+                className="absolute pointer-events-none"
+                style={{
+                  width: '300%',
+                  height: '100%',
+                  left: '-100%',
+                  top: 0,
                 }}
-              />
-            </div>
+              >
+                <iframe
+                  title="Background Trailer"
+                  className="w-full h-full border-0"
+                  allow="autoplay; encrypted-media"
+                  loading="eager"
+                  src={`https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoKey}&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1&cc_load_policy=0&fs=0&showinfo=0&branding=0&vq=hd1080`}
+                  onLoad={() => {
+                    setTimeout(() => {
+                      setIsReady(true);
+                    }, 2500);
+                  }}
+                />
+              </div>
 
-            {/* Click blocker */}
-            <div className="absolute inset-0 z-10 pointer-events-auto" />
+              {/* Click blocker */}
+              <div className="absolute inset-0 z-10 pointer-events-auto" />
 
-            {/* Extra darkening layer */}
-            <div className="absolute inset-0 z-[5] bg-black/20" />
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+              {/* Extra darkening layer */}
+              <div className="absolute inset-0 z-[5] bg-black/20" />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      )}
 
       {/* ───────────────────────────────────────────── */}
       {/* FALLBACK IMAGE */}
       {/* ───────────────────────────────────────────── */}
 
       <AnimatePresence>
-        {(!videoKey || !isReady) && (
+        {(isMobile || !videoKey || !isReady) && (
           <motion.div
             key={`fallback-${id}`}
-            initial={{
-              opacity: 0,
-              scale: 1.08,
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-            }}
-            exit={{
-              opacity: 0,
-            }}
-            transition={{
-              opacity: {
-                duration: 1.5,
-                ease: 'easeOut',
-              },
-              scale: {
-                duration: 18,
-                ease: 'linear',
-                repeat: Infinity,
-                repeatType: 'reverse',
-              },
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ opacity: { duration: 0.8, ease: 'easeOut' } }}
             className="absolute inset-0 z-0"
           >
             <img
               src={fallbackImage}
               alt="Cinematic Background"
               className="w-full h-full object-cover opacity-60"
+              loading="eager"
             />
           </motion.div>
         )}
@@ -178,8 +153,8 @@ export function CinematicBackground({
         {/* Vignette */}
         <div className="absolute inset-0 hero-vignette" />
 
-        {/* Film grain / scanlines */}
-        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+        {/* Film grain / scanlines — disabled on mobile */}
+        <div className="absolute inset-0 opacity-[0.03] hidden md:block bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
       </div>
     </div>
   );

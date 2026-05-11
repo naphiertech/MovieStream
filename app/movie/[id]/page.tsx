@@ -1,17 +1,24 @@
 import NextImage from 'next/image';
 import Link from 'next/link';
-import { Play, Star, ArrowLeft, Plus, Download, Sparkles } from 'lucide-react';
-import { getMovieDetails, PLACEHOLDERS } from '@/lib/tmdb';
+import { Play, Star, ArrowLeft, Plus } from 'lucide-react';
+import { getMovieDetails, getRecommendations, getSimilar, PLACEHOLDERS } from '@/lib/tmdb';
 import { notFound } from 'next/navigation';
 import { ActorList } from '@/components/ActorList';
 import { CinematicBackground } from '@/components/CinematicBackground';
+import { MovieRow } from '@/components/MovieRow';
 
 export default async function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
   let movie;
+  let recommendations: any[] = [];
+  let similar: any[] = [];
   try {
     movie = await getMovieDetails(id);
+    [recommendations, similar] = await Promise.all([
+      getRecommendations(id, 'movie'),
+      getSimilar(id, 'movie'),
+    ]);
   } catch (error) {
     notFound();
   }
@@ -42,7 +49,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
           
           {/* Back Button */}
           <div className="fixed top-6 left-6 z-50">
-            <Link href="/" className="group inline-flex items-center justify-center w-10 h-10 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full text-white/60 hover:text-white hover:border-white/30 transition-all duration-300">
+            <Link href="/" className="group inline-flex items-center justify-center w-10 h-10 bg-black/50 md:backdrop-blur-xl border border-white/10 rounded-full text-white/60 hover:text-white hover:border-white/30 transition-all duration-300">
               <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
           </div>
@@ -56,7 +63,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                   alt={movie.title}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 112px, 160px"
+                  sizes="(max-width: 768px) 160px, 240px"
                   referrerPolicy="no-referrer"
                   unoptimized={!movie.posterUrl}
                 />
@@ -119,7 +126,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                   <span>Play</span>
                 </Link>
 
-                <button className="inline-flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-md border border-white/15 rounded-lg text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300">
+                <button className="inline-flex items-center justify-center w-10 h-10 bg-white/10 border border-white/15 rounded-lg text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300">
                   <Plus size={18} />
                 </button>
               </div>
@@ -131,10 +138,24 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
       {/* Below-the-fold Content */}
       <div className="relative z-20 pb-32">
         <div className="container mx-auto px-6 md:px-14 lg:px-20">
-          {/* Actors */}
+          {/* Cast Carousel */}
           <div className="pt-10 border-t border-white/5 w-full">
             {movie.cast && <ActorList cast={movie.cast} />}
           </div>
+
+          {/* Recommended */}
+          {recommendations.length > 0 && (
+            <div className="mt-16 pt-10 border-t border-white/5">
+              <MovieRow title="Recommended" movies={recommendations} />
+            </div>
+          )}
+
+          {/* Similar Movies */}
+          {similar.length > 0 && (
+            <div className="mt-16 pt-10 border-t border-white/5">
+              <MovieRow title="Similar Movies" movies={similar} />
+            </div>
+          )}
         </div>
       </div>
     </div>

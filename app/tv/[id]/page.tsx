@@ -1,7 +1,7 @@
 import NextImage from 'next/image';
 import Link from 'next/link';
 import { Star, ArrowLeft, Plus, Download, Sparkles, Play } from 'lucide-react';
-import { getTVDetails, getRecommendations, PLACEHOLDERS } from '@/lib/tmdb';
+import { getTVDetails, getRecommendations, getSimilar, PLACEHOLDERS } from '@/lib/tmdb';
 import { CinematicBackground } from '@/components/CinematicBackground';
 import { notFound } from 'next/navigation';
 import { SeasonSelector } from '@/components/SeasonSelector';
@@ -12,10 +12,14 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   
   let show;
-  let recommendations = [];
+  let recommendations: any[] = [];
+  let similar: any[] = [];
   try {
     show = await getTVDetails(id);
-    recommendations = await getRecommendations(id, 'tv');
+    [recommendations, similar] = await Promise.all([
+      getRecommendations(id, 'tv'),
+      getSimilar(id, 'tv'),
+    ]);
   } catch (error) {
     notFound();
   }
@@ -157,8 +161,15 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
 
           {/* Recommendations */}
           {recommendations.length > 0 && (
-            <div id="similars" className="mt-20 pt-12 border-t border-white/5 scroll-mt-24">
-              <MovieRow title="More Like This" movies={recommendations} />
+            <div id="similars" className="mt-16 pt-10 border-t border-white/5">
+              <MovieRow title="Recommended" movies={recommendations} />
+            </div>
+          )}
+
+          {/* Similar Shows */}
+          {similar.length > 0 && (
+            <div className="mt-16 pt-10 border-t border-white/5">
+              <MovieRow title="Similar Shows" movies={similar} />
             </div>
           )}
         </div>
