@@ -70,6 +70,7 @@ export interface Movie {
   trending: boolean;
   latest: boolean;
   tmdbId: string;
+  imdbId?: string;
   type?: 'movie' | 'tv';
   cast?: CastMember[];
 }
@@ -126,6 +127,7 @@ const mapMovie = (m: any, type: 'movie' | 'tv' = 'movie'): Movie => ({
   trending: false,
   latest: false,
   tmdbId: m.id.toString(),
+  imdbId: m.imdb_id,
   type,
 });
 
@@ -229,14 +231,16 @@ export async function getMovieDetails(id: string) {
 }
 
 export async function getTVDetails(id: string): Promise<TVShow> {
-  const [data, credits, logoUrl] = await Promise.all([
+  const [data, credits, externalIds, logoUrl] = await Promise.all([
     fetchTMDB(`/tv/${id}`),
     fetchTMDB(`/tv/${id}/credits`),
+    fetchTMDB(`/tv/${id}/external_ids`),
     getMovieLogo(id, 'tv')
   ]);
 
   return {
     ...mapMovie(data, 'tv'),
+    imdbId: externalIds.imdb_id,
     logoUrl,
     genres: data.genres.map((g: any) => g.name),
     numberOfSeasons: data.number_of_seasons,
