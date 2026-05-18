@@ -117,8 +117,8 @@ const mapMovie = (m: any, type: 'movie' | 'tv' = 'movie'): Movie => ({
   id: m.id.toString(),
   title: m.title || m.name,
   description: m.overview,
-  posterUrl: m.poster_path ? `${TMDB_IMAGE_BASE}/w500${m.poster_path}` : '',
-  bannerUrl: m.backdrop_path ? `${TMDB_IMAGE_BASE}/original${m.backdrop_path}` : '',
+  posterUrl: m.poster_path ? `${TMDB_IMAGE_BASE}/w342${m.poster_path}` : '',
+  bannerUrl: m.backdrop_path ? `${TMDB_IMAGE_BASE}/w1280${m.backdrop_path}` : '',
   year: new Date(m.release_date || m.first_air_date || Date.now()).getFullYear(),
   rating: parseFloat((m.vote_average || 0).toFixed(1)),
   duration: "N/A",
@@ -150,7 +150,7 @@ export async function getMovieLogo(id: string, type: 'movie' | 'tv' = 'movie'): 
   try {
     const data = await fetchTMDB(`/${type}/${id}/images`, { include_image_language: 'en,null' });
     const logo = data.logos?.find((l: any) => l.iso_639_1 === 'en') || data.logos?.[0];
-    return logo ? `${TMDB_IMAGE_BASE}/original${logo.file_path}` : undefined;
+    return logo ? `${TMDB_IMAGE_BASE}/w500${logo.file_path}` : undefined;
   } catch (error) {
     console.error(`Error fetching logo for ${type} ${id}:`, error);
     return undefined;
