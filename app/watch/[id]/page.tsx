@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RecommendationCard } from '@/components/RecommendationCard';
 import { ActorList } from '@/components/ActorList';
 import { SubtitleOverlay } from '@/components/SubtitleOverlay';
+import HLSPlayer from '@/components/HLSPlayer';
 import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
 
 export default function WatchPage() {
@@ -88,6 +89,12 @@ export default function WatchPage() {
         
         // Premium Sources
         const sourcesList = [
+          {
+            id: 'ultra',
+            name: 'Elite Ad-Free (HLS)',
+            url: '', // Handled by HLSPlayer
+            quality: '4K/1080p'
+          },
           {
             id: 'moviesapi',
             name: 'MoviesAPI (Elite)',
@@ -205,13 +212,25 @@ export default function WatchPage() {
       <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group">
         {activeSource ? (
           <div className="relative w-full h-full">
-            <iframe
-              src={activeSource.url}
-              className="w-full h-full border-0"
-              allowFullScreen
-              referrerPolicy="no-referrer"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            ></iframe>
+            {activeSource.id === 'ultra' ? (
+              <HLSPlayer 
+                tmdbId={Number(id)} 
+                imdbId={movie.imdbId}
+                type="movie" 
+                onSignalLost={() => {
+                  const fallback = sources.find(s => s.id === 'moviesapi');
+                  if (fallback) setActiveSource(fallback);
+                }}
+              />
+            ) : (
+              <iframe
+                src={activeSource.url}
+                className="w-full h-full border-0"
+                allowFullScreen
+                referrerPolicy="no-referrer"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            )}
             
             {/* Custom Subtitle Overlay */}
             {showSubtitleSync && <SubtitleOverlay />}
