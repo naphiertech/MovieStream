@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Server, Settings, Loader2, Zap, Smartphone, Timer } from 'lucide-react';
+import { ArrowLeft, Server, Settings, Loader2, Timer } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RecommendationCard } from '@/components/RecommendationCard';
@@ -29,9 +29,6 @@ export default function WatchPage() {
   const [recommendations, setRecommendations] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showShield, setShowShield] = useState(true);
-  const [shieldClicks, setShieldClicks] = useState(0);
-  const [isStabilizing, setIsStabilizing] = useState(false);
   const [showSubtitleSync, setShowSubtitleSync] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
@@ -110,21 +107,15 @@ export default function WatchPage() {
         // Premium Sources
         const sourcesList = [
           {
-            id: 'ultra',
-            name: 'Elite Ad-Free (HLS)',
-            url: '', // Handled by HLSPlayer
-            quality: '4K/1080p'
-          },
-          {
-            id: 'moviesapi',
-            name: 'MoviesAPI (Elite)',
-            url: `https://moviesapi.to/movie/${data.id}`,
-            quality: '1080p'
-          },
-          {
             id: 'vidlink',
             name: 'VidLink (Pro)',
             url: `https://vidlink.pro/movie/${data.id}?primaryColor=2dd4bf&autoplay=1`,
+            quality: '4K/1080p'
+          },
+          {
+            id: 'ultra',
+            name: 'Elite Ad-Free (HLS)',
+            url: '', // Handled by HLSPlayer
             quality: '4K/1080p'
           },
           {
@@ -238,7 +229,7 @@ export default function WatchPage() {
                 imdbId={movie.imdbId}
                 type="movie" 
                 onSignalLost={() => {
-                  const fallback = sources.find(s => s.id === 'moviesapi');
+                  const fallback = sources.find(s => s.id === 'vidlink');
                   if (fallback) setActiveSource(fallback);
                 }}
               />
@@ -254,75 +245,7 @@ export default function WatchPage() {
             
             {/* Custom Subtitle Overlay */}
             {showSubtitleSync && <SubtitleOverlay />}
-            
-            {/* Ad Blocking Shield Overlay - Premium Play Button Style */}
-            <AnimatePresence>
-              {showShield && (
-                <motion.div 
-                  initial={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={async () => {
-                    if (isStabilizing) return;
-                    const newCount = shieldClicks + 1;
-                    if (newCount >= 3) {
-                      setShieldClicks(3);
-                      setIsStabilizing(true);
-                      setTimeout(async () => {
-                        setShowShield(false);
-                        if (playerRef.current && isMobile()) {
-                          await lockLandscape(playerRef.current);
-                        }
-                      }, 1200);
-                    } else {
-                      setShieldClicks(newCount);
-                    }
-                  }}
-                  className="absolute inset-0 z-20 bg-black/40 backdrop-blur-[2px] cursor-pointer flex items-center justify-center"
-                >
-                  {/* Premium Play Button */}
-                  <div className="relative group/play">
-                    {/* Ripple Effects */}
-                    <div className="absolute inset-0 bg-[#2dd4bf]/20 rounded-full animate-ping scale-150 opacity-20" />
-                    <div className="absolute inset-0 bg-[#2dd4bf]/10 rounded-full animate-pulse scale-125 opacity-30" />
-                    
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-white/10 backdrop-blur-3xl border border-white/20 flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 group-hover/play:scale-110 group-hover/play:border-[#2dd4bf]/50 group-hover/play:shadow-[0_0_50px_rgba(45,212,191,0.3)]">
-                      {isStabilizing ? (
-                        <Loader2 className="text-[#2dd4bf] animate-spin" size={48} />
-                      ) : (
-                        <div className="flex flex-col items-center">
-                          <Zap 
-                            className={`transition-all duration-300 ${shieldClicks > 0 ? "fill-[#2dd4bf] text-[#2dd4bf]" : "text-white"}`} 
-                            size={shieldClicks > 0 ? 48 : 40} 
-                          />
-                          {shieldClicks > 0 && (
-                            <span className="text-white text-[10px] font-black mt-2">
-                              {3 - shieldClicks} CLICKS LEFT
-                            </span>
-                          )}
-                        </div>
-                      )}
 
-                      {/* Progress Fill Overlay */}
-                      <div 
-                        className="absolute bottom-0 left-0 right-0 bg-[#2dd4bf]/20 transition-all duration-500 pointer-events-none"
-                        style={{ height: `${(shieldClicks / 3) * 100}%` }}
-                      />
-                    </div>
-                    
-                    {!isStabilizing && shieldClicks === 0 && (
-                      <div className="absolute top-full mt-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                        <p className="text-white font-black text-[12px] uppercase tracking-[4px] drop-shadow-lg text-center">
-                          Initialize High-Fidelity Signal
-                        </p>
-                        <p className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[2px] mt-2 text-center opacity-70">
-                          Secure Connection Protocol Active
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
