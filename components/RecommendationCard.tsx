@@ -17,7 +17,7 @@ export function RecommendationCard({ movie }: RecommendationCardProps) {
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className="relative group cursor-pointer"
     >
-      <Link href={`/movie/${movie.id}`} className="block h-full">
+      <Link href={movie.type === 'tv' ? `/tv/${movie.id}` : `/movie/${movie.id}`} className="block h-full">
         <div className="relative aspect-video rounded-xl overflow-hidden border border-white/5 group-hover:border-[#2dd4bf]/40 transition-all duration-500 shadow-2xl">
           <Image
             src={movie.bannerUrl || movie.posterUrl || PLACEHOLDERS.BANNER}
@@ -29,9 +29,11 @@ export function RecommendationCard({ movie }: RecommendationCardProps) {
             unoptimized={!movie.bannerUrl && !movie.posterUrl}
           />
           
-          {/* Top-Left Tag - "MOVIE" */}
+          {/* Top-Left Tag - "MOVIE" or "TV SHOW" */}
           <div className="absolute top-3 left-3 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-md border border-white/10 z-10">
-            <span className="text-white text-[9px] font-black uppercase tracking-widest">Movie</span>
+            <span className="text-white text-[9px] font-black uppercase tracking-widest">
+              {movie.type === 'tv' ? 'TV Show' : 'Movie'}
+            </span>
           </div>
 
           {/* Top-Right Tag - Rating */}
