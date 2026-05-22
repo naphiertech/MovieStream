@@ -10,15 +10,23 @@ import { ActorList } from '@/components/ActorList';
 import { SubtitleOverlay } from '@/components/SubtitleOverlay';
 import HLSPlayer from '@/components/HLSPlayer';
 import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
+import { Movie } from '@/lib/tmdb';
+
+export interface VideoSource {
+  id: string;
+  name: string;
+  url: string;
+  quality: string;
+}
 
 export default function WatchPage() {
   const params = useParams();
   const id = params.id as string;
   
-  const [movie, setMovie] = useState<any>(null);
-  const [sources, setSources] = useState<any[]>([]);
-  const [activeSource, setActiveSource] = useState<any | null>(null);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [sources, setSources] = useState<VideoSource[]>([]);
+  const [activeSource, setActiveSource] = useState<VideoSource | null>(null);
+  const [recommendations, setRecommendations] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showShield, setShowShield] = useState(true);
@@ -68,6 +76,18 @@ export default function WatchPage() {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
       document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  // Programmatically intercept and block popup ad tabs from providers
+  useEffect(() => {
+    const originalWindowOpen = window.open;
+    window.open = function (url, target, features) {
+      console.warn('🛡️ Popup blocked programmatically:', url);
+      return null;
+    };
+    return () => {
+      window.open = originalWindowOpen;
     };
   }, []);
 
@@ -199,7 +219,7 @@ export default function WatchPage() {
               <div className="flex items-center gap-3 mt-1">
                 <span className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[2px]">{movie.releaseDate?.split('-')[0]}</span>
                 <div className="w-1 h-1 rounded-full bg-white/20" />
-                <span className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">{movie.runtime}m</span>
+                <span className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">{movie.duration}</span>
               </div>
             </div>
 
