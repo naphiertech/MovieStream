@@ -11,6 +11,13 @@ import { SubtitleOverlay } from '@/components/SubtitleOverlay';
 import HLSPlayer from '@/components/HLSPlayer';
 import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
 
+export interface VideoSource {
+  id: string;
+  name: string;
+  url: string;
+  quality: string;
+}
+
 export default function TVWatchPage() {
   const params = useParams();
   const router = useRouter();
@@ -21,8 +28,8 @@ export default function TVWatchPage() {
   const [show, setShow] = useState<TVShow | null>(null);
   const [currentEpisode, setCurrentEpisode] = useState<Episode | null>(null);
   const [nextEpisode, setNextEpisode] = useState<Episode | null>(null);
-  const [sources, setSources] = useState<any[]>([]);
-  const [activeSource, setActiveSource] = useState<any | null>(null);
+  const [sources, setSources] = useState<VideoSource[]>([]);
+  const [activeSource, setActiveSource] = useState<VideoSource | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -72,6 +79,18 @@ export default function TVWatchPage() {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
       document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  // Programmatically intercept and block popup ad tabs from providers
+  useEffect(() => {
+    const originalWindowOpen = window.open;
+    window.open = function (url, target, features) {
+      console.warn('🛡️ Popup blocked programmatically:', url);
+      return null;
+    };
+    return () => {
+      window.open = originalWindowOpen;
     };
   }, []);
 
