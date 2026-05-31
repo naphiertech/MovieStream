@@ -28,6 +28,7 @@ export default function TVWatchPage() {
   const [show, setShow] = useState<TVShow | null>(null);
   const [currentEpisode, setCurrentEpisode] = useState<Episode | null>(null);
   const [nextEpisode, setNextEpisode] = useState<Episode | null>(null);
+  const [prevEpisode, setPrevEpisode] = useState<Episode | null>(null);
   const [sources, setSources] = useState<VideoSource[]>([]);
   const [activeSource, setActiveSource] = useState<VideoSource | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +36,21 @@ export default function TVWatchPage() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showSubtitleSync, setShowSubtitleSync] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [autoPlayNext, setAutoPlayNext] = useState(true);
+  const [autoSkipIntro, setAutoSkipIntro] = useState(false);
+  const [isLightsOff, setIsLightsOff] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
+
+  // Sync preferences on load
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setAutoPlay(localStorage.getItem('movieStream_autoPlay') !== 'false');
+      setAutoPlayNext(localStorage.getItem('movieStream_autoPlayNext') !== 'false');
+      setAutoSkipIntro(localStorage.getItem('movieStream_autoSkipIntro') === 'true');
+    }
+  }, []);
 
   useEffect(() => {
     const handleOrientation = () => {
@@ -50,6 +65,11 @@ export default function TVWatchPage() {
       window.removeEventListener('resize', handleOrientation);
       window.removeEventListener('orientationchange', handleOrientation);
     };
+  }, []);
+
+  // Pre-warm Hugging Face scraper container in the background
+  useEffect(() => {
+    fetch('https://missourimonster-vyla.hf.space/').catch(() => {});
   }, []);
 
   // Fullscreen → Auto-Landscape Link
@@ -91,6 +111,48 @@ export default function TVWatchPage() {
     };
   }, []);
 
+  // Listen for ended messages from VidLink iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin.includes('vidlink.pro')) {
+        try {
+          let data = event.data;
+          if (typeof data === 'string' && data.startsWith('{')) {
+            data = JSON.parse(data);
+          }
+          const isEnded = data === 'ended' || data?.event === 'ended' || data?.type === 'ended';
+          if (isEnded) {
+            console.log('VidLink iframe video ended!');
+            if (autoPlayNext && nextEpisode) {
+              setCountdown(5);
+            }
+          }
+        } catch (e) {
+          // ignore error
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [nextEpisode, autoPlayNext]);
+
+  // Handle auto-play countdown ticking
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown === 0) {
+      setCountdown(null);
+      handleNext();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -123,6 +185,17 @@ export default function TVWatchPage() {
            }
         }
         setNextEpisode(next);
+
+        // Find previous episode
+        let prev = seasonData.episodes?.find((e: any) => e.episode_number === episode - 1);
+        if (!prev && season > 1) {
+           const prevSeasonRes = await fetch(`/api/tv/${id}/season/${season - 1}`, { signal: controller.signal });
+           if (prevSeasonRes.ok) {
+             const prevSeasonData = await prevSeasonRes.json();
+             prev = prevSeasonData.episodes?.[prevSeasonData.episodes.length - 1];
+           }
+        }
+        setPrevEpisode(prev);
 
         // Map sources
         const sourcesList = [
@@ -181,6 +254,24 @@ export default function TVWatchPage() {
     }
   };
 
+  // Handle manual "Previous Episode"
+  const handlePrev = () => {
+    if (prevEpisode) {
+      router.push(`/watch/tv/${id}/${prevEpisode.season_number}/${prevEpisode.episode_number}`);
+    }
+  };
+
+  // Get dynamic source URL respecting preferences
+  const getSourceUrl = (sourceId: string) => {
+    if (sourceId === 'vidlink') {
+      return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf&autoplay=${autoPlay ? 1 : 0}`;
+    }
+    if (sourceId === 'vidking') {
+      return `https://www.vidking.net/embed/tv/${id}/${season}/${episode}`;
+    }
+    return '';
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white">
@@ -213,7 +304,8 @@ export default function TVWatchPage() {
   if (!show || !currentEpisode) return null;
 
   return (
-    <div className="min-h-screen bg-[#060606] flex flex-col">
+    <div className="min-h-screen bg-[#060606] flex flex-col relative overflow-x-hidden">
+      
       {/* Cinematic Header Overlay */}
       <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none">
         <div className="bg-gradient-to-b from-black/80 to-transparent pt-10 pb-20 px-6 md:px-14">
@@ -248,7 +340,7 @@ export default function TVWatchPage() {
       </div>
 
       {/* Video Player - Full Viewport Elite Mode */}
-      <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group">
+      <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group z-20">
         {activeSource ? (
           <div className="relative w-full h-full">
             {activeSource.id === 'ultra' ? (
@@ -262,10 +354,17 @@ export default function TVWatchPage() {
                   const fallback = sources.find(s => s.id === 'vidlink');
                   if (fallback) setActiveSource(fallback);
                 }}
+                onEnded={() => {
+                  if (autoPlayNext && nextEpisode) {
+                    setCountdown(5);
+                  }
+                }}
+                autoPlay={autoPlay}
+                autoSkipIntro={autoSkipIntro}
               />
             ) : (
               <iframe
-                src={activeSource.url}
+                src={getSourceUrl(activeSource.id)}
                 className="w-full h-full border-0"
                 allowFullScreen
                 referrerPolicy="no-referrer"
@@ -276,6 +375,48 @@ export default function TVWatchPage() {
             {/* Custom Subtitle Overlay */}
             {showSubtitleSync && <SubtitleOverlay />}
 
+            {/* Countdown Overlay */}
+            <AnimatePresence>
+              {countdown !== null && nextEpisode && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-[#060606]/90 backdrop-blur-xl flex flex-col items-center justify-center z-40"
+                >
+                  <div className="bg-white/5 border border-white/10 backdrop-blur-3xl rounded-[2rem] p-8 max-w-sm w-[90%] mx-auto text-center flex flex-col items-center shadow-2xl">
+                    <div className="relative w-20 h-20 flex items-center justify-center mb-6">
+                      <div className="w-20 h-20 rounded-full border-2 border-[#2dd4bf]/20 animate-ping absolute" />
+                      <div className="w-16 h-16 rounded-full bg-[#2dd4bf]/10 border border-[#2dd4bf]/20 flex items-center justify-center text-[#2dd4bf] font-black text-2xl">
+                        {countdown}
+                      </div>
+                    </div>
+                    <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[2px] mb-2">Up Next</span>
+                    <h3 className="text-white font-black text-lg italic uppercase tracking-tight mb-6 line-clamp-2 max-w-xs leading-snug">
+                      {nextEpisode.name}
+                    </h3>
+                    <div className="flex gap-4 w-full">
+                      <button 
+                        onClick={() => setCountdown(null)}
+                        className="flex-1 py-3 bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 font-black text-[10px] uppercase tracking-[2px] rounded-xl transition-all"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setCountdown(null);
+                          handleNext();
+                        }}
+                        className="flex-1 py-3 bg-[#2dd4bf] text-black font-black text-[10px] uppercase tracking-[2px] rounded-xl hover:bg-teal-400 transition-all shadow-[0_10px_25px_rgba(45,212,191,0.3)]"
+                      >
+                        Play Now
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
           </div>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
@@ -285,7 +426,8 @@ export default function TVWatchPage() {
         )}
       </div>
 
-      <div className="container mx-auto px-6 py-12 max-w-[1400px]">
+      {/* Main Details Panel */}
+      <div className="container mx-auto px-6 py-12 max-w-[1400px] z-20">
         <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-12 border border-white/5 shadow-2xl">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
             <div className="flex flex-col md:flex-row items-center gap-10 w-full">
@@ -323,6 +465,62 @@ export default function TVWatchPage() {
                     Sync Subtitles
                   </button>
                 </div>
+
+                {/* Premium Playback Option Toggles */}
+                <div className="flex flex-wrap items-center gap-6 mt-2 pt-4 border-t border-white/5 text-[10px] md:text-[11px] font-black uppercase tracking-[1px] text-white/50 select-none">
+                  {/* Autoplay checkbox */}
+                  <button 
+                    onClick={() => {
+                      const newVal = !autoPlay;
+                      setAutoPlay(newVal);
+                      localStorage.setItem('movieStream_autoPlay', String(newVal));
+                    }}
+                    className="flex items-center gap-2 hover:text-white transition-colors"
+                  >
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlay ? 'bg-[#2dd4bf] text-black' : 'bg-white/5 border border-white/20'}`}>
+                      {autoPlay && <span className="text-[9px] font-bold">✓</span>}
+                    </div>
+                    <span>Autoplay</span>
+                  </button>
+
+                  {/* Auto Skip Intro checkbox */}
+                  <button 
+                    onClick={() => {
+                      const newVal = !autoSkipIntro;
+                      setAutoSkipIntro(newVal);
+                      localStorage.setItem('movieStream_autoSkipIntro', String(newVal));
+                    }}
+                    className="flex items-center gap-2 hover:text-white transition-colors"
+                  >
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoSkipIntro ? 'bg-[#2dd4bf] text-black' : 'bg-white/5 border border-white/20'}`}>
+                      {autoSkipIntro && <span className="text-[9px] font-bold">✓</span>}
+                    </div>
+                    <span>Auto Skip Intro</span>
+                  </button>
+
+                  {/* Auto Next Episode checkbox */}
+                  <button 
+                    onClick={() => {
+                      const newVal = !autoPlayNext;
+                      setAutoPlayNext(newVal);
+                      localStorage.setItem('movieStream_autoPlayNext', String(newVal));
+                    }}
+                    className="flex items-center gap-2 hover:text-white transition-colors"
+                  >
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlayNext ? 'bg-[#2dd4bf] text-black' : 'bg-white/5 border border-white/20'}`}>
+                      {autoPlayNext && <span className="text-[9px] font-bold">✓</span>}
+                    </div>
+                    <span>Auto Next Episode</span>
+                  </button>
+
+                  {/* Shortcuts dialog toggle */}
+                  <button 
+                    onClick={() => setShowShortcuts(true)}
+                    className="hover:text-white transition-colors flex items-center gap-1 ml-auto"
+                  >
+                    <span>⌘ Shortcuts</span>
+                  </button>
+                </div>
               </div>
               
               <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-8 w-full md:w-auto">
@@ -355,6 +553,63 @@ export default function TVWatchPage() {
 
         </div>
       </div>
+
+      {/* Keyboard Shortcuts Dialog */}
+      <AnimatePresence>
+        {showShortcuts && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowShortcuts(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-[#0b0c10] border border-white/10 p-6 md:p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-white font-black text-lg italic uppercase tracking-wider mb-4 border-b border-white/10 pb-2 flex items-center justify-between">
+                <span>⌨ Keyboard Controls</span>
+                <span className="text-[#2dd4bf] text-[10px] tracking-normal not-italic font-medium bg-[#2dd4bf]/10 px-2 py-0.5 rounded">HLS Only</span>
+              </h3>
+              
+              <div className="flex flex-col gap-3.5 mb-6">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Play / Pause</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">Space</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Mute / Unmute</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">M</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Fullscreen</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">F</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Seek Backward</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">← Left Arrow</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Seek Forward</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">→ Right Arrow</span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setShowShortcuts(false)}
+                className="w-full py-3 bg-white text-black hover:bg-[#2dd4bf] transition-all font-black text-[11px] uppercase tracking-[2px] rounded-xl"
+              >
+                Got It
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
