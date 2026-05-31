@@ -7,6 +7,9 @@ export function AntiInspect() {
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, url: string } | null>(null);
 
   useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      return;
+    }
     // Intercept native context menu and route to our custom UI
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault(); // Block native menu globally
