@@ -31,6 +31,9 @@ export default function WatchPage() {
   const [error, setError] = useState<string | null>(null);
   const [showSubtitleSync, setShowSubtitleSync] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [isLightsOff, setIsLightsOff] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,6 +49,18 @@ export default function WatchPage() {
       window.removeEventListener('resize', handleOrientation);
       window.removeEventListener('orientationchange', handleOrientation);
     };
+  }, []);
+
+  // Sync preferences on load
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setAutoPlay(localStorage.getItem('movieStream_autoPlay') !== 'false');
+    }
+  }, []);
+
+  // Pre-warm Hugging Face scraper container in the background
+  useEffect(() => {
+    fetch('https://missourimonster-vyla.hf.space/').catch(() => {});
   }, []);
 
   // Fullscreen → Auto-Landscape Link
@@ -153,6 +168,17 @@ export default function WatchPage() {
     if (id) fetchMovie();
   }, [id]);
 
+  // Get dynamic source URL respecting preferences
+  const getSourceUrl = (sourceId: string) => {
+    if (sourceId === 'vidlink') {
+      return `https://vidlink.pro/movie/${movie?.id}?primaryColor=2dd4bf&autoplay=${autoPlay ? 1 : 0}`;
+    }
+    if (sourceId === 'vidking') {
+      return `https://www.vidking.net/embed/movie/${movie?.id}`;
+    }
+    return '';
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white">
@@ -185,7 +211,8 @@ export default function WatchPage() {
   if (!movie) return null;
 
   return (
-    <div className="min-h-screen bg-[#060606] flex flex-col">
+    <div className="min-h-screen bg-[#060606] flex flex-col relative overflow-x-hidden">
+      
       {/* Cinematic Header Overlay */}
       <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none">
         <div className="bg-gradient-to-b from-black/80 to-transparent pt-10 pb-20 px-6 md:px-14">
@@ -214,13 +241,13 @@ export default function WatchPage() {
               </div>
             </div>
 
-            <div className="w-24 hidden sm:block" /> {/* Spacer for symmetry */}
+            <div className="w-24 hidden sm:block" />
           </div>
         </div>
       </div>
 
       {/* Video Player - Full Viewport Elite Mode */}
-      <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group">
+      <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group z-20">
         {activeSource ? (
           <div className="relative w-full h-full">
             {activeSource.id === 'ultra' ? (
@@ -232,10 +259,11 @@ export default function WatchPage() {
                   const fallback = sources.find(s => s.id === 'vidlink');
                   if (fallback) setActiveSource(fallback);
                 }}
+                autoPlay={autoPlay}
               />
             ) : (
               <iframe
-                src={activeSource.url}
+                src={getSourceUrl(activeSource.id)}
                 className="w-full h-full border-0"
                 allowFullScreen
                 referrerPolicy="no-referrer"
@@ -256,7 +284,7 @@ export default function WatchPage() {
       </div>
 
       {/* Controls & Server Switch */}
-      <div className="container mx-auto px-6 py-12 max-w-[1400px]">
+      <div className="container mx-auto px-6 py-12 max-w-[1400px] z-20">
         <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-12 border border-white/5 shadow-2xl">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
             
@@ -299,6 +327,32 @@ export default function WatchPage() {
                   </div>
                 </button>
               </div>
+
+              {/* Premium Playback Option Toggles */}
+              <div className="flex flex-wrap items-center gap-6 mt-6 pt-6 border-t border-white/5 text-[10px] md:text-[11px] font-black uppercase tracking-[1px] text-white/50 select-none">
+                {/* Autoplay checkbox */}
+                <button 
+                  onClick={() => {
+                    const newVal = !autoPlay;
+                    setAutoPlay(newVal);
+                    localStorage.setItem('movieStream_autoPlay', String(newVal));
+                  }}
+                  className="flex items-center gap-2 hover:text-white transition-colors"
+                >
+                  <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlay ? 'bg-[#2dd4bf] text-black' : 'bg-white/5 border border-white/20'}`}>
+                    {autoPlay && <span className="text-[9px] font-bold">✓</span>}
+                  </div>
+                  <span>Autoplay</span>
+                </button>
+
+                {/* Shortcuts dialog toggle */}
+                <button 
+                  onClick={() => setShowShortcuts(true)}
+                  className="hover:text-white transition-colors flex items-center gap-1 ml-auto"
+                >
+                  <span>⌘ Shortcuts</span>
+                </button>
+              </div>
             </div>
 
             {/* Quality Info */}
@@ -336,7 +390,7 @@ export default function WatchPage() {
 
       {/* You May Like - Cineby Style */}
       {recommendations.length > 0 && (
-        <div className="container mx-auto px-6 py-12 max-w-[1400px]">
+        <div className="container mx-auto px-6 py-12 max-w-[1400px] z-20">
           <div className="flex items-center gap-3 mb-10">
             <div className="w-1.5 h-8 bg-red-600 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
             <h2 className="text-2xl font-black text-white uppercase tracking-tight italic">You May Like</h2>
@@ -349,6 +403,63 @@ export default function WatchPage() {
           </div>
         </div>
       )}
+
+      {/* Keyboard Shortcuts Dialog */}
+      <AnimatePresence>
+        {showShortcuts && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowShortcuts(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-[#0b0c10] border border-white/10 p-6 md:p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-white font-black text-lg italic uppercase tracking-wider mb-4 border-b border-white/10 pb-2 flex items-center justify-between">
+                <span>⌨ Keyboard Controls</span>
+                <span className="text-[#2dd4bf] text-[10px] tracking-normal not-italic font-medium bg-[#2dd4bf]/10 px-2 py-0.5 rounded">HLS Only</span>
+              </h3>
+              
+              <div className="flex flex-col gap-3.5 mb-6">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Play / Pause</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">Space</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Mute / Unmute</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">M</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Fullscreen</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">F</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Seek Backward</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">← Left Arrow</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40 uppercase font-black tracking-wider">Seek Forward</span>
+                  <span className="px-2.5 py-1 bg-white/10 rounded font-mono font-bold text-white">→ Right Arrow</span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setShowShortcuts(false)}
+                className="w-full py-3 bg-white text-black hover:bg-[#2dd4bf] transition-all font-black text-[11px] uppercase tracking-[2px] rounded-xl"
+              >
+                Got It
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
