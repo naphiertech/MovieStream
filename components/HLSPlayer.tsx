@@ -14,6 +14,9 @@ interface HLSPlayerProps {
   season?: number;
   episode?: number;
   onSignalLost?: () => void;
+  onEnded?: () => void;
+  autoPlay?: boolean;
+  autoSkipIntro?: boolean;
 }
 
 interface QualityLevel {
@@ -86,7 +89,10 @@ export default function HLSPlayer({
   type = 'movie', 
   season = 1, 
   episode = 1,
-  onSignalLost 
+  onSignalLost,
+  onEnded,
+  autoPlay = true,
+  autoSkipIntro = false
 }: HLSPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -113,6 +119,10 @@ export default function HLSPlayer({
   // Subtitles State
   const [subtitles, setSubtitles] = useState<SubtitleTrack[]>([]);
   const [activeSubtitle, setActiveSubtitle] = useState<number>(-1); // -1 = Off
+
+  const [showSkipIntro, setShowSkipIntro] = useState(false);
+  const [showSkippedToast, setShowSkippedToast] = useState(false);
+  const skippedIntroRef = useRef(false);
   
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -128,6 +138,9 @@ export default function HLSPlayer({
     setShowSettings(false);
     setSubtitles([]);
     setActiveSubtitle(-1);
+    skippedIntroRef.current = false;
+    setShowSkipIntro(false);
+    setShowSkippedToast(false);
   }, [tmdbId, season, episode]);
 
   // Sync fullscreen change event
@@ -140,6 +153,46 @@ export default function HLSPlayer({
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      const video = videoRef.current;
+      if (!video) return;
+
+      switch (e.code) {
+        case 'Space':
+          e.preventDefault();
+          togglePlay();
+          break;
+        case 'KeyM':
+          e.preventDefault();
+          toggleMute();
+          break;
+        case 'KeyF':
+          e.preventDefault();
+          toggleFullscreen();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          video.currentTime = Math.max(0, video.currentTime - 10);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPlaying, isMuted, volume]);
 
   // Toggle active text track based on selection
   useEffect(() => {
@@ -240,6 +293,15 @@ export default function HLSPlayer({
               setLevels(qualityLevels);
               setCurrentLevel(hls.currentLevel);
             }
+
+            // Automate ad-free autoplay if enabled
+            if (autoPlay) {
+              videoRef.current?.play().then(() => {
+                setIsPlaying(true);
+              }).catch(() => {
+                // Blocked browser autoplay
+              });
+            }
           });
 
           // Sync current level during automatic ABR changes
@@ -269,6 +331,11 @@ export default function HLSPlayer({
           videoRef.current.addEventListener('loadedmetadata', () => {
             setLoading(false);
             setDuration(videoRef.current?.duration || 0);
+            if (autoPlay) {
+              videoRef.current?.play().then(() => {
+                setIsPlaying(true);
+              }).catch(() => {});
+            }
           });
         } else {
           setError('Your browser does not support HLS playback');
@@ -315,8 +382,37 @@ export default function HLSPlayer({
   };
 
   const handleTimeUpdate = () => {
-    if (!videoRef.current) return;
-    setCurrentTime(videoRef.current.currentTime);
+    const video = videoRef.current;
+    if (!video) return;
+    const time = video.currentTime;
+    setCurrentTime(time);
+
+    // Skip Intro overlay triggers (TV Shows only)
+    if (type === 'tv') {
+      const isIntroTime = time >= 5 && time <= 90;
+      setShowSkipIntro(isIntroTime);
+
+      // Auto Skip Intro if enabled (runs only once per episode start)
+      if (autoSkipIntro && time > 0 && time < 5 && !skippedIntroRef.current) {
+        skippedIntroRef.current = true;
+        video.currentTime = 85;
+        setShowSkippedToast(true);
+        setTimeout(() => setShowSkippedToast(false), 3000);
+      }
+    }
+  };
+
+  const handleSkipIntro = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = 85;
+    setShowSkipIntro(false);
+  };
+
+  const handleEnded = () => {
+    if (onEnded) {
+      onEnded();
+    }
   };
 
   const handleLoadedMetadata = () => {
@@ -432,6 +528,29 @@ export default function HLSPlayer({
         }
       `}} />
 
+      {/* Manual Skip Intro Button */}
+      {type === 'tv' && showSkipIntro && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSkipIntro();
+          }}
+          className={`absolute z-30 right-6 bg-black/80 backdrop-blur-xl border border-white/10 px-5 py-2.5 rounded-xl text-white hover:border-[#2dd4bf]/40 hover:text-[#2dd4bf] transition-all duration-300 flex items-center gap-2 font-black text-[10px] uppercase tracking-[2px] shadow-2xl ${
+            showControls ? 'bottom-24' : 'bottom-6'
+          }`}
+        >
+          Skip Intro
+        </button>
+      )}
+
+      {/* Auto-skipped Toast Notification */}
+      {showSkippedToast && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-[#060606]/95 border border-[#2dd4bf]/20 backdrop-blur-md px-5 py-2.5 rounded-xl text-[#2dd4bf] font-black text-[10px] uppercase tracking-[2px] shadow-2xl flex items-center gap-2 animate-bounce">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf] animate-pulse" />
+          Skipped Intro Automatically
+        </div>
+      )}
+
       <video
         ref={videoRef}
         onClick={togglePlay}
@@ -447,6 +566,7 @@ export default function HLSPlayer({
         onPlaying={() => setIsBuffering(false)}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
+        onEnded={handleEnded}
         className="w-full h-full object-contain cursor-pointer"
         playsInline
       >
@@ -514,100 +634,104 @@ export default function HLSPlayer({
 
       {/* Settings Selector Overlay (Quality & Subtitles Menu) */}
       {showSettings && !loading && !error && (levels.length > 0 || subtitles.length > 0) && (
-        <div className="absolute bottom-24 right-6 z-30 bg-[#060606]/95 border border-white/10 backdrop-blur-xl rounded-2xl p-4 w-72 sm:w-[380px] shadow-2xl flex flex-col sm:flex-row gap-4 transition-all duration-300">
-          {/* Playback Quality Column */}
-          <div className="flex-1 flex flex-col gap-1 min-w-[120px]">
-            <p className="text-[10px] text-white/40 uppercase font-black tracking-wider px-2 py-1 border-b border-white/5 mb-1.5">
-              Quality
-            </p>
-            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto scrollbar-none pr-1">
-              {levels.length > 0 ? (
-                <>
-                  {/* Auto ABR Button */}
-                  <button 
-                    onClick={() => selectQuality(-1)}
-                    className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-left text-xs font-bold transition-all ${
-                      hlsInstanceRef.current?.loadLevel === -1
-                        ? 'bg-[#2dd4bf]/10 text-[#2dd4bf]'
-                        : 'text-white/70 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span>Auto</span>
-                    {hlsInstanceRef.current?.loadLevel === -1 && <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf]" />}
-                  </button>
-
-                  {/* Explicit Quality Level Buttons */}
-                  {levels.map((lvl) => (
-                    <button
-                      key={lvl.index}
-                      onClick={() => selectQuality(lvl.index)}
+        <div className="absolute bottom-24 right-6 z-30 bg-[#060606]/95 border border-white/10 backdrop-blur-xl rounded-2xl p-4 w-72 sm:w-[380px] shadow-2xl flex flex-col gap-3.5 transition-all duration-300">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Playback Quality Column */}
+            <div className="flex-1 flex flex-col gap-1 min-w-[120px]">
+              <p className="text-[10px] text-white/40 uppercase font-black tracking-wider px-2 py-1 border-b border-white/5 mb-1.5">
+                Quality
+              </p>
+              <div className="flex flex-col gap-1 max-h-48 overflow-y-auto scrollbar-none pr-1">
+                {levels.length > 0 ? (
+                  <>
+                    {/* Auto ABR Button */}
+                    <button 
+                      onClick={() => selectQuality(-1)}
                       className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-left text-xs font-bold transition-all ${
-                        hlsInstanceRef.current?.loadLevel === lvl.index
+                        hlsInstanceRef.current?.loadLevel === -1
                           ? 'bg-[#2dd4bf]/10 text-[#2dd4bf]'
                           : 'text-white/70 hover:bg-white/5 hover:text-white'
                       }`}
                     >
-                      <span>{lvl.name}</span>
-                      {hlsInstanceRef.current?.loadLevel === lvl.index && <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf]" />}
+                      <span>Auto</span>
+                      {hlsInstanceRef.current?.loadLevel === -1 && <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf]" />}
                     </button>
-                  ))}
-                </>
-              ) : (
-                <p className="text-white/30 text-[10px] italic px-2 py-1">No options available</p>
-              )}
+
+                    {/* Explicit Quality Level Buttons */}
+                    {levels.map((lvl) => (
+                      <button
+                        key={lvl.index}
+                        onClick={() => selectQuality(lvl.index)}
+                        className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-left text-xs font-bold transition-all ${
+                          hlsInstanceRef.current?.loadLevel === lvl.index
+                            ? 'bg-[#2dd4bf]/10 text-[#2dd4bf]'
+                            : 'text-white/70 hover:bg-white/5 hover:text-white'
+                        }`}
+                      >
+                        <span>{lvl.name}</span>
+                        {hlsInstanceRef.current?.loadLevel === lvl.index && <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf]" />}
+                      </button>
+                    ))}
+                  </>
+                ) : (
+                  <p className="text-white/30 text-[10px] italic px-2 py-1">No options available</p>
+                )}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="hidden sm:block w-px bg-white/5 self-stretch" />
+            <div className="block sm:hidden h-px bg-white/5 w-full" />
+
+            {/* Subtitles Column */}
+            <div className="flex-1 flex flex-col gap-1 min-w-[120px]">
+              <p className="text-[10px] text-white/40 uppercase font-black tracking-wider px-2 py-1 border-b border-white/5 mb-1.5">
+                Subtitles
+              </p>
+              <div className="flex flex-col gap-1 max-h-48 overflow-y-auto scrollbar-none pr-1">
+                {/* Subtitle Off Button */}
+                <button 
+                  onClick={() => {
+                    setActiveSubtitle(-1);
+                    setShowSettings(false);
+                  }}
+                  className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-left text-xs font-bold transition-all ${
+                    activeSubtitle === -1
+                      ? 'bg-[#2dd4bf]/10 text-[#2dd4bf]'
+                      : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span>Off</span>
+                  {activeSubtitle === -1 && <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf]" />}
+                </button>
+
+                {/* Subtitle Track Buttons */}
+                {subtitles.length > 0 ? (
+                  subtitles.map((sub, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setActiveSubtitle(index);
+                        setShowSettings(false);
+                      }}
+                      className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-left text-xs font-bold transition-all ${
+                        activeSubtitle === index
+                          ? 'bg-[#2dd4bf]/10 text-[#2dd4bf]'
+                          : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <span className="truncate max-w-[110px]">{sub.label}</span>
+                      {activeSubtitle === index && <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf]" />}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-white/30 text-[10px] italic px-2 py-1">No subtitles found</p>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="hidden sm:block w-px bg-white/5 self-stretch" />
-          <div className="block sm:hidden h-px bg-white/5 w-full" />
 
-          {/* Subtitles Column */}
-          <div className="flex-1 flex flex-col gap-1 min-w-[120px]">
-            <p className="text-[10px] text-white/40 uppercase font-black tracking-wider px-2 py-1 border-b border-white/5 mb-1.5">
-              Subtitles
-            </p>
-            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto scrollbar-none pr-1">
-              {/* Subtitle Off Button */}
-              <button 
-                onClick={() => {
-                  setActiveSubtitle(-1);
-                  setShowSettings(false);
-                }}
-                className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-left text-xs font-bold transition-all ${
-                  activeSubtitle === -1
-                    ? 'bg-[#2dd4bf]/10 text-[#2dd4bf]'
-                    : 'text-white/70 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                <span>Off</span>
-                {activeSubtitle === -1 && <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf]" />}
-              </button>
-
-              {/* Subtitle Track Buttons */}
-              {subtitles.length > 0 ? (
-                subtitles.map((sub, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setActiveSubtitle(index);
-                      setShowSettings(false);
-                    }}
-                    className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-left text-xs font-bold transition-all ${
-                      activeSubtitle === index
-                        ? 'bg-[#2dd4bf]/10 text-[#2dd4bf]'
-                        : 'text-white/70 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span className="truncate max-w-[110px]">{sub.label}</span>
-                    {activeSubtitle === index && <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf]" />}
-                  </button>
-                ))
-              ) : (
-                <p className="text-white/30 text-[10px] italic px-2 py-1">No subtitles found</p>
-              )}
-            </div>
-          </div>
         </div>
       )}
 
