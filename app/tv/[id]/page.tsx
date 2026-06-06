@@ -124,13 +124,13 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
 
               {/* Action Buttons — Cineby style */}
               <div className="flex items-center gap-3">
-                <Link 
-                  href={`/watch/tv/${show.id}/${firstSeasonNum}/1`}
-                  className="group inline-flex items-center gap-2 bg-white text-black px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-white/90 transition-all duration-300 active:scale-95"
+                <a 
+                  href="#episodes"
+                  className="group inline-flex items-center gap-2 bg-white text-black px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-white/90 transition-all duration-300 active:scale-95 cursor-pointer"
                 >
                   <Play size={16} fill="currentColor" />
                   <span>Play</span>
-                </Link>
+                </a>
 
                 <button className="inline-flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-md border border-white/15 rounded-lg text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300">
                   <Plus size={18} />
