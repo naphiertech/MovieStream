@@ -31,13 +31,31 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <Script id="register-sw" strategy="afterInteractive">
           {`
             if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(reg) {
-                  console.log('SW registered:', reg.scope);
-                }).catch(function(err) {
-                  console.log('SW registration failed:', err);
+              if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                // In local dev, unregister service workers and clear caches to prevent Next.js HMR compilation errors
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for (let registration of registrations) {
+                    registration.unregister().then(function(success) {
+                      if (success) console.log('Dev SW unregistered successfully');
+                    });
+                  }
                 });
-              });
+                if ('caches' in window) {
+                  caches.keys().then(function(keys) {
+                    keys.forEach(function(key) {
+                      caches.delete(key);
+                    });
+                  });
+                }
+              } else {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('SW registered:', reg.scope);
+                  }).catch(function(err) {
+                    console.log('SW registration failed:', err);
+                  });
+                });
+              }
             }
           `}
         </Script>
