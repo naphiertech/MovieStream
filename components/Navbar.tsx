@@ -111,6 +111,7 @@ export function Navbar() {
                 { label: 'Home', href: '/' },
                 { label: 'Movies', href: '/movies' },
                 { label: 'TV Shows', href: '/tv-shows' },
+                { label: 'Genres', href: '/genres' },
                 { label: 'Trending', href: '/trending' },
                 { label: 'API', href: 'https://www.vidking.net/', accent: true }
               ].map((item) => (
