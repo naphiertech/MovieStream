@@ -31,6 +31,12 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Do not cache localhost or local development requests to avoid HMR cache collisions
+  const url = new URL(event.request.url);
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    return;
+  }
+
   // Stale-while-revalidate strategy for the most responsive feel
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
