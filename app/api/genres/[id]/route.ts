@@ -11,7 +11,11 @@ export async function GET(
 
   try {
     const movies = await getMoviesByGenre(id, page);
-    return NextResponse.json(movies);
+    return NextResponse.json(movies, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
+    });
   } catch (error) {
     console.error(`Error in genres API:`, error);
     return NextResponse.json({ error: 'Failed to fetch movies' }, { status: 500 });
