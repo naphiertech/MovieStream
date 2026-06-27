@@ -153,6 +153,8 @@ const DEFAULT_DETAIL = {
   bgGlow: "from-teal-500/10 via-teal-500/5 to-transparent"
 };
 
+export const revalidate = 3600;
+
 export default async function GenresIndexPage() {
   const genres = await getGenres();
   
