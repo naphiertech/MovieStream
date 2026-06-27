@@ -14,6 +14,8 @@ import {
   getTrendingTV
 } from '@/lib/tmdb';
 
+export const revalidate = 3600;
+
 export default async function Home() {
   // Safe fetch wrapper to prevent whole page crash on one fetch failure
   const safeFetch = async <T,>(promise: Promise<T>, fallback: T): Promise<T> => {
