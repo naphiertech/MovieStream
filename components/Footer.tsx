@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Zap } from 'lucide-react';
+import { Zap, Github, Globe, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -42,16 +42,89 @@ export function Footer() {
             <div className="space-y-4">
               <h4 className="text-white font-black text-[11px] uppercase tracking-[2px]">Connect</h4>
               <ul className="space-y-3 text-[13px]">
-                <li><Link href="#" className="hover:text-[#2dd4bf] transition-colors">Twitter</Link></li>
-                <li><Link href="#" className="hover:text-[#2dd4bf] transition-colors">Discord</Link></li>
-                <li><Link href="#" className="hover:text-[#2dd4bf] transition-colors">Contact</Link></li>
+                <li>
+                  <a 
+                    href="https://naphier-portfolio.vercel.app/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-[#2dd4bf] transition-colors flex items-center gap-2 group"
+                  >
+                    <Globe size={14} className="text-white/20 group-hover:text-[#2dd4bf] transition-colors" />
+                    <span>Portfolio</span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://github.com/bagatata05" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-[#2dd4bf] transition-colors flex items-center gap-2 group"
+                  >
+                    <Github size={14} className="text-white/20 group-hover:text-[#2dd4bf] transition-colors" />
+                    <span>GitHub</span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://www.linkedin.com/in/awalie-naphier-b-0551983b5" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-[#2dd4bf] transition-colors flex items-center gap-2 group"
+                  >
+                    <Linkedin size={14} className="text-white/20 group-hover:text-[#2dd4bf] transition-colors" />
+                    <span>LinkedIn</span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://x.com/bagatata05" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-[#2dd4bf] transition-colors flex items-center gap-2 group"
+                  >
+                    <Twitter size={14} className="text-white/20 group-hover:text-[#2dd4bf] transition-colors" />
+                    <span>Twitter / X</span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://www.instagram.com/bagatata05/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-[#2dd4bf] transition-colors flex items-center gap-2 group"
+                  >
+                    <Instagram size={14} className="text-white/20 group-hover:text-[#2dd4bf] transition-colors" />
+                    <span>Instagram</span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://www.facebook.com/naph05" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-[#2dd4bf] transition-colors flex items-center gap-2 group"
+                  >
+                    <Facebook size={14} className="text-white/20 group-hover:text-[#2dd4bf] transition-colors" />
+                    <span>Facebook</span>
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
         </div>
 
         <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-bold uppercase tracking-[1px]">
-          <p>Built for elite high-fidelity digital experiences.</p>
+          <p className="flex items-center gap-2">
+            <span>Made with ⚡ by</span>
+            <a 
+              href="https://naphier-portfolio.vercel.app/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-[#2dd4bf] hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(45,212,191,0.3)] font-black"
+            >
+              Naphier
+            </a>
+          </p>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#2dd4bf] animate-pulse" />
             <p>&copy; {new Date().getFullYear()} MovieStream Pro. All rights reserved.</p>
