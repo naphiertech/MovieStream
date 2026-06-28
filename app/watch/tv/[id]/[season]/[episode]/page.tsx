@@ -111,10 +111,10 @@ export default function TVWatchPage() {
     };
   }, []);
 
-  // Listen for ended messages from VidLink iframe
+  // Listen for ended messages from VidPlus iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin.includes('vidlink.pro')) {
+      if (event.origin.includes('vidplus.to')) {
         try {
           let data = event.data;
           if (typeof data === 'string' && data.startsWith('{')) {
@@ -122,7 +122,7 @@ export default function TVWatchPage() {
           }
           const isEnded = data === 'ended' || data?.event === 'ended' || data?.type === 'ended';
           if (isEnded) {
-            console.log('VidLink iframe video ended!');
+            console.log('VidPlus iframe video ended!');
             if (autoPlayNext && nextEpisode) {
               setCountdown(5);
             }
@@ -200,9 +200,9 @@ export default function TVWatchPage() {
         // Map sources
         const sourcesList = [
           {
-            id: 'vidlink',
-            name: 'VidLink (Pro)',
-            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf&autoplay=1`,
+            id: 'vidplus',
+            name: 'VidPlus (Pro)',
+            url: `https://player.vidplus.to/embed/tv/${id}/${season}/${episode}?primarycolor=2dd4bf&autoplay=true`,
             quality: '1080p'
           },
           {
@@ -263,8 +263,8 @@ export default function TVWatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
-    if (sourceId === 'vidlink') {
-      return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf&autoplay=${autoPlay ? 1 : 0}`;
+    if (sourceId === 'vidplus') {
+      return `https://player.vidplus.to/embed/tv/${id}/${season}/${episode}?primarycolor=2dd4bf&autoplay=${autoPlay ? 'true' : 'false'}`;
     }
     if (sourceId === 'vidking') {
       return `https://www.vidking.net/embed/tv/${id}/${season}/${episode}`;
@@ -351,7 +351,7 @@ export default function TVWatchPage() {
                 season={Number(season)} 
                 episode={Number(episode)} 
                 onSignalLost={() => {
-                  const fallback = sources.find(s => s.id === 'vidlink');
+                  const fallback = sources.find(s => s.id === 'vidplus');
                   if (fallback) setActiveSource(fallback);
                 }}
                 onEnded={() => {

@@ -122,9 +122,9 @@ export default function WatchPage() {
         // Premium Sources
         const sourcesList = [
           {
-            id: 'vidlink',
-            name: 'VidLink (Pro)',
-            url: `https://vidlink.pro/movie/${data.id}?primaryColor=2dd4bf&autoplay=1`,
+            id: 'vidplus',
+            name: 'VidPlus (Pro)',
+            url: `https://player.vidplus.to/embed/movie/${data.id}?primarycolor=2dd4bf&autoplay=true`,
             quality: '4K/1080p'
           },
           {
@@ -170,8 +170,8 @@ export default function WatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
-    if (sourceId === 'vidlink') {
-      return `https://vidlink.pro/movie/${movie?.id}?primaryColor=2dd4bf&autoplay=${autoPlay ? 1 : 0}`;
+    if (sourceId === 'vidplus') {
+      return `https://player.vidplus.to/embed/movie/${movie?.id}?primarycolor=2dd4bf&autoplay=${autoPlay ? 'true' : 'false'}`;
     }
     if (sourceId === 'vidking') {
       return `https://www.vidking.net/embed/movie/${movie?.id}`;
@@ -256,7 +256,7 @@ export default function WatchPage() {
                 imdbId={movie.imdbId}
                 type="movie" 
                 onSignalLost={() => {
-                  const fallback = sources.find(s => s.id === 'vidlink');
+                  const fallback = sources.find(s => s.id === 'vidplus');
                   if (fallback) setActiveSource(fallback);
                 }}
                 autoPlay={autoPlay}

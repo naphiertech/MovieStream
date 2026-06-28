@@ -13,9 +13,9 @@ export async function GET(
     
     const sources = [
       {
-        id: `vidlink_${movie.id}`,
-        name: "VidLink (Pro)",
-        url: `https://vidlink.pro/movie/${movie.id}`,
+        id: `vidplus_${movie.id}`,
+        name: "VidPlus (Pro)",
+        url: `https://player.vidplus.to/embed/movie/${movie.id}`,
         quality: "1080p"
       },
       {
