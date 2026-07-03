@@ -13,15 +13,15 @@ export async function GET(
     
     const sources = [
       {
-        id: `vidplus_${movie.id}`,
-        name: "VidPlus (Pro)",
-        url: `https://player.vidplus.to/embed/movie/${movie.id}`,
+        id: `vidlink_${movie.id}`,
+        name: "VidLink (Pro)",
+        url: `https://vidlink.pro/movie/${movie.id}`,
         quality: "1080p"
       },
       {
-        id: `vixsrc_${movie.id}`,
-        name: "VixSrc (Fast)",
-        url: `https://vixsrc.to/movie/${movie.id}`,
+        id: `vidfast_${movie.id}`,
+        name: "VidFast (Pro)",
+        url: `https://vidfast.pro/movie/${movie.id}`,
         quality: "1080p"
       }
     ];

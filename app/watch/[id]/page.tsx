@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RecommendationCard } from '@/components/RecommendationCard';
 import { ActorList } from '@/components/ActorList';
 import { SubtitleOverlay } from '@/components/SubtitleOverlay';
-import HLSPlayer from '@/components/HLSPlayer';
 import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
 import { Movie } from '@/lib/tmdb';
 
@@ -122,21 +121,15 @@ export default function WatchPage() {
         // Premium Sources
         const sourcesList = [
           {
-            id: 'vidplus',
-            name: 'VidPlus (Pro)',
-            url: `https://player.vidplus.to/embed/movie/${data.id}?primarycolor=2dd4bf&autoplay=true`,
+            id: 'vidlink',
+            name: 'VidLink (Pro)',
+            url: `https://vidlink.pro/movie/${data.id}?primaryColor=2dd4bf&autoplay=1`,
             quality: '4K/1080p'
           },
           {
-            id: 'ultra',
-            name: 'Elite Ad-Free (HLS)',
-            url: '', // Handled by HLSPlayer
-            quality: '4K/1080p'
-          },
-          {
-            id: 'vidking',
-            name: 'Vidking (HQ)',
-            url: `https://www.vidking.net/embed/movie/${data.id}`,
+            id: 'vidfast',
+            name: 'VidFast (Pro)',
+            url: `https://vidfast.pro/movie/${data.id}?theme=2dd4bf&autoPlay=true`,
             quality: '1080p'
           }
         ];
@@ -170,11 +163,11 @@ export default function WatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
-    if (sourceId === 'vidplus') {
-      return `https://player.vidplus.to/embed/movie/${movie?.id}?primarycolor=2dd4bf&autoplay=${autoPlay ? 'true' : 'false'}`;
+    if (sourceId === 'vidlink') {
+      return `https://vidlink.pro/movie/${movie?.id}?primaryColor=2dd4bf&autoplay=${autoPlay ? 1 : 0}`;
     }
-    if (sourceId === 'vidking') {
-      return `https://www.vidking.net/embed/movie/${movie?.id}`;
+    if (sourceId === 'vidfast') {
+      return `https://vidfast.pro/movie/${movie?.id}?theme=2dd4bf&autoPlay=${autoPlay ? 'true' : 'false'}`;
     }
     return '';
   };
@@ -250,26 +243,13 @@ export default function WatchPage() {
       <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group z-20">
         {activeSource ? (
           <div className="relative w-full h-full">
-            {activeSource.id === 'ultra' ? (
-              <HLSPlayer 
-                tmdbId={Number(id)} 
-                imdbId={movie.imdbId}
-                type="movie" 
-                onSignalLost={() => {
-                  const fallback = sources.find(s => s.id === 'vidplus');
-                  if (fallback) setActiveSource(fallback);
-                }}
-                autoPlay={autoPlay}
-              />
-            ) : (
-              <iframe
-                src={getSourceUrl(activeSource.id)}
-                className="w-full h-full border-0"
-                allowFullScreen
-                referrerPolicy="no-referrer"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
-            )}
+            <iframe
+              src={getSourceUrl(activeSource.id)}
+              className="w-full h-full border-0"
+              allowFullScreen
+              referrerPolicy="no-referrer"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
             
             {/* Custom Subtitle Overlay */}
             {showSubtitleSync && <SubtitleOverlay />}

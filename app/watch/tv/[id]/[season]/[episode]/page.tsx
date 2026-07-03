@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getTVDetails, getSeasonDetails, TVShow, Episode } from '@/lib/tmdb';
 import { ActorList } from '@/components/ActorList';
 import { SubtitleOverlay } from '@/components/SubtitleOverlay';
-import HLSPlayer from '@/components/HLSPlayer';
 import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
 
 export interface VideoSource {
@@ -111,10 +110,12 @@ export default function TVWatchPage() {
     };
   }, []);
 
-  // Listen for ended messages from VidPlus iframe
+  // Listen for ended messages from VidLink or VidFast iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin.includes('vidplus.to')) {
+      const isVidLink = event.origin.includes('vidlink.pro');
+      const isVidFast = event.origin.includes('vidfast.pro');
+      if (isVidLink || isVidFast) {
         try {
           let data = event.data;
           if (typeof data === 'string' && data.startsWith('{')) {
@@ -122,7 +123,7 @@ export default function TVWatchPage() {
           }
           const isEnded = data === 'ended' || data?.event === 'ended' || data?.type === 'ended';
           if (isEnded) {
-            console.log('VidPlus iframe video ended!');
+            console.log('Iframe video ended!');
             if (autoPlayNext && nextEpisode) {
               setCountdown(5);
             }
@@ -200,21 +201,15 @@ export default function TVWatchPage() {
         // Map sources
         const sourcesList = [
           {
-            id: 'vidplus',
-            name: 'VidPlus (Pro)',
-            url: `https://player.vidplus.to/embed/tv/${id}/${season}/${episode}?primarycolor=2dd4bf&autoplay=true`,
+            id: 'vidlink',
+            name: 'VidLink (Pro)',
+            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf&autoplay=1`,
             quality: '1080p'
           },
           {
-            id: 'ultra',
-            name: 'Elite Ad-Free (HLS)',
-            url: '', // Handled by HLSPlayer
-            quality: '1080p'
-          },
-          {
-            id: 'vidking',
-            name: 'Vidking (HQ)',
-            url: `https://www.vidking.net/embed/tv/${id}/${season}/${episode}`,
+            id: 'vidfast',
+            name: 'VidFast (Pro)',
+            url: `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=2dd4bf&autoPlay=true`,
             quality: '1080p'
           }
         ];
@@ -263,11 +258,11 @@ export default function TVWatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
-    if (sourceId === 'vidplus') {
-      return `https://player.vidplus.to/embed/tv/${id}/${season}/${episode}?primarycolor=2dd4bf&autoplay=${autoPlay ? 'true' : 'false'}`;
+    if (sourceId === 'vidlink') {
+      return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf&autoplay=${autoPlay ? 1 : 0}`;
     }
-    if (sourceId === 'vidking') {
-      return `https://www.vidking.net/embed/tv/${id}/${season}/${episode}`;
+    if (sourceId === 'vidfast') {
+      return `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=2dd4bf&autoPlay=${autoPlay ? 'true' : 'false'}`;
     }
     return '';
   };
@@ -343,34 +338,13 @@ export default function TVWatchPage() {
       <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group z-20">
         {activeSource ? (
           <div className="relative w-full h-full">
-            {activeSource.id === 'ultra' ? (
-              <HLSPlayer 
-                tmdbId={Number(id)} 
-                imdbId={show?.imdbId}
-                type="tv" 
-                season={Number(season)} 
-                episode={Number(episode)} 
-                onSignalLost={() => {
-                  const fallback = sources.find(s => s.id === 'vidplus');
-                  if (fallback) setActiveSource(fallback);
-                }}
-                onEnded={() => {
-                  if (autoPlayNext && nextEpisode) {
-                    setCountdown(5);
-                  }
-                }}
-                autoPlay={autoPlay}
-                autoSkipIntro={autoSkipIntro}
-              />
-            ) : (
-              <iframe
-                src={getSourceUrl(activeSource.id)}
-                className="w-full h-full border-0"
-                allowFullScreen
-                referrerPolicy="no-referrer"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
-            )}
+            <iframe
+              src={getSourceUrl(activeSource.id)}
+              className="w-full h-full border-0"
+              allowFullScreen
+              referrerPolicy="no-referrer"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
             
             {/* Custom Subtitle Overlay */}
             {showSubtitleSync && <SubtitleOverlay />}
