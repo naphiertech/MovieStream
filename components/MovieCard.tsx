@@ -3,61 +3,87 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Movie, PLACEHOLDERS } from '@/lib/tmdb';
-import { Star, Info } from 'lucide-react';
+import { Star, Play } from 'lucide-react';
 
-export function MovieCard({ movie }: MovieCardProps) {
+interface MovieCardProps {
+  movie: Movie;
+  layout?: 'portrait' | 'landscape';
+  index?: number;
+  showRankBadge?: boolean;
+}
+
+export function MovieCard({ 
+  movie, 
+  layout = 'landscape', 
+  index, 
+  showRankBadge = false 
+}: MovieCardProps) {
+  const isLandscape = layout === 'landscape';
+  
+  // Decide which image source to use
+  const imageSrc = isLandscape 
+    ? (movie.bannerUrl || PLACEHOLDERS.BANNER) 
+    : (movie.posterUrl || PLACEHOLDERS.POSTER);
+
   return (
-    <Link href={movie.type === 'tv' ? `/tv/${movie.id}` : `/movie/${movie.id}`} className="relative cursor-pointer group block">
-      <div className="aspect-[2/3] bg-white/5 rounded-2xl overflow-hidden mb-4 border border-white/5 relative shadow-2xl group-hover:border-[#2dd4bf]/40 transition-all duration-500 card-hover-glow group-hover:scale-[1.03]">
+    <Link 
+      href={movie.type === 'tv' ? `/tv/${movie.id}` : `/movie/${movie.id}`} 
+      className="relative cursor-pointer group block"
+    >
+      {/* Image Card Container */}
+      <div 
+        className={`relative w-full overflow-hidden bg-white/5 rounded-2xl mb-3 border border-white/5 shadow-2xl transition-all duration-500 card-hover-glow group-hover:scale-[1.03] group-hover:border-red-600/40 ${
+          isLandscape ? 'aspect-[16/9]' : 'aspect-[2/3]'
+        }`}
+      >
         <Image
-          src={movie.posterUrl || PLACEHOLDERS.POSTER}
+          src={imageSrc}
           alt={movie.title}
           fill
           className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
-          sizes="(max-width: 768px) 33vw, (max-width: 1200px) 20vw, 16vw"
+          sizes={isLandscape 
+            ? "(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            : "(max-width: 768px) 33vw, (max-width: 1200px) 20vw, 16vw"
+          }
           referrerPolicy="no-referrer"
-          unoptimized={!movie.posterUrl}
+          unoptimized={!imageSrc.startsWith('http')}
         />
         
-        <div className="absolute top-3 right-3 bg-black/70 text-[9px] px-2 py-1 rounded-lg font-black z-10 text-[#2dd4bf] tracking-wider flex items-center gap-1 shadow-lg border border-white/10">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf]" />
+        {/* Top-Right Resolution Badge */}
+        <div className="absolute top-3 right-3 bg-black/75 text-[9px] px-2 py-1 rounded-lg font-black z-10 text-red-500 tracking-wider flex items-center gap-1 shadow-lg border border-white/10">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
           4K
         </div>
 
-        {/* Default State Bottom Gradient (Rating/Genre) */}
-        <div className="absolute inset-x-0 bottom-0 p-4 pt-12 bg-gradient-to-t from-black via-black/60 to-transparent flex flex-col justify-end opacity-100 group-hover:opacity-0 transition-opacity duration-300">
-          <div className="flex items-center gap-1.5 mb-1">
-            <Star size={10} className="text-[#2dd4bf] fill-[#2dd4bf]" />
-            <span className="text-white font-black text-[10px]">{movie.rating.toFixed(1)}</span>
+        {/* Top-Left Rank Badge (Cineby Red Square Badge Style) */}
+        {showRankBadge && index !== undefined && (
+          <div className="absolute top-0 left-0 bg-red-600 text-white font-black text-xs px-3.5 py-2.5 rounded-br-2xl shadow-lg z-10 flex items-center justify-center font-outfit min-w-[36px]">
+            {index + 1}
           </div>
-          <p className="text-[10px] text-white/70 font-medium">
-            {movie.genres?.[0] || (movie.type === 'tv' ? 'Series' : 'Movie')} • {movie.year}
-          </p>
-        </div>
+        )}
 
-        {/* Hover Details Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4 z-20">
-          <p className="text-[11px] md:text-xs text-white/90 line-clamp-4 mb-4 leading-relaxed font-medium translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-            {movie.description || "No description available."}
-          </p>
-          <div className="flex justify-center translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
-            <div className="flex items-center gap-2 px-4 py-1.5 rounded-md border border-white/20 bg-black/40 text-white text-[11px] font-medium shadow-xl">
-              <Info size={12} />
-              Details
-            </div>
+        {/* Play Button Overlay Fades In on Hover */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
+          <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white shadow-[0_0_20px_rgba(229,9,20,0.6)] scale-90 group-hover:scale-100 transition-transform duration-300">
+            <Play size={20} fill="white" className="ml-0.5 text-white" />
           </div>
         </div>
       </div>
       
+      {/* Title & Metadata Details Rendered Below Card */}
       <div className="flex flex-col px-1">
-        <h4 className="text-[14px] font-black text-white whitespace-nowrap overflow-hidden text-ellipsis group-hover:text-[#2dd4bf] transition-colors duration-300 tracking-tight uppercase">
+        <h4 className="text-[13px] md:text-[14px] font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis group-hover:text-red-500 transition-colors duration-300 uppercase tracking-tight font-outfit">
           {movie.title}
         </h4>
+        <div className="flex items-center gap-1.5 mt-1 text-[11px] text-white/50 font-medium">
+          <Star size={11} className="text-red-500 fill-red-500" />
+          <span className="text-white/80 font-bold">{movie.rating.toFixed(1)}</span>
+          <span>•</span>
+          <span>{movie.year}</span>
+          <span>•</span>
+          <span className="capitalize">{movie.type === 'tv' ? 'Series' : 'Movie'}</span>
+        </div>
       </div>
     </Link>
   );
-}
-
-interface MovieCardProps {
-  movie: Movie;
 }

@@ -100,7 +100,7 @@ export function AntiInspect() {
         onClick={(e) => handleAction('copy', e)}
         className="flex items-center gap-3 px-3 py-2.5 text-[12px] font-medium text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors w-full text-left"
       >
-        <Copy size={14} className="text-[#2dd4bf]" />
+        <Copy size={14} className="text-red-500" />
         Copy link address
       </button>
     </div>

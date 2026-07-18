@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, X } from 'lucide-react';
+import { Play, X, Star } from 'lucide-react';
 import { PLACEHOLDERS } from '@/lib/tmdb';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 
@@ -12,7 +12,6 @@ export function WatchHistory() {
 
   useEffect(() => {
     const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
-    // Use timeout to avoid synchronous cascading render warning
     const timer = setTimeout(() => {
       setWatchHistory(history);
     }, 0);
@@ -43,88 +42,106 @@ export function WatchHistory() {
       variants={fadeIn}
       className="relative mt-8 md:-mt-24 pt-12 md:pt-28 px-6 md:px-14 lg:px-20 mb-0"
     >
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-[20px] md:text-[24px] font-black text-white uppercase tracking-[2px] flex items-center gap-3 relative z-20 italic">
-          <span className="w-1.5 md:w-2 h-7 md:h-8 bg-[#2dd4bf] rounded-full shadow-[0_0_20px_rgba(45,212,191,0.5)]" />
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-[18px] md:text-[22px] font-black text-white uppercase tracking-[0.5px] flex items-center gap-3 relative z-20 font-outfit">
+          <span className="w-1.5 h-6 bg-red-600 rounded-full shadow-[0_0_12px_rgba(229,9,20,0.5)]" />
           Continue Watching
         </h2>
         <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[10px] font-black uppercase tracking-[1px]">
-           <span className="w-1.5 h-1.5 rounded-full bg-[#2dd4bf] animate-pulse" />
-           {watchHistory.length} Titles Found
+           <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+           {watchHistory.length} Titles
         </div>
       </div>
 
-      <div className="flex gap-5 md:gap-8 overflow-x-auto pb-8 custom-scrollbar scroll-smooth relative z-20">
+      <div className="flex gap-5 md:gap-6 overflow-x-auto pb-8 scrollbar-hide scroll-smooth relative z-20">
         <AnimatePresence mode="popLayout">
-          {watchHistory.map((item) => (
-            <motion.div
-              layout
-              key={item.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-              className="relative group flex-shrink-0"
-            >
-              <Link 
-                href={item.type === 'tv' ? `/watch/tv/${item.id}/${item.season || 1}/${item.episode || 1}` : `/watch/${item.id}`} 
-                className="relative block w-64 sm:w-72 md:w-80 aspect-video rounded-2xl overflow-hidden border border-white/5 group-hover:border-[#2dd4bf]/40 transition-all duration-500 shadow-2xl group-hover:shadow-[#2dd4bf]/10 group-hover:-translate-y-1"
-              >
-                <Image 
-                  src={item.posterUrl || PLACEHOLDERS.POSTER} 
-                  alt={item.title} 
-                  fill 
-                  className="object-cover opacity-50 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700 ease-out" 
-                  referrerPolicy="no-referrer" 
-                  unoptimized={!item.posterUrl}
-                />
-                
-                {/* Visual Progress Bar - Mocked to look real */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-10 overflow-hidden">
-                   <div 
-                    className="h-full bg-[#2dd4bf] shadow-[0_0_10px_#2dd4bf]" 
-                    style={{ width: `${Math.floor(Math.random() * (85 - 30 + 1) + 30)}%` }} 
-                   />
-                </div>
+          {watchHistory.map((item) => {
+            // Deterministic progress width and mock timestamp based on id
+            const numericId = parseInt(item.id) || 0;
+            const progress = (numericId % 45) + 35; // Between 35% and 80%
+            const mockHour = (numericId % 2) + 0;
+            const mockMin = (numericId % 45) + 10;
+            const mockSec = (numericId % 50) + 9;
+            const progressTime = mockHour > 0 
+              ? `${mockHour}:${mockMin.toString().padStart(2, '0')}:${mockSec.toString().padStart(2, '0')}`
+              : `${mockMin}:${mockSec.toString().padStart(2, '0')}`;
 
-                {/* Info Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    {item.type === 'tv' ? (
-                       <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[2px] bg-[#2dd4bf]/10 px-2 py-0.5 rounded border border-[#2dd4bf]/20">
-                         S{item.season} E{item.episode}
-                       </span>
-                    ) : (
-                       <span className="text-white/40 text-[9px] font-black uppercase tracking-[2px] bg-white/5 px-2 py-0.5 rounded border border-white/10">
-                         Movie
-                       </span>
-                    )}
+            const imageSrc = item.bannerUrl || item.posterUrl || PLACEHOLDERS.BANNER;
+
+            return (
+              <motion.div
+                layout
+                key={item.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                className="relative group flex-shrink-0 w-[240px] sm:w-[280px] md:w-[300px]"
+              >
+                <Link 
+                  href={item.type === 'tv' ? `/watch/tv/${item.id}/${item.season || 1}/${item.episode || 1}` : `/watch/${item.id}`} 
+                  className="block relative w-full aspect-[16/9] rounded-2xl overflow-hidden border border-white/5 group-hover:border-red-600/40 transition-all duration-500 shadow-2xl group-hover:scale-[1.02]"
+                >
+                  <Image 
+                    src={imageSrc} 
+                    alt={item.title} 
+                    fill 
+                    className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out" 
+                    referrerPolicy="no-referrer" 
+                    unoptimized={!imageSrc.startsWith('http')}
+                  />
+                  
+                  {/* Progress Time Stamp Stamp */}
+                  <div className="absolute bottom-3 right-3 bg-black/75 text-[9px] px-2 py-0.5 rounded font-black z-10 text-white border border-white/5 tracking-wider">
+                    {progressTime}
                   </div>
-                  <h3 className="text-white text-[14px] md:text-[16px] font-black uppercase tracking-tight truncate drop-shadow-md group-hover:text-[#2dd4bf] transition-colors">
+
+                  {/* Red progress line */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-10 overflow-hidden">
+                     <div 
+                      className="h-full bg-red-600 shadow-[0_0_10px_#e50914]" 
+                      style={{ width: `${progress}%` }} 
+                     />
+                  </div>
+                  
+                  {/* Play icon overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/20 z-10">
+                    <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(229,9,20,0.5)] group-hover:scale-110 transition-transform">
+                      <Play size={20} className="ml-0.5 text-white" fill="currentColor" />
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Info Text rendered below card */}
+                <div className="mt-3 px-1 flex flex-col relative">
+                  <h3 className="text-white text-[13px] md:text-[14px] font-bold uppercase tracking-tight truncate group-hover:text-red-500 transition-colors">
                     {item.title}
                   </h3>
-                </div>
-                
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/20">
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-[#2dd4bf] rounded-full flex items-center justify-center text-black shadow-[0_0_30px_rgba(45,212,191,0.5)] group-hover:scale-110 transition-transform">
-                    <Play size={24} className="ml-1" fill="currentColor" />
+                  <div className="flex items-center gap-2 mt-1 text-[11px] text-white/50 font-medium">
+                    {item.type === 'tv' ? (
+                      <span className="text-red-500 font-bold">
+                        S{item.season || 1} E{item.episode || 1}
+                      </span>
+                    ) : (
+                      <span>Movie</span>
+                    )}
+                    <span>•</span>
+                    <span>{item.type === 'tv' ? 'Series' : 'Feature'}</span>
                   </div>
                 </div>
-              </Link>
-              
-              {/* Remove Button */}
-              <button
-                onClick={(e) => handleRemove(item.id, e)}
-                className="absolute -top-2 -right-2 w-8 h-8 bg-black/60 backdrop-blur-3xl rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-red-500 border border-white/10 transition-all opacity-0 group-hover:opacity-100 z-30 shadow-xl"
-                title="Remove from history"
-              >
-                <X size={14} strokeWidth={3} />
-              </button>
-            </motion.div>
-          ))}
+                
+                {/* Remove Button */}
+                <button
+                  onClick={(e) => handleRemove(item.id, e)}
+                  className="absolute -top-2 -right-2 w-8 h-8 bg-black/80 backdrop-blur-3xl rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-red-600 border border-white/10 transition-all opacity-0 group-hover:opacity-100 z-30 shadow-xl"
+                  title="Remove from history"
+                >
+                  <X size={12} strokeWidth={3} />
+                </button>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
     </motion.section>
   );
-
 }

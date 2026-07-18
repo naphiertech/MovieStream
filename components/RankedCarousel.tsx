@@ -50,8 +50,8 @@ export function RankedCarousel({ title, movies }: RankedCarouselProps) {
     <section className="pt-0 pb-10 md:pt-0 md:pb-14 relative group/section overflow-hidden">
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6 md:mb-8 px-6 md:px-14 lg:px-20">
-        <h2 className="text-[20px] md:text-[24px] font-black text-white uppercase tracking-[0.5px] flex items-center gap-3">
-          <span className="w-1.5 h-6 bg-[#2dd4bf] rounded-full shadow-[0_0_12px_rgba(45,212,191,0.5)]" />
+        <h2 className="text-[20px] md:text-[24px] font-black text-white uppercase tracking-[0.5px] flex items-center gap-3 font-outfit">
+          <span className="w-1.5 h-6 bg-red-600 rounded-full shadow-[0_0_12px_rgba(229,9,20,0.5)]" />
           {title}
         </h2>
       </div>
@@ -62,7 +62,7 @@ export function RankedCarousel({ title, movies }: RankedCarouselProps) {
         {canScrollLeft && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/80 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black/90 hover:border-[#2dd4bf]/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black/90 hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
             aria-label="Scroll left"
           >
             <ChevronLeft size={20} />
@@ -73,7 +73,7 @@ export function RankedCarousel({ title, movies }: RankedCarouselProps) {
         {canScrollRight && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/80 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black/90 hover:border-[#2dd4bf]/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black/90 hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
             aria-label="Scroll right"
           >
             <ChevronRight size={20} />

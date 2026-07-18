@@ -18,7 +18,7 @@ export function RecommendationCard({ movie }: RecommendationCardProps) {
       className="relative group cursor-pointer"
     >
       <Link href={movie.type === 'tv' ? `/tv/${movie.id}` : `/movie/${movie.id}`} className="block h-full">
-        <div className="relative aspect-video rounded-xl overflow-hidden border border-white/5 group-hover:border-[#2dd4bf]/40 transition-all duration-500 shadow-2xl">
+        <div className="relative aspect-video rounded-xl overflow-hidden border border-white/5 group-hover:border-red-600/40 transition-all duration-500 shadow-2xl">
           <Image
             src={movie.bannerUrl || movie.posterUrl || PLACEHOLDERS.BANNER}
             alt={movie.title}
@@ -38,13 +38,13 @@ export function RecommendationCard({ movie }: RecommendationCardProps) {
 
           {/* Top-Right Tag - Rating */}
           <div className="absolute top-3 right-3 px-2 py-1 bg-black/60 backdrop-blur-md rounded-md border border-white/10 z-10 flex items-center gap-1.5">
-            <Star size={10} className="text-[#2dd4bf] fill-[#2dd4bf]" />
+            <Star size={10} className="text-red-500 fill-red-500" />
             <span className="text-white text-[10px] font-black">{movie.rating.toFixed(1)}</span>
           </div>
 
           {/* Bottom Title Overlay */}
           <div className="absolute inset-x-0 bottom-0 p-4 pt-10 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end">
-            <h4 className="text-[13px] md:text-[14px] font-black text-white uppercase tracking-tight line-clamp-1 group-hover:text-[#2dd4bf] transition-colors duration-300">
+            <h4 className="text-[13px] md:text-[14px] font-black text-white uppercase tracking-tight line-clamp-1 group-hover:text-red-500 transition-colors duration-300">
               {movie.title}
             </h4>
           </div>
