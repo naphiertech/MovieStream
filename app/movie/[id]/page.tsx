@@ -32,7 +32,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
   const accentTitle = titleParts[titleParts.length - 1];
 
   return (
-    <div className="min-h-screen bg-[#060606] selection:bg-[#2dd4bf]/30 overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#060606] selection:bg-red-600/30 overflow-x-hidden relative">
       {/* Cinematic Hero Backdrop */}
       <div className="absolute top-0 left-0 w-full h-[75vh] md:h-[85vh] overflow-hidden pointer-events-none">
         <CinematicBackground 
@@ -86,9 +86,9 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                     />
                   </div>
                 ) : (
-                  <h1 className="text-[28px] md:text-[42px] lg:text-[50px] font-black text-white leading-[0.9] tracking-[-2px] uppercase italic drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+                  <h1 className="text-[28px] md:text-[42px] lg:text-[50px] font-black text-white leading-[0.9] tracking-[-2px] uppercase italic drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] font-outfit">
                     {mainTitle && <span className="opacity-90 block">{mainTitle}</span>}
-                    <span className="text-[#2dd4bf] drop-shadow-[0_0_20px_rgba(45,212,191,0.4)] block">{accentTitle}</span>
+                    <span className="text-red-500 drop-shadow-[0_0_20px_rgba(229,9,20,0.4)] block">{accentTitle}</span>
                   </h1>
                 )}
               </div>

@@ -123,13 +123,13 @@ export default function WatchPage() {
           {
             id: 'vidlink',
             name: 'VidLink (Pro)',
-            url: `https://vidlink.pro/movie/${data.id}?primaryColor=2dd4bf&autoplay=1`,
+            url: `https://vidlink.pro/movie/${data.id}?primaryColor=ef4444&autoplay=1`,
             quality: '4K/1080p'
           },
           {
             id: 'vidfast',
             name: 'VidFast (Pro)',
-            url: `https://vidfast.pro/movie/${data.id}?theme=2dd4bf&autoPlay=true`,
+            url: `https://vidfast.pro/movie/${data.id}?theme=ef4444&autoPlay=true`,
             quality: '1080p'
           }
         ];
@@ -144,6 +144,7 @@ export default function WatchPage() {
           id: data.id,
           title: data.title,
           posterUrl: data.posterUrl,
+          bannerUrl: data.bannerUrl,
           timestamp: Date.now(),
           type: 'movie'
         });
@@ -164,10 +165,10 @@ export default function WatchPage() {
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
     if (sourceId === 'vidlink') {
-      return `https://vidlink.pro/movie/${movie?.id}?primaryColor=2dd4bf&autoplay=${autoPlay ? 1 : 0}`;
+      return `https://vidlink.pro/movie/${movie?.id}?primaryColor=ef4444&autoplay=${autoPlay ? 1 : 0}`;
     }
     if (sourceId === 'vidfast') {
-      return `https://vidfast.pro/movie/${movie?.id}?theme=2dd4bf&autoPlay=${autoPlay ? 'true' : 'false'}`;
+      return `https://vidfast.pro/movie/${movie?.id}?theme=ef4444&autoPlay=${autoPlay ? 'true' : 'false'}`;
     }
     return '';
   };
@@ -175,7 +176,7 @@ export default function WatchPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white">
-        <Loader2 className="animate-spin text-[#2dd4bf] mb-8" size={64} />
+        <Loader2 className="animate-spin text-red-500 mb-8" size={64} />
         <p className="text-white font-black text-[12px] uppercase tracking-[4px] animate-pulse">Syncing Signal...</p>
       </div>
     );
@@ -193,7 +194,7 @@ export default function WatchPage() {
         </p>
         <button 
           onClick={() => window.location.reload()}
-          className="px-10 py-4 bg-white text-black font-black text-[12px] uppercase tracking-[2px] rounded-2xl hover:bg-[#2dd4bf] transition-all"
+          className="px-10 py-4 bg-white text-black font-black text-[12px] uppercase tracking-[2px] rounded-2xl hover:bg-red-600 hover:text-white hover:shadow-[0_0_20px_rgba(229,9,20,0.3)] transition-all"
         >
           Re-initialize Signal
         </button>
@@ -217,18 +218,18 @@ export default function WatchPage() {
                   unlockOrientation();
                 }
               }}
-              className="group flex items-center gap-3 bg-white/5 backdrop-blur-3xl border border-white/10 px-5 py-2.5 rounded-2xl text-white/50 hover:text-white hover:border-[#2dd4bf]/40 transition-all duration-300"
+              className="group flex items-center gap-3 bg-white/5 backdrop-blur-3xl border border-white/10 px-5 py-2.5 rounded-2xl text-white/50 hover:text-white hover:border-red-600/40 transition-all duration-300"
             >
               <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
               <span className="text-[11px] font-black uppercase tracking-[2px]">Exit</span>
             </Link>
             
             <div className="flex flex-col items-center text-center">
-              <h1 className="text-white font-black text-lg md:text-2xl uppercase italic tracking-tight truncate max-w-[300px] md:max-w-xl drop-shadow-2xl">
+              <h1 className="text-white font-black text-lg md:text-2xl uppercase italic tracking-tight truncate max-w-[300px] md:max-w-xl drop-shadow-2xl font-outfit">
                 {movie.title}
               </h1>
               <div className="flex items-center gap-3 mt-1">
-                <span className="text-[#2dd4bf] text-[10px] font-black uppercase tracking-[2px]">{movie.releaseDate?.split('-')[0]}</span>
+                <span className="text-red-500 text-[10px] font-black uppercase tracking-[2px]">{movie.releaseDate?.split('-')[0]}</span>
                 <div className="w-1 h-1 rounded-full bg-white/20" />
                 <span className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">{movie.duration}</span>
               </div>
@@ -271,8 +272,8 @@ export default function WatchPage() {
             {/* Server Selection */}
             <div className="flex-grow">
               <div className="flex items-center gap-3 text-white/30 mb-6">
-                <Server size={18} className="text-[#2dd4bf]" />
-                <h3 className="font-black text-[11px] uppercase tracking-[2px]">Switch Provider</h3>
+                <Server size={18} className="text-red-500" />
+                <h3 className="font-black text-[11px] uppercase tracking-[2px] font-outfit">Switch Provider</h3>
               </div>
               <div className="flex flex-wrap gap-4">
                 {sources.map(source => (
@@ -281,7 +282,7 @@ export default function WatchPage() {
                     onClick={() => setActiveSource(source)}
                     className={`px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all duration-500 relative overflow-hidden group/btn ${
                       activeSource?.id === source.id 
-                        ? 'bg-[#2dd4bf] text-black shadow-[0_10px_30px_rgba(45,212,191,0.4)] scale-105' 
+                        ? 'bg-red-600 text-white shadow-[0_10px_30px_rgba(229,9,20,0.4)] scale-105' 
                         : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5 hover:border-white/20'
                     }`}
                   >
@@ -297,7 +298,7 @@ export default function WatchPage() {
                   onClick={() => setShowSubtitleSync(!showSubtitleSync)}
                   className={`px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all duration-500 relative overflow-hidden group/btn border border-white/5 ${
                     showSubtitleSync 
-                      ? 'bg-[#2dd4bf]/20 text-[#2dd4bf] border-[#2dd4bf]/40' 
+                      ? 'bg-red-600/20 text-red-500 border-red-600/40 shadow-[0_0_15px_rgba(229,9,20,0.2)]' 
                       : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -319,7 +320,7 @@ export default function WatchPage() {
                   }}
                   className="flex items-center gap-2 hover:text-white transition-colors"
                 >
-                  <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlay ? 'bg-[#2dd4bf] text-black' : 'bg-white/5 border border-white/20'}`}>
+                  <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlay ? 'bg-red-600 text-white' : 'bg-white/5 border border-white/20'}`}>
                     {autoPlay && <span className="text-[9px] font-bold">✓</span>}
                   </div>
                   <span>Autoplay</span>
@@ -339,12 +340,12 @@ export default function WatchPage() {
             {activeSource && (
               <div className="flex items-center gap-6 bg-white/5 px-8 py-6 rounded-3xl border border-white/5 shadow-lg">
                 <div className="flex items-center gap-3 text-white/30">
-                  <Settings size={20} className="text-[#2dd4bf]" />
-                  <span className="text-[11px] font-black uppercase tracking-[2px]">Delivery:</span>
+                  <Settings size={20} className="text-red-500" />
+                  <span className="text-[11px] font-black uppercase tracking-[2px] font-outfit">Delivery:</span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-white font-black text-xl leading-none italic">{activeSource.quality}</span>
-                  <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[1px] mt-1">Ultra Smooth</span>
+                  <span className="text-red-500 text-[9px] font-black uppercase tracking-[1px] mt-1 font-outfit">Ultra Smooth</span>
                 </div>
               </div>
             )}
@@ -401,9 +402,9 @@ export default function WatchPage() {
               className="bg-[#0b0c10] border border-white/10 p-6 md:p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-white font-black text-lg italic uppercase tracking-wider mb-4 border-b border-white/10 pb-2 flex items-center justify-between">
+              <h3 className="text-white font-black text-lg italic uppercase tracking-wider mb-4 border-b border-white/10 pb-2 flex items-center justify-between font-outfit">
                 <span>⌨ Keyboard Controls</span>
-                <span className="text-[#2dd4bf] text-[10px] tracking-normal not-italic font-medium bg-[#2dd4bf]/10 px-2 py-0.5 rounded">HLS Only</span>
+                <span className="text-red-500 text-[10px] tracking-normal not-italic font-medium bg-red-600/10 px-2 py-0.5 rounded">HLS Only</span>
               </h3>
               
               <div className="flex flex-col gap-3.5 mb-6">
@@ -431,7 +432,7 @@ export default function WatchPage() {
 
               <button 
                 onClick={() => setShowShortcuts(false)}
-                className="w-full py-3 bg-white text-black hover:bg-[#2dd4bf] transition-all font-black text-[11px] uppercase tracking-[2px] rounded-xl"
+                className="w-full py-3 bg-white text-black hover:bg-red-600 hover:text-white transition-all font-black text-[11px] uppercase tracking-[2px] rounded-xl"
               >
                 Got It
               </button>

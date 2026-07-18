@@ -53,8 +53,8 @@ export default async function MoviesPage({
     <div className="container mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-20 min-h-screen">
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <div className="flex items-center gap-3 text-[#2dd4bf] mb-3">
-            <div className="w-8 h-[2px] bg-[#2dd4bf] rounded-full" />
+          <div className="flex items-center gap-3 text-red-500 mb-3">
+            <div className="w-8 h-[2px] bg-red-600 rounded-full" />
             <span className="text-[10px] font-black uppercase tracking-[3px]">{subtitle}</span>
           </div>
           <h1 className="text-[34px] md:text-[50px] font-black text-white leading-none tracking-tight uppercase italic drop-shadow-xl font-outfit">
@@ -75,7 +75,7 @@ export default async function MoviesPage({
                 href={`/movies?filter=${tab.id}`}
                 className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[1px] transition-all whitespace-nowrap ${
                   isActive
-                    ? 'bg-[#2dd4bf] text-black shadow-[0_0_20px_rgba(45,212,191,0.3)]'
+                    ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(229,9,20,0.3)]'
                     : 'text-white/40 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -101,8 +101,8 @@ export default async function MoviesPage({
         />
       ) : (
         <div className="flex flex-col items-center justify-center py-40 border border-white/5 rounded-[3rem] bg-white/[0.02]">
-          <div className="w-20 h-20 rounded-full bg-[#2dd4bf]/10 flex items-center justify-center mb-6 text-white/10">
-            <span className="text-[#2dd4bf] animate-pulse">⚙️</span>
+          <div className="w-20 h-20 rounded-full bg-red-600/10 flex items-center justify-center mb-6 text-white/10">
+            <span className="text-red-500 animate-pulse">⚙️</span>
           </div>
           <p className="text-white/30 font-black text-[11px] uppercase tracking-[4px]">No productions found in this sector</p>
         </div>

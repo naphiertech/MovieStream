@@ -223,6 +223,7 @@ export default function TVWatchPage() {
           id: id,
           title: showData.title,
           posterUrl: showData.posterUrl,
+          bannerUrl: showData.bannerUrl,
           timestamp: Date.now(),
           type: 'tv',
           season,
@@ -279,7 +280,7 @@ export default function TVWatchPage() {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white px-10 text-center">
-        <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-8 border border-red-500/20">
+        <div className="w-20 h-20 rounded-full bg-[#2dd4bf]/10 flex items-center justify-center text-[#2dd4bf] mb-8 border border-[#2dd4bf]/20">
           <Settings size={40} className="animate-pulse" />
         </div>
         <h2 className="text-white font-black text-2xl uppercase italic tracking-tight mb-4">Signal Interrupted</h2>
@@ -288,7 +289,7 @@ export default function TVWatchPage() {
         </p>
         <button 
           onClick={() => window.location.reload()}
-          className="px-10 py-4 bg-white text-black font-black text-[12px] uppercase tracking-[2px] rounded-2xl hover:bg-[#2dd4bf] transition-all"
+          className="px-10 py-4 bg-white text-black font-black text-[12px] uppercase tracking-[2px] rounded-2xl hover:bg-[#2dd4bf] hover:text-black hover:shadow-[0_0_20px_rgba(45,212,191,0.3)] transition-all"
         >
           Re-initialize Signal
         </button>
@@ -319,7 +320,7 @@ export default function TVWatchPage() {
             </Link>
             
             <div className="flex flex-col items-center text-center">
-              <h1 className="text-white font-black text-lg md:text-2xl uppercase italic tracking-tight truncate max-w-[300px] md:max-w-xl drop-shadow-2xl">
+              <h1 className="text-white font-black text-lg md:text-2xl uppercase italic tracking-tight truncate max-w-[300px] md:max-w-xl drop-shadow-2xl font-outfit">
                 {show.title}
               </h1>
               <div className="flex items-center gap-3 mt-1">
@@ -366,7 +367,7 @@ export default function TVWatchPage() {
                       </div>
                     </div>
                     <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[2px] mb-2">Up Next</span>
-                    <h3 className="text-white font-black text-lg italic uppercase tracking-tight mb-6 line-clamp-2 max-w-xs leading-snug">
+                    <h3 className="text-white font-black text-lg italic uppercase tracking-tight mb-6 line-clamp-2 max-w-xs leading-snug font-outfit">
                       {nextEpisode.name}
                     </h3>
                     <div className="flex gap-4 w-full">
@@ -381,7 +382,7 @@ export default function TVWatchPage() {
                           setCountdown(null);
                           handleNext();
                         }}
-                        className="flex-1 py-3 bg-[#2dd4bf] text-black font-black text-[10px] uppercase tracking-[2px] rounded-xl hover:bg-teal-400 transition-all shadow-[0_10px_25px_rgba(45,212,191,0.3)]"
+                        className="flex-1 py-3 bg-[#2dd4bf] text-black font-black text-[10px] uppercase tracking-[2px] rounded-xl hover:bg-[#2dd4bf]/90 transition-all shadow-[0_10px_25px_rgba(45,212,191,0.3)]"
                       >
                         Play Now
                       </button>
@@ -418,7 +419,7 @@ export default function TVWatchPage() {
                       onClick={() => setActiveSource(source)}
                       className={`px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${
                         activeSource?.id === source.id 
-                          ? 'bg-[#2dd4bf] text-black shadow-[0_10px_25px_rgba(45,212,191,0.3)]' 
+                          ? 'bg-red-600 text-white shadow-[0_10px_25px_rgba(229,9,20,0.3)]' 
                           : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5'
                       }`}
                     >
@@ -431,7 +432,7 @@ export default function TVWatchPage() {
                     onClick={() => setShowSubtitleSync(!showSubtitleSync)}
                     className={`px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 border border-white/5 ${
                       showSubtitleSync 
-                        ? 'bg-[#2dd4bf]/20 text-[#2dd4bf] border-[#2dd4bf]/40 shadow-[0_0_15px_rgba(45,212,191,0.2)]' 
+                        ? 'bg-red-600/20 text-red-500 border-red-600/40 shadow-[0_0_15px_rgba(229,9,20,0.2)]' 
                         : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'
                     }`}
                   >
@@ -503,7 +504,7 @@ export default function TVWatchPage() {
                       onClick={handleNext}
                       className="flex items-center justify-between gap-4 bg-white/5 border border-white/10 hover:border-[#2dd4bf]/40 px-6 md:px-8 py-4 rounded-2xl group transition-all w-full sm:w-auto"
                   >
-                      <div className="flex flex-col text-left">
+                      <div className="flex flex-col text-left font-outfit">
                           <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[2px]">Up Next</span>
                           <span className="text-white/60 font-bold text-xs md:text-sm tracking-tight line-clamp-1">{nextEpisode.name}</span>
                       </div>
@@ -514,7 +515,7 @@ export default function TVWatchPage() {
                 <div className="flex items-center gap-6 bg-white/5 px-8 py-5 md:py-6 rounded-3xl border border-white/5 w-full sm:min-w-[180px] justify-center text-center font-outfit">
                   <div className="flex flex-col items-center">
                     <span className="text-white font-black text-lg md:text-xl leading-none italic">{activeSource?.quality}</span>
-                    <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[1px] mt-1">Fiber Connection</span>
+                    <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[1px] mt-1 font-outfit">Fiber Connection</span>
                   </div>
                 </div>
               </div>
@@ -545,7 +546,7 @@ export default function TVWatchPage() {
               className="bg-[#0b0c10] border border-white/10 p-6 md:p-8 rounded-[2rem] max-w-sm w-full shadow-2xl relative"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-white font-black text-lg italic uppercase tracking-wider mb-4 border-b border-white/10 pb-2 flex items-center justify-between">
+              <h3 className="text-white font-black text-lg italic uppercase tracking-wider mb-4 border-b border-white/10 pb-2 flex items-center justify-between font-outfit">
                 <span>⌨ Keyboard Controls</span>
                 <span className="text-[#2dd4bf] text-[10px] tracking-normal not-italic font-medium bg-[#2dd4bf]/10 px-2 py-0.5 rounded">HLS Only</span>
               </h3>
@@ -575,7 +576,7 @@ export default function TVWatchPage() {
 
               <button 
                 onClick={() => setShowShortcuts(false)}
-                className="w-full py-3 bg-white text-black hover:bg-[#2dd4bf] transition-all font-black text-[11px] uppercase tracking-[2px] rounded-xl"
+                className="w-full py-3 bg-white text-black hover:bg-[#2dd4bf] hover:text-black transition-all font-black text-[11px] uppercase tracking-[2px] rounded-xl"
               >
                 Got It
               </button>

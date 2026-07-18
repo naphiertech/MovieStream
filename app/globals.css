@@ -1,18 +1,19 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Righteous&family=Geist:wght@300;400;500;600;700;900&display=swap');
 
 @theme {
-  --font-sans: "Inter", "Outfit", "Geist", system-ui, sans-serif;
-  --color-brand: #2dd4bf;
-  --color-brand-cyan: #0ed2f7;
+  --font-sans: "Outfit", "Geist", "Inter", system-ui, sans-serif;
+  --color-brand: #e50914;
+  --color-brand-cyan: #ef4444;
   --color-bg-dark: #060606;
-  --color-accent-glow: rgba(45, 212, 191, 0.15);
+  --color-accent-glow: rgba(229, 9, 20, 0.15);
 }
 
 :root {
   --background: #060606;
   --foreground: #ffffff;
-  --accent-cyan: #0ed2f7;
-  --accent-teal: #2dd4bf;
+  --accent-cyan: #ef4444;
+  --accent-teal: #e50914;
 }
 
 body {
@@ -23,7 +24,7 @@ body {
   overflow-x: hidden;
   /* Atmospheric Foundation — desktop only */
   background-image: 
-    radial-gradient(circle at 50% -20%, #001529 0%, transparent 50%),
+    radial-gradient(circle at 50% -20%, #1e0508 0%, transparent 50%),
     radial-gradient(circle at -10% 40%, #060606 0%, transparent 30%);
 }
 
@@ -106,7 +107,7 @@ body {
   }
 
   .text-neon {
-    text-shadow: 0 0 10px var(--accent-teal), 0 0 20px rgba(45, 212, 191, 0.4);
+    text-shadow: 0 0 10px var(--accent-teal), 0 0 20px rgba(229, 9, 20, 0.4);
   }
 
   .text-outline {
@@ -147,8 +148,8 @@ body {
   }
 
   .card-hover-glow:hover {
-    box-shadow: 0 0 25px rgba(45, 212, 191, 0.1);
-    border-color: rgba(45, 212, 191, 0.3);
+    box-shadow: 0 0 25px rgba(229, 9, 20, 0.1);
+    border-color: rgba(229, 9, 20, 0.3);
   }
 
   /* Carousel scroll snap */

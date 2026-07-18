@@ -24,7 +24,7 @@ export default function RestrictedPage() {
           href="/" 
           className="inline-flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-[2px] transition-all duration-300 group shadow-lg"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform text-[#2dd4bf]" />
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform text-red-500" />
           Return to Platform
         </Link>
       </div>

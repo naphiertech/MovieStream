@@ -1,13 +1,9 @@
-import { HeroSection } from '@/components/HeroSection';
-import { CarouselRow } from '@/components/CarouselRow';
-import { RankedCarousel } from '@/components/RankedCarousel';
-import { WatchHistory } from '@/components/WatchHistory';
+import { HomeClient } from '@/components/HomeClient';
 import { 
   getTrendingMovies, 
   getUpcomingMovies, 
   getTopRatedMovies, 
   getMoviesByGenre, 
-  Movie, 
   getTrendingMediaWithLogos,
   getPopularTV,
   getTopRatedTV,
@@ -52,49 +48,17 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="pb-20">
-      <HeroSection movies={heroMedia} />
-      
-      <div className="relative z-20">
-        {/* Watch History Section (Client Side) */}
-        <WatchHistory />
-
-        {/* Top 10 This Week */}
-        <RankedCarousel title="Top 10 Today" movies={trendingMovies.slice(0, 10)} />
-
-        {/* Trending Today - With Movies/Series Toggle */}
-        <CarouselRow 
-          title="Trending Today" 
-          movies={trendingMovies} 
-          altMovies={trendingTV}
-          mainLabel="Movies"
-          altLabel="Series"
-        />
-
-        {/* Popular TV Series */}
-        <CarouselRow title="Popular TV Series" movies={popularTV} />
-
-        {/* Top Rated - With Movies/Series Toggle */}
-        <CarouselRow 
-          title="Top Rated" 
-          movies={topRatedMovies} 
-          altMovies={topRatedTV}
-          mainLabel="Movies"
-          altLabel="Series"
-        />
-
-        {/* Action Hits */}
-        <CarouselRow title="Latest Action Hits" movies={actionMovies} viewAllLink="/genres/Action" />
-
-        {/* Sci-Fi */}
-        <CarouselRow title="Trending Sci-Fi" movies={sciFiMovies} viewAllLink="/genres/Sci-Fi" />
-
-        {/* Comedy */}
-        <CarouselRow title="Comedy" movies={comedyMovies} viewAllLink="/genres/Comedy" />
-
-        {/* Coming Soon */}
-        <CarouselRow title="Coming Soon" movies={upcomingMovies} />
-      </div>
-    </div>
+    <HomeClient
+      heroMedia={heroMedia}
+      trendingMovies={trendingMovies}
+      trendingTV={trendingTV}
+      topRatedMovies={topRatedMovies}
+      topRatedTV={topRatedTV}
+      popularTV={popularTV}
+      upcomingMovies={upcomingMovies}
+      actionMovies={actionMovies}
+      sciFiMovies={sciFiMovies}
+      comedyMovies={comedyMovies}
+    />
   );
 }
