@@ -121,10 +121,34 @@ export default function WatchPage() {
         // Premium Sources
         const sourcesList = [
           {
+            id: 'vidsrc',
+            name: 'VidSrc (Fast)',
+            url: `https://vidsrc.cc/v2/embed/movie/${data.id}`,
+            quality: '4K/1080p'
+          },
+          {
+            id: 'embedsu',
+            name: 'Embed.su (Multi)',
+            url: `https://embed.su/embed/movie/${data.id}`,
+            quality: '1080p'
+          },
+          {
+            id: 'autoembed',
+            name: 'AutoEmbed (Ultra)',
+            url: `https://player.autoembed.cc/embed/movie/${data.id}`,
+            quality: '1080p'
+          },
+          {
+            id: 'vidsrcme',
+            name: 'VidSrc.me (Server 2)',
+            url: `https://vidsrc.me/embed/movie?tmdb=${data.id}`,
+            quality: '1080p'
+          },
+          {
             id: 'vidlink',
             name: 'VidLink (Pro)',
             url: `https://vidlink.pro/movie/${data.id}?primaryColor=ef4444&autoplay=1`,
-            quality: '4K/1080p'
+            quality: '1080p'
           },
           {
             id: 'vidfast',
@@ -164,6 +188,18 @@ export default function WatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
+    if (sourceId === 'vidsrc') {
+      return `https://vidsrc.cc/v2/embed/movie/${movie?.id}?autoPlay=${autoPlay ? 1 : 0}`;
+    }
+    if (sourceId === 'embedsu') {
+      return `https://embed.su/embed/movie/${movie?.id}`;
+    }
+    if (sourceId === 'autoembed') {
+      return `https://player.autoembed.cc/embed/movie/${movie?.id}`;
+    }
+    if (sourceId === 'vidsrcme') {
+      return `https://vidsrc.me/embed/movie?tmdb=${movie?.id}`;
+    }
     if (sourceId === 'vidlink') {
       return `https://vidlink.pro/movie/${movie?.id}?primaryColor=ef4444&autoplay=${autoPlay ? 1 : 0}`;
     }

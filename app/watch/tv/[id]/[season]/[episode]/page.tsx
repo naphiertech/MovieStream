@@ -201,15 +201,39 @@ export default function TVWatchPage() {
         // Map sources
         const sourcesList = [
           {
+            id: 'vidsrc',
+            name: 'VidSrc (Fast)',
+            url: `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`,
+            quality: '1080p'
+          },
+          {
+            id: 'embedsu',
+            name: 'Embed.su (Multi)',
+            url: `https://embed.su/embed/tv/${id}/${season}/${episode}`,
+            quality: '1080p'
+          },
+          {
+            id: 'autoembed',
+            name: 'AutoEmbed (Ultra)',
+            url: `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`,
+            quality: '1080p'
+          },
+          {
+            id: 'vidsrcme',
+            name: 'VidSrc.me (Server 2)',
+            url: `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`,
+            quality: '1080p'
+          },
+          {
             id: 'vidlink',
             name: 'VidLink (Pro)',
-            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf&autoplay=1`,
+            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=ef4444&autoplay=1`,
             quality: '1080p'
           },
           {
             id: 'vidfast',
             name: 'VidFast (Pro)',
-            url: `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=2dd4bf&autoPlay=true`,
+            url: `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=ef4444&autoPlay=true`,
             quality: '1080p'
           }
         ];
@@ -259,11 +283,23 @@ export default function TVWatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
+    if (sourceId === 'vidsrc') {
+      return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=${autoPlay ? 1 : 0}`;
+    }
+    if (sourceId === 'embedsu') {
+      return `https://embed.su/embed/tv/${id}/${season}/${episode}`;
+    }
+    if (sourceId === 'autoembed') {
+      return `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`;
+    }
+    if (sourceId === 'vidsrcme') {
+      return `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
+    }
     if (sourceId === 'vidlink') {
-      return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=2dd4bf&autoplay=${autoPlay ? 1 : 0}`;
+      return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=ef4444&autoplay=${autoPlay ? 1 : 0}`;
     }
     if (sourceId === 'vidfast') {
-      return `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=2dd4bf&autoPlay=${autoPlay ? 'true' : 'false'}`;
+      return `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=ef4444&autoPlay=${autoPlay ? 'true' : 'false'}`;
     }
     return '';
   };
