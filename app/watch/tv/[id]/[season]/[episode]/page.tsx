@@ -201,27 +201,9 @@ export default function TVWatchPage() {
         // Map sources
         const sourcesList = [
           {
-            id: 'vidsrc',
-            name: 'VidSrc (Fast)',
-            url: `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`,
-            quality: '1080p'
-          },
-          {
-            id: 'embedsu',
-            name: 'Embed.su (Multi)',
-            url: `https://embed.su/embed/tv/${id}/${season}/${episode}`,
-            quality: '1080p'
-          },
-          {
-            id: 'autoembed',
-            name: 'AutoEmbed (Ultra)',
-            url: `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`,
-            quality: '1080p'
-          },
-          {
-            id: 'vidsrcme',
-            name: 'VidSrc.me (Server 2)',
-            url: `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`,
+            id: 'vidfast',
+            name: 'VidFast (Pro)',
+            url: `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=ef4444&autoPlay=true`,
             quality: '1080p'
           },
           {
@@ -231,9 +213,9 @@ export default function TVWatchPage() {
             quality: '1080p'
           },
           {
-            id: 'vidfast',
-            name: 'VidFast (Pro)',
-            url: `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=ef4444&autoPlay=true`,
+            id: 'vidsrc',
+            name: 'VidSrc (Fast)',
+            url: `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`,
             quality: '1080p'
           }
         ];
@@ -283,23 +265,14 @@ export default function TVWatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
-    if (sourceId === 'vidsrc') {
-      return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=${autoPlay ? 1 : 0}`;
-    }
-    if (sourceId === 'embedsu') {
-      return `https://embed.su/embed/tv/${id}/${season}/${episode}`;
-    }
-    if (sourceId === 'autoembed') {
-      return `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`;
-    }
-    if (sourceId === 'vidsrcme') {
-      return `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
+    if (sourceId === 'vidfast') {
+      return `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=ef4444&autoPlay=${autoPlay ? 'true' : 'false'}`;
     }
     if (sourceId === 'vidlink') {
       return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=ef4444&autoplay=${autoPlay ? 1 : 0}`;
     }
-    if (sourceId === 'vidfast') {
-      return `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=ef4444&autoPlay=${autoPlay ? 'true' : 'false'}`;
+    if (sourceId === 'vidsrc') {
+      return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=${autoPlay ? 1 : 0}`;
     }
     return '';
   };
@@ -307,7 +280,7 @@ export default function TVWatchPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white">
-        <Loader2 className="animate-spin text-[#2dd4bf] mb-8" size={64} />
+        <Loader2 className="animate-spin text-red-500 mb-8" size={64} />
         <p className="text-white font-black text-[12px] uppercase tracking-[4px] animate-pulse">Syncing Signal...</p>
       </div>
     );
@@ -316,7 +289,7 @@ export default function TVWatchPage() {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white px-10 text-center">
-        <div className="w-20 h-20 rounded-full bg-[#2dd4bf]/10 flex items-center justify-center text-[#2dd4bf] mb-8 border border-[#2dd4bf]/20">
+        <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-8 border border-red-500/20">
           <Settings size={40} className="animate-pulse" />
         </div>
         <h2 className="text-white font-black text-2xl uppercase italic tracking-tight mb-4">Signal Interrupted</h2>
