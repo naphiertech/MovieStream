@@ -9,6 +9,7 @@ import { getTVDetails, getSeasonDetails, TVShow, Episode } from '@/lib/tmdb';
 import { ActorList } from '@/components/ActorList';
 import { SubtitleOverlay } from '@/components/SubtitleOverlay';
 import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
+import { CustomPlayer } from '@/components/CustomPlayer';
 
 export interface VideoSource {
   id: string;
@@ -41,6 +42,23 @@ export default function TVWatchPage() {
   const [isLightsOff, setIsLightsOff] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
+
+  const [playbackData, setPlaybackData] = useState<any | null>(null);
+  const [isCustomPlayerActive, setIsCustomPlayerActive] = useState(false);
+
+  const handlePlayerError = (err: any) => {
+    console.error('[TVWatchPage] Custom Player encountered fatal error, failing over to iframe:', err);
+    setIsCustomPlayerActive(false);
+  };
+
+  const handleSourceSelect = (source: VideoSource) => {
+    setActiveSource(source);
+    if (source.id === 'vidlink' && playbackData) {
+      setIsCustomPlayerActive(true);
+    } else {
+      setIsCustomPlayerActive(false);
+    }
+  };
 
   // Sync preferences on load
   useEffect(() => {
@@ -220,7 +238,30 @@ export default function TVWatchPage() {
           }
         ];
         setSources(sourcesList);
-        setActiveSource(sourcesList[0]);
+        
+        // Try fetching stream details for custom player
+        try {
+          const streamRes = await fetch(`/api/stream/tv/${id}/${season}/${episode}`, { signal: controller.signal });
+          if (streamRes.ok) {
+            const streamData = await streamRes.json();
+            setPlaybackData(streamData);
+            setIsCustomPlayerActive(true);
+            const vidlinkSource = sourcesList.find(s => s.id === 'vidlink');
+            if (vidlinkSource) {
+              setActiveSource(vidlinkSource);
+            } else {
+              setActiveSource(sourcesList[0]);
+            }
+          } else {
+            console.warn('[TVWatchPage] Stream API failed to resolve, falling back to legacy iframe.');
+            setIsCustomPlayerActive(false);
+            setActiveSource(sourcesList[0]);
+          }
+        } catch (streamErr) {
+          console.error('[TVWatchPage] Failed to fetch stream details:', streamErr);
+          setIsCustomPlayerActive(false);
+          setActiveSource(sourcesList[0]);
+        }
 
         // Save history
         const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
@@ -346,7 +387,23 @@ export default function TVWatchPage() {
 
       {/* Video Player - Full Viewport Elite Mode */}
       <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group z-20">
-        {activeSource ? (
+        {isCustomPlayerActive && playbackData ? (
+          <div className="relative w-full h-full">
+            <CustomPlayer
+              videoUrl={playbackData.videoUrl}
+              qualities={playbackData.qualities}
+              captions={playbackData.captions}
+              providerId={playbackData.providerId}
+              autoPlay={autoPlay}
+              onFatalError={handlePlayerError}
+              onEnded={() => {
+                if (autoPlayNext && nextEpisode) {
+                  setCountdown(5);
+                }
+              }}
+            />
+          </div>
+        ) : activeSource ? (
           <div className="relative w-full h-full">
             <iframe
               src={getSourceUrl(activeSource.id)}
@@ -370,12 +427,12 @@ export default function TVWatchPage() {
                 >
                   <div className="bg-white/5 border border-white/10 backdrop-blur-3xl rounded-[2rem] p-8 max-w-sm w-[90%] mx-auto text-center flex flex-col items-center shadow-2xl">
                     <div className="relative w-20 h-20 flex items-center justify-center mb-6">
-                      <div className="w-20 h-20 rounded-full border-2 border-[#2dd4bf]/20 animate-ping absolute" />
-                      <div className="w-16 h-16 rounded-full bg-[#2dd4bf]/10 border border-[#2dd4bf]/20 flex items-center justify-center text-[#2dd4bf] font-black text-2xl">
+                      <div className="w-20 h-20 rounded-full border-2 border-red-500/20 animate-ping absolute" />
+                      <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 font-black text-2xl">
                         {countdown}
                       </div>
                     </div>
-                    <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[2px] mb-2">Up Next</span>
+                    <span className="text-red-500 text-[9px] font-black uppercase tracking-[2px] mb-2">Up Next</span>
                     <h3 className="text-white font-black text-lg italic uppercase tracking-tight mb-6 line-clamp-2 max-w-xs leading-snug font-outfit">
                       {nextEpisode.name}
                     </h3>
@@ -391,7 +448,7 @@ export default function TVWatchPage() {
                           setCountdown(null);
                           handleNext();
                         }}
-                        className="flex-1 py-3 bg-[#2dd4bf] text-black font-black text-[10px] uppercase tracking-[2px] rounded-xl hover:bg-[#2dd4bf]/90 transition-all shadow-[0_10px_25px_rgba(45,212,191,0.3)]"
+                        className="flex-1 py-3 bg-red-600 text-white font-black text-[10px] uppercase tracking-[2px] rounded-xl hover:bg-red-500 transition-all shadow-[0_10px_25px_rgba(229,9,20,0.3)]"
                       >
                         Play Now
                       </button>
@@ -425,7 +482,7 @@ export default function TVWatchPage() {
                   {sources.map(source => (
                     <button
                       key={source.id}
-                      onClick={() => setActiveSource(source)}
+                      onClick={() => handleSourceSelect(source)}
                       className={`px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${
                         activeSource?.id === source.id 
                           ? 'bg-red-600 text-white shadow-[0_10px_25px_rgba(229,9,20,0.3)]' 
@@ -461,7 +518,7 @@ export default function TVWatchPage() {
                     }}
                     className="flex items-center gap-2 hover:text-white transition-colors"
                   >
-                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlay ? 'bg-[#2dd4bf] text-black' : 'bg-white/5 border border-white/20'}`}>
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlay ? 'bg-red-600 text-white' : 'bg-white/5 border border-white/20'}`}>
                       {autoPlay && <span className="text-[9px] font-bold">✓</span>}
                     </div>
                     <span>Autoplay</span>
@@ -476,7 +533,7 @@ export default function TVWatchPage() {
                     }}
                     className="flex items-center gap-2 hover:text-white transition-colors"
                   >
-                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoSkipIntro ? 'bg-[#2dd4bf] text-black' : 'bg-white/5 border border-white/20'}`}>
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoSkipIntro ? 'bg-red-600 text-white' : 'bg-white/5 border border-white/20'}`}>
                       {autoSkipIntro && <span className="text-[9px] font-bold">✓</span>}
                     </div>
                     <span>Auto Skip Intro</span>
@@ -491,7 +548,7 @@ export default function TVWatchPage() {
                     }}
                     className="flex items-center gap-2 hover:text-white transition-colors"
                   >
-                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlayNext ? 'bg-[#2dd4bf] text-black' : 'bg-white/5 border border-white/20'}`}>
+                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlayNext ? 'bg-red-600 text-white' : 'bg-white/5 border border-white/20'}`}>
                       {autoPlayNext && <span className="text-[9px] font-bold">✓</span>}
                     </div>
                     <span>Auto Next Episode</span>
@@ -511,20 +568,20 @@ export default function TVWatchPage() {
                 {nextEpisode && (
                   <button 
                       onClick={handleNext}
-                      className="flex items-center justify-between gap-4 bg-white/5 border border-white/10 hover:border-[#2dd4bf]/40 px-6 md:px-8 py-4 rounded-2xl group transition-all w-full sm:w-auto"
+                      className="flex items-center justify-between gap-4 bg-white/5 border border-white/10 hover:border-red-600/40 px-6 md:px-8 py-4 rounded-2xl group transition-all w-full sm:w-auto"
                   >
                       <div className="flex flex-col text-left font-outfit">
-                          <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[2px]">Up Next</span>
+                          <span className="text-red-500 text-[9px] font-black uppercase tracking-[2px]">Up Next</span>
                           <span className="text-white/60 font-bold text-xs md:text-sm tracking-tight line-clamp-1">{nextEpisode.name}</span>
                       </div>
-                      <ChevronRight className="text-[#2dd4bf] group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="text-red-500 group-hover:translate-x-1 transition-transform" />
                   </button>
                 )}
 
                 <div className="flex items-center gap-6 bg-white/5 px-8 py-5 md:py-6 rounded-3xl border border-white/5 w-full sm:min-w-[180px] justify-center text-center font-outfit">
                   <div className="flex flex-col items-center">
                     <span className="text-white font-black text-lg md:text-xl leading-none italic">{activeSource?.quality}</span>
-                    <span className="text-[#2dd4bf] text-[9px] font-black uppercase tracking-[1px] mt-1 font-outfit">Fiber Connection</span>
+                    <span className="text-red-500 text-[9px] font-black uppercase tracking-[1px] mt-1 font-outfit">Fiber Connection</span>
                   </div>
                 </div>
               </div>

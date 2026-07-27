@@ -10,6 +10,7 @@ import { ActorList } from '@/components/ActorList';
 import { SubtitleOverlay } from '@/components/SubtitleOverlay';
 import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
 import { Movie } from '@/lib/tmdb';
+import { CustomPlayer } from '@/components/CustomPlayer';
 
 export interface VideoSource {
   id: string;
@@ -34,6 +35,23 @@ export default function WatchPage() {
   const [isLightsOff, setIsLightsOff] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
+
+  const [playbackData, setPlaybackData] = useState<any | null>(null);
+  const [isCustomPlayerActive, setIsCustomPlayerActive] = useState(false);
+
+  const handlePlayerError = (err: any) => {
+    console.error('[WatchPage] Custom Player encountered fatal error, failing over to iframe:', err);
+    setIsCustomPlayerActive(false);
+  };
+
+  const handleSourceSelect = (source: VideoSource) => {
+    setActiveSource(source);
+    if (source.id === 'vidlink' && playbackData) {
+      setIsCustomPlayerActive(true);
+    } else {
+      setIsCustomPlayerActive(false);
+    }
+  };
 
   useEffect(() => {
     const handleOrientation = () => {
@@ -141,7 +159,30 @@ export default function WatchPage() {
         ];
         
         setSources(sourcesList);
-        setActiveSource(sourcesList[0]);
+        
+        // Try fetching stream details for custom player
+        try {
+          const streamRes = await fetch(`/api/stream/movie/${id}`, { signal: controller.signal });
+          if (streamRes.ok) {
+            const streamData = await streamRes.json();
+            setPlaybackData(streamData);
+            setIsCustomPlayerActive(true);
+            const vidlinkSource = sourcesList.find(s => s.id === 'vidlink');
+            if (vidlinkSource) {
+              setActiveSource(vidlinkSource);
+            } else {
+              setActiveSource(sourcesList[0]);
+            }
+          } else {
+            console.warn('[WatchPage] Stream API failed to resolve, falling back to legacy iframe.');
+            setIsCustomPlayerActive(false);
+            setActiveSource(sourcesList[0]);
+          }
+        } catch (streamErr) {
+          console.error('[WatchPage] Failed to fetch stream details:', streamErr);
+          setIsCustomPlayerActive(false);
+          setActiveSource(sourcesList[0]);
+        }
         
         // Save history
         const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
@@ -251,7 +292,16 @@ export default function WatchPage() {
 
       {/* Video Player - Full Viewport Elite Mode */}
       <div ref={playerRef} className="w-full h-screen bg-black relative overflow-hidden group z-20">
-        {activeSource ? (
+        {isCustomPlayerActive && playbackData ? (
+          <CustomPlayer
+            videoUrl={playbackData.videoUrl}
+            qualities={playbackData.qualities}
+            captions={playbackData.captions}
+            providerId={playbackData.providerId}
+            autoPlay={autoPlay}
+            onFatalError={handlePlayerError}
+          />
+        ) : activeSource ? (
           <div className="relative w-full h-full">
             <iframe
               src={getSourceUrl(activeSource.id)}
@@ -288,7 +338,7 @@ export default function WatchPage() {
                 {sources.map(source => (
                   <button
                     key={source.id}
-                    onClick={() => setActiveSource(source)}
+                    onClick={() => handleSourceSelect(source)}
                     className={`px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all duration-500 relative overflow-hidden group/btn ${
                       activeSource?.id === source.id 
                         ? 'bg-red-600 text-white shadow-[0_10px_30px_rgba(229,9,20,0.4)] scale-105' 
