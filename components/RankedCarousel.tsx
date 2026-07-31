@@ -1,16 +1,18 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Movie } from '@/lib/tmdb';
 import { RankedMovieCard } from './RankedMovieCard';
 
 interface RankedCarouselProps {
   title: string;
   movies: Movie[];
+  exploreLink?: string;
 }
 
-export function RankedCarousel({ title, movies }: RankedCarouselProps) {
+export function RankedCarousel({ title, movies, exploreLink = '/trending' }: RankedCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -47,13 +49,21 @@ export function RankedCarousel({ title, movies }: RankedCarouselProps) {
   if (!movies.length) return null;
 
   return (
-    <section className="pt-0 pb-10 md:pt-0 md:pb-14 relative group/section overflow-hidden">
-      {/* Section Header */}
-      <div className="flex items-center justify-between mb-6 md:mb-8 px-6 md:px-14 lg:px-20">
-        <h2 className="text-[20px] md:text-[24px] font-black text-white uppercase tracking-[0.5px] flex items-center gap-3 font-outfit">
-          <span className="w-1.5 h-6 bg-red-600 rounded-full shadow-[0_0_12px_rgba(229,9,20,0.5)]" />
+    <section className="py-8 md:py-12 relative group/section overflow-hidden">
+      {/* StreamCraze Style Header */}
+      <div className="flex items-center justify-between mb-6 px-6 md:px-14 lg:px-20">
+        <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight font-outfit">
           {title}
         </h2>
+        {exploreLink && (
+          <Link 
+            href={exploreLink} 
+            className="text-xs md:text-sm font-bold text-red-500 hover:text-red-400 transition-colors flex items-center gap-1 group"
+          >
+            Explore all 
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        )}
       </div>
 
       {/* Carousel Container */}
@@ -62,7 +72,7 @@ export function RankedCarousel({ title, movies }: RankedCarouselProps) {
         {canScrollLeft && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black/90 hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
             aria-label="Scroll left"
           >
             <ChevronLeft size={20} />
@@ -73,25 +83,23 @@ export function RankedCarousel({ title, movies }: RankedCarouselProps) {
         {canScrollRight && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black/90 hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
             aria-label="Scroll right"
           >
             <ChevronRight size={20} />
           </button>
         )}
 
-
-
         {/* Scrollable Track */}
         <div
           ref={scrollRef}
-          className="flex gap-[30px] overflow-x-auto scrollbar-hide scroll-smooth pb-6"
+          className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 pr-12 md:pr-20"
           style={{ scrollSnapType: 'x mandatory' }}
         >
           {movies.map((movie, index) => (
             <div
               key={movie.id}
-              className="flex-shrink-0 w-[220px] md:w-[240px]"
+              className="flex-shrink-0"
               style={{ scrollSnapAlign: 'start' }}
             >
               <RankedMovieCard movie={movie} index={index} />
