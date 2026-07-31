@@ -1,7 +1,8 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Movie } from '@/lib/tmdb';
 import { MovieCard } from './MovieCard';
 
@@ -61,7 +62,6 @@ export function CarouselRow({
   const scroll = (direction: 'left' | 'right') => {
     const el = scrollRef.current;
     if (!el) return;
-    // Scroll by ~4 card widths
     const scrollAmount = el.clientWidth * 0.8;
     el.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
@@ -72,37 +72,16 @@ export function CarouselRow({
   if (!movies.length) return null;
 
   return (
-    <section className="py-6 md:py-8 relative group/section">
-      {/* Section Header */}
-      <div className="flex items-center justify-between mb-5 md:mb-6 px-6 md:px-14 lg:px-20">
+    <section className="py-8 md:py-12 relative group/section">
+      {/* StreamCraze Style Header */}
+      <div className="flex items-center justify-between mb-6 px-6 md:px-14 lg:px-20">
+        <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight font-outfit">
+          {title}
+        </h2>
+        
         <div className="flex items-center gap-4">
-          <h2 className="text-[18px] md:text-[22px] font-black text-white uppercase tracking-[0.5px] flex items-center gap-3 font-outfit">
-            <span className="w-1.5 h-6 bg-red-600 rounded-full shadow-[0_0_12px_rgba(229,9,20,0.5)]" />
-            {title}
-          </h2>
-          
-          {!altMovies && viewAllLink && (
-            <a 
-              href={viewAllLink}
-              className="text-[10px] md:text-[11px] font-black uppercase tracking-[2px] text-white/30 hover:text-red-500 transition-colors flex items-center gap-2 group/link"
-            >
-              View All
-              <div className="w-4 h-[1px] bg-white/20 group-hover/link:bg-red-600 group-hover/link:w-8 transition-all" />
-            </a>
-          )}
-        </div>
-
-        {/* Movies / Series Toggle */}
-        {altMovies && (
-          <div className="flex items-center gap-3">
-            {viewAllLink && (
-              <a 
-                href={viewAllLink}
-                className="hidden sm:flex text-[10px] font-black uppercase tracking-[2px] text-white/20 hover:text-red-500 transition-colors items-center gap-2 mr-4"
-              >
-                View All
-              </a>
-            )}
+          {/* Movies / Series Toggle */}
+          {altMovies && (
             <div className="flex items-center gap-1 bg-white/5 rounded-lg p-0.5 border border-white/5">
               <button
                 onClick={() => setActiveTab('main')}
@@ -125,8 +104,17 @@ export function CarouselRow({
                 {altLabel}
               </button>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Explore all Link */}
+          <Link 
+            href={viewAllLink || (title.toLowerCase().includes('tv') ? '/tv-shows' : '/movies')}
+            className="text-xs md:text-sm font-bold text-red-500 hover:text-red-400 transition-colors flex items-center gap-1 group"
+          >
+            Explore all 
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
       </div>
 
       {/* Carousel Container */}
@@ -153,10 +141,10 @@ export function CarouselRow({
           </button>
         )}
 
-        {/* Scrollable Track */}
+        {/* Scrollable Track with Partial Right Cutoff Hint */}
         <div
           ref={scrollRef}
-          className="flex gap-3 md:gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+          className="flex gap-3 md:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pr-12 md:pr-20"
           style={{ scrollSnapType: 'x mandatory' }}
         >
           {activeData.map((movie) => (
