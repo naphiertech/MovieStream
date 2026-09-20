@@ -10,6 +10,9 @@ import {
 import { GenreSelector } from '@/components/GenreSelector';
 import { InfiniteScrollGrid } from '@/components/InfiniteScrollGrid';
 
+// Enable 1-hour Incremental Static Regeneration (ISR) on Vercel CDN Edge
+export const revalidate = 3600;
+
 export default async function TvShowsPage({
   searchParams,
 }: {
