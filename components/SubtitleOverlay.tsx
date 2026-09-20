@@ -89,7 +89,7 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
             exit={{ opacity: 0, y: -10 }}
             className="w-full text-center px-10"
           >
-            <span className="inline-block bg-black/80 text-white font-bold text-lg md:text-2xl px-6 py-2 rounded-xl border border-white/10 backdrop-blur-md shadow-2xl">
+            <span className="inline-block bg-black/90 text-white font-bold text-lg md:text-2xl px-6 py-2 rounded-xl border border-white/10 shadow-2xl">
               {currentSubtitle.text}
             </span>
           </motion.div>
@@ -102,7 +102,7 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-black/60 backdrop-blur-3xl border border-white/10 p-5 rounded-[2rem] shadow-2xl flex flex-col gap-4 min-w-[240px]"
+            className="bg-[#0f0f0f]/95 border border-white/10 p-5 rounded-[2rem] shadow-2xl flex flex-col gap-4 min-w-[240px]"
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
         ) : (
           <button 
             onClick={() => setShowControls(true)}
-            className="w-12 h-12 bg-black/60 backdrop-blur-3xl border border-white/10 rounded-full flex items-center justify-center text-[#2dd4bf] hover:scale-110 transition-all shadow-2xl"
+            className="w-12 h-12 bg-[#0f0f0f]/95 border border-white/10 rounded-full flex items-center justify-center text-[#2dd4bf] hover:scale-110 transition-all shadow-2xl"
           >
             <Timer size={20} />
           </button>

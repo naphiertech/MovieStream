@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Film, Tv, TrendingUp, Search } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -22,23 +21,16 @@ export function MobileNav() {
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link key={item.label} href={item.href} className="relative flex flex-col items-center justify-center w-full h-full group">
-              <motion.div
-                whileTap={{ scale: 0.8 }}
-                className={`${isActive ? 'text-red-500' : 'text-white/40 group-hover:text-white/70'} transition-colors duration-300`}
-              >
+            <Link key={item.label} href={item.href} className="relative flex flex-col items-center justify-center w-full h-full group active:scale-95 transition-transform duration-150">
+              <div className={`${isActive ? 'text-red-500' : 'text-white/40 group-hover:text-white/70'} transition-colors duration-200`}>
                 <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
-              </motion.div>
+              </div>
               <span className={`text-[10px] mt-1 font-bold tracking-tight uppercase ${isActive ? 'text-red-500' : 'text-white/30'}`}>
                 {item.label}
               </span>
               
               {isActive && (
-                <motion.div
-                  layoutId="activeTabMobile"
-                  className="absolute -top-[1px] w-8 h-[2px] bg-red-600 shadow-[0_0_10px_rgba(229,9,20,0.5)]"
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                />
+                <div className="absolute -top-[1px] w-8 h-[2px] bg-red-600 shadow-[0_0_10px_rgba(229,9,20,0.5)] transition-all duration-200" />
               )}
             </Link>
           );
@@ -47,3 +39,4 @@ export function MobileNav() {
     </nav>
   );
 }
+

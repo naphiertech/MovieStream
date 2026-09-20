@@ -44,13 +44,27 @@ export default function WatchPage() {
     setIsCustomPlayerActive(false);
   };
 
-  const handleSourceSelect = (source: VideoSource) => {
+  const handleSourceSelect = async (source: VideoSource) => {
     setActiveSource(source);
-    if (source.id === 'vidlink' && playbackData) {
-      setIsCustomPlayerActive(true);
-    } else {
-      setIsCustomPlayerActive(false);
+    if (source.id === 'vidlink') {
+      if (!playbackData) {
+        try {
+          const streamRes = await fetch(`/api/stream/movie/${id}`);
+          if (streamRes.ok) {
+            const streamData = await streamRes.json();
+            setPlaybackData(streamData);
+            setIsCustomPlayerActive(true);
+            return;
+          }
+        } catch (err) {
+          console.warn('[WatchPage] Direct stream fetch fallback to iframe:', err);
+        }
+      } else {
+        setIsCustomPlayerActive(true);
+        return;
+      }
     }
+    setIsCustomPlayerActive(false);
   };
 
   useEffect(() => {
@@ -73,11 +87,6 @@ export default function WatchPage() {
     if (typeof window !== 'undefined') {
       setAutoPlay(localStorage.getItem('movieStream_autoPlay') !== 'false');
     }
-  }, []);
-
-  // Pre-warm Hugging Face scraper container in the background
-  useEffect(() => {
-    fetch('https://missourimonster-vyla.hf.space/').catch(() => {});
   }, []);
 
   // Fullscreen → Auto-Landscape Link
@@ -136,53 +145,24 @@ export default function WatchPage() {
         setMovie(data);
         setRecommendations(data.recommendations || []);
         
-        // Premium Sources
+        // Stream Providers: Viduki (Primary) + VidLink (Secondary)
         const sourcesList = [
           {
-            id: 'vidfast',
-            name: 'VidFast (Pro)',
-            url: `https://vidfast.pro/movie/${data.id}?theme=ef4444&autoPlay=true`,
+            id: 'viduki',
+            name: 'Viduki (Primary)',
+            url: `https://viduki.net/1/movie/${data.id}?color=ef4444`,
             quality: '1080p'
           },
           {
             id: 'vidlink',
-            name: 'VidLink (Pro)',
-            url: `https://vidlink.pro/movie/${data.id}?primaryColor=ef4444&autoplay=1`,
+            name: 'VidLink',
+            url: `https://vidlink.pro/movie/${data.id}?primaryColor=ef4444`,
             quality: '1080p'
-          },
-          {
-            id: 'vidsrc',
-            name: 'VidSrc (Fast)',
-            url: `https://vidsrc.cc/v2/embed/movie/${data.id}`,
-            quality: '4K/1080p'
           }
         ];
         
         setSources(sourcesList);
-        
-        // Try fetching stream details for custom player
-        try {
-          const streamRes = await fetch(`/api/stream/movie/${id}`, { signal: controller.signal });
-          if (streamRes.ok) {
-            const streamData = await streamRes.json();
-            setPlaybackData(streamData);
-            setIsCustomPlayerActive(true);
-            const vidlinkSource = sourcesList.find(s => s.id === 'vidlink');
-            if (vidlinkSource) {
-              setActiveSource(vidlinkSource);
-            } else {
-              setActiveSource(sourcesList[0]);
-            }
-          } else {
-            console.warn('[WatchPage] Stream API failed to resolve, falling back to legacy iframe.');
-            setIsCustomPlayerActive(false);
-            setActiveSource(sourcesList[0]);
-          }
-        } catch (streamErr) {
-          console.error('[WatchPage] Failed to fetch stream details:', streamErr);
-          setIsCustomPlayerActive(false);
-          setActiveSource(sourcesList[0]);
-        }
+        setActiveSource(sourcesList[0]);
         
         // Save history
         const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
@@ -211,16 +191,13 @@ export default function WatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
-    if (sourceId === 'vidfast') {
-      return `https://vidfast.pro/movie/${movie?.id}?theme=ef4444&autoPlay=${autoPlay ? 'true' : 'false'}`;
+    if (sourceId === 'viduki') {
+      return `https://viduki.net/1/movie/${movie?.id}?color=ef4444`;
     }
     if (sourceId === 'vidlink') {
       return `https://vidlink.pro/movie/${movie?.id}?primaryColor=ef4444&autoplay=${autoPlay ? 1 : 0}`;
     }
-    if (sourceId === 'vidsrc') {
-      return `https://vidsrc.cc/v2/embed/movie/${movie?.id}?autoPlay=${autoPlay ? 1 : 0}`;
-    }
-    return '';
+    return `https://viduki.net/1/movie/${movie?.id}?color=ef4444`;
   };
 
   if (loading) {

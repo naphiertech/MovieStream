@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { 
   getTrendingMovies, 
   getUpcomingMovies, 
@@ -70,9 +71,10 @@ export default async function MoviesPage({
           ].map((tab) => {
             const isActive = filter === tab.id || (!filter && !genre && tab.id === 'trending');
             return (
-              <a
+              <Link
                 key={tab.id}
                 href={`/movies?filter=${tab.id}`}
+                scroll={false}
                 className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[1px] transition-all whitespace-nowrap ${
                   isActive
                     ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(229,9,20,0.3)]'
@@ -80,7 +82,7 @@ export default async function MoviesPage({
                 }`}
               >
                 {tab.label}
-              </a>
+              </Link>
             );
           })}
         </div>

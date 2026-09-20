@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CinematicBackgroundProps {
@@ -129,11 +130,15 @@ export function CinematicBackground({
             transition={{ opacity: { duration: 0.8, ease: 'easeOut' } }}
             className="absolute inset-0 z-0"
           >
-            <img
+            <Image
               src={fallbackImage}
               alt="Cinematic Background"
-              className="w-full h-full object-cover opacity-60"
-              loading="eager"
+              fill
+              priority
+              sizes="100vw"
+              referrerPolicy="no-referrer"
+              unoptimized={!fallbackImage.startsWith('http')}
+              className="object-cover opacity-60"
             />
           </motion.div>
         )}

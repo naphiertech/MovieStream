@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Play, Star, ChevronLeft, ChevronRight, Volume2, VolumeX, Loader2, Info, Plus, ThumbsUp } from 'lucide-react';
@@ -17,6 +17,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
   const [isPlayingTrailer, setIsPlayingTrailer] = useState(false);
   const [isLoadingTrailer, setIsLoadingTrailer] = useState(false);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
 
   const prevIndex = (currentIndex - 1 + movies.length) % movies.length;
   const nextIndex = (currentIndex + 1) % movies.length;
@@ -115,6 +116,17 @@ export function HeroSection({ movies }: HeroSectionProps) {
     })
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartXRef.current;
+    if (diff > 60) prevSlide();
+    else if (diff < -60) nextSlide();
+    touchStartXRef.current = null;
+  };
+
   return (
     <div className="relative w-full pt-[85px] md:pt-[105px] pb-8 bg-black overflow-hidden select-none">
       
@@ -124,14 +136,14 @@ export function HeroSection({ movies }: HeroSectionProps) {
         {/* Left Peek Slide (Live Previous Item) */}
         <div 
           onClick={prevSlide}
-          className="hidden lg:block absolute left-4 xl:left-8 w-[15%] h-[82%] rounded-3xl overflow-hidden border border-white/15 opacity-60 hover:opacity-100 hover:scale-100 transition-all duration-500 cursor-pointer shadow-2xl z-10 group/peek scale-95"
+          className="hidden lg:block absolute left-4 xl:left-8 w-[15%] h-[82%] rounded-3xl overflow-hidden border border-white/15 opacity-60 hover:opacity-100 transition-opacity duration-300 cursor-pointer shadow-2xl z-10 group/peek scale-95"
           title={`Previous: ${prevMovie.title}`}
         >
           <Image
             src={prevMovie.bannerUrl || prevMovie.posterUrl || PLACEHOLDERS.BANNER}
             alt={prevMovie.title}
             fill
-            className="object-cover group-hover/peek:scale-110 transition-transform duration-700 opacity-90"
+            className="object-cover group-hover/peek:scale-105 transition-transform duration-500 opacity-90"
             sizes="300px"
             referrerPolicy="no-referrer"
             unoptimized={!prevMovie.bannerUrl}
@@ -143,7 +155,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
           </div>
         </div>
 
-        {/* Center Main Hero Card Wrapper (Seamless Slide + Drag Swipe Support!) */}
+        {/* Center Main Hero Card Wrapper */}
         <div className="relative w-full lg:w-[80%] h-[480px] md:h-[560px] z-20">
           <AnimatePresence custom={direction} initial={false}>
             <motion.div
@@ -153,14 +165,9 @@ export function HeroSection({ movies }: HeroSectionProps) {
               initial="enter"
               animate="center"
               exit="exit"
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.2}
-              onDragEnd={(_, info) => {
-                if (info.offset.x > 80) prevSlide();
-                else if (info.offset.x < -80) nextSlide();
-              }}
-              className="absolute inset-0 w-full h-full rounded-3xl overflow-hidden border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,0.9)] bg-black cursor-grab active:cursor-grabbing"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              className="absolute inset-0 w-full h-full rounded-3xl overflow-hidden border border-white/15 shadow-[0_30px_90px_rgba(0,0,0,0.9)] bg-black"
             >
               {/* Background Media (Image or Trailer) */}
               {isPlayingTrailer && trailerKey ? (

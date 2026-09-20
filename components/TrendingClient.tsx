@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Movie } from '@/lib/tmdb';
 import { MovieRow } from '@/components/MovieRow';
 import { RankedMovieCard } from '@/components/RankedMovieCard';
-import { motion, Variants } from 'framer-motion';
 import { Flame, Clapperboard, MonitorPlay } from 'lucide-react';
 
 interface TrendingClientProps {
@@ -24,23 +23,13 @@ export function TrendingClient({
 }: TrendingClientProps) {
   const [layout, setLayout] = useState<'portrait' | 'landscape'>('landscape');
 
-  const fadeIn: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } }
-  };
-
   const isLandscape = layout === 'landscape';
 
   return (
     <div className="px-6 md:px-14 lg:px-20 relative z-10">
       {/* Header Section */}
-      <motion.div 
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-        className="mb-16"
-      >
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-600/10 border border-red-600/20 mb-6 backdrop-blur-xl">
+      <div className="mb-16 animate-in fade-in duration-300">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-600/10 border border-red-600/20 mb-6">
           <Flame size={14} className="text-red-500" />
           <span className="text-[10px] font-black uppercase tracking-[3px] text-red-500">Live Analytics</span>
         </div>
@@ -81,16 +70,10 @@ export function TrendingClient({
             </button>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Top 10 Ranked Board (Always Portrait Poster Style with rank badges per Cineby) */}
-      <motion.section 
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={fadeIn}
-        className="mb-20"
-      >
+      <section className="mb-20">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-[20px] md:text-[24px] font-black text-white uppercase tracking-[1px] flex items-center gap-3 font-outfit">
             <span className="w-2 h-7 bg-gradient-to-b from-red-600 to-red-400 rounded-full shadow-[0_0_15px_rgba(229,9,20,0.4)]" />
@@ -106,36 +89,37 @@ export function TrendingClient({
             </div>
           ))}
         </div>
-      </motion.section>
+      </section>
 
       {/* Media Specific Rows with Layout Propagation */}
       <div className="flex flex-col gap-16">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+        <div>
           <div className="flex items-center gap-2 mb-4">
             <Clapperboard className="text-red-500" size={18} />
             <h3 className="text-white font-black uppercase tracking-widest text-[12px] font-outfit">Cinema Hits</h3>
           </div>
           <MovieRow title="Trending Movies" movies={trendingMovies.slice(0, 12)} layout={layout} />
-        </motion.div>
+        </div>
 
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+        <div className="content-visibility-auto">
           <div className="flex items-center gap-2 mb-4">
             <MonitorPlay className="text-red-500" size={18} />
             <h3 className="text-white font-black uppercase tracking-widest text-[12px] font-outfit">Binge Worthy</h3>
           </div>
           <MovieRow title="Popular TV Series" movies={trendingTV.slice(0, 12)} layout={layout} />
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 content-visibility-auto">
+          <div>
             <MovieRow title="Rising in Action" movies={actionMovies.slice(0, 6)} viewAllLink="/genres/Action" layout={layout} />
-          </motion.div>
+          </div>
           
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <div>
             <MovieRow title="Anime Spotlight" movies={animationTV.slice(0, 6)} viewAllLink="/genres/Animation" layout={layout} />
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+

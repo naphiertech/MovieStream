@@ -20,19 +20,31 @@ export function RankedCarousel({ title, movies, exploreLink = '/trending' }: Ran
   const checkScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 10);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+    const canLeft = el.scrollLeft > 10;
+    const canRight = el.scrollLeft < el.scrollWidth - el.clientWidth - 10;
+    setCanScrollLeft(prev => (prev !== canLeft ? canLeft : prev));
+    setCanScrollRight(prev => (prev !== canRight ? canRight : prev));
   }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    checkScroll();
-    el.addEventListener('scroll', checkScroll, { passive: true });
-    window.addEventListener('resize', checkScroll);
+
+    let rafId: number | null = null;
+    const onScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        checkScroll();
+        rafId = null;
+      });
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
     return () => {
-      el.removeEventListener('scroll', checkScroll);
-      window.removeEventListener('resize', checkScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      el.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
     };
   }, [checkScroll]);
 

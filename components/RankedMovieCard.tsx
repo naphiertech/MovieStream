@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Movie } from '@/lib/tmdb';
 import { MovieCard } from './MovieCard';
 
@@ -8,14 +9,14 @@ interface RankedMovieCardProps {
   index: number;
 }
 
-export function RankedMovieCard({ movie, index }: RankedMovieCardProps) {
+export const RankedMovieCard = memo(function RankedMovieCard({ movie, index }: RankedMovieCardProps) {
   const rankNumber = index + 1;
 
   return (
     <div className="flex items-center gap-1 sm:gap-2 group/ranked select-none">
       {/* StreamCraze Outlined Large Numeral */}
       <span 
-        className="font-black text-[90px] sm:text-[110px] md:text-[140px] leading-none tracking-tighter text-transparent select-none font-outfit transition-all duration-500 group-hover/ranked:text-red-600/30 group-hover/ranked:scale-105"
+        className="font-black text-[90px] sm:text-[110px] md:text-[140px] leading-none tracking-tighter text-transparent select-none font-outfit transition-all duration-300 group-hover/ranked:text-red-600/30 group-hover/ranked:scale-105"
         style={{
           WebkitTextStroke: '2.5px rgba(255, 255, 255, 0.4)',
           textShadow: '0 10px 30px rgba(0,0,0,0.8)'
@@ -34,4 +35,5 @@ export function RankedMovieCard({ movie, index }: RankedMovieCardProps) {
       </div>
     </div>
   );
-}
+});
+

@@ -4,8 +4,14 @@ import { notFound } from 'next/navigation';
 import { LayoutGrid, ArrowLeft, Film } from 'lucide-react';
 import Link from 'next/link';
 
-export const revalidate = 3600;
+export const revalidate = 86400; // 24 hours
 export const dynamicParams = true;
+
+export function generateStaticParams() {
+  return Object.keys(GENRE_MAP).map((genre) => ({
+    genre: encodeURIComponent(genre),
+  }));
+}
 
 export default async function GenrePage({ params }: { params: Promise<{ genre: string }> }) {
   const { genre } = await params;

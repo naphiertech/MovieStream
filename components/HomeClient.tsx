@@ -144,71 +144,87 @@ export function HomeClient({
 
         {/* 6. Mid-Page Full-Width Split Spotlight 1: Action Blockbuster Showcase (Distinct Action Pick) */}
         {actionSpotlight && (
-          <SpotlightBanner
-            sectionTitle="Action Blockbuster Showcase"
-            movie={actionSpotlight}
-            sideMovies={actionSideMovies}
-            exploreLink="/genres/Action"
-          />
+          <div className="content-visibility-spotlight">
+            <SpotlightBanner
+              sectionTitle="Action Blockbuster Showcase"
+              movie={actionSpotlight}
+              sideMovies={actionSideMovies}
+              exploreLink="/genres/Action"
+            />
+          </div>
         )}
 
         {/* 7. Popular TV Series */}
-        <CarouselRow 
-          title="Popular TV Series" 
-          movies={popularTV} 
-          layout={layout} 
-        />
+        <div className="content-visibility-auto">
+          <CarouselRow 
+            title="Popular TV Series" 
+            movies={popularTV} 
+            layout={layout} 
+          />
+        </div>
 
         {/* 8. Top Rated Picks (With Movies/Series Toggle) */}
-        <CarouselRow 
-          title="Top Rated Picks" 
-          movies={topRatedMovies} 
-          altMovies={topRatedTV}
-          mainLabel="Movies"
-          altLabel="Series"
-          layout={layout}
-        />
+        <div className="content-visibility-auto">
+          <CarouselRow 
+            title="Top Rated Picks" 
+            movies={topRatedMovies} 
+            altMovies={topRatedTV}
+            mainLabel="Movies"
+            altLabel="Series"
+            layout={layout}
+          />
+        </div>
 
         {/* 9. Mid-Page Full-Width Split Spotlight 2: Captivating Sci-Fi Experience (Distinct Sci-Fi Pick) */}
         {sciFiSpotlight && (
-          <SpotlightBanner
-            sectionTitle="Captivating Sci-Fi Experience"
-            movie={sciFiSpotlight}
-            sideMovies={sciFiSideMovies}
-            exploreLink="/genres/Sci-Fi"
-          />
+          <div className="content-visibility-spotlight">
+            <SpotlightBanner
+              sectionTitle="Captivating Sci-Fi Experience"
+              movie={sciFiSpotlight}
+              sideMovies={sciFiSideMovies}
+              exploreLink="/genres/Sci-Fi"
+            />
+          </div>
         )}
 
         {/* 10. Latest Action Hits */}
-        <CarouselRow 
-          title="Latest Action Hits" 
-          movies={distinctActionHits} 
-          viewAllLink="/genres/Action" 
-          layout={layout} 
-        />
+        <div className="content-visibility-auto">
+          <CarouselRow 
+            title="Latest Action Hits" 
+            movies={distinctActionHits} 
+            viewAllLink="/genres/Action" 
+            layout={layout} 
+          />
+        </div>
 
         {/* 11. Trending Sci-Fi */}
-        <CarouselRow 
-          title="Trending Sci-Fi" 
-          movies={distinctSciFiHits} 
-          viewAllLink="/genres/Sci-Fi" 
-          layout={layout} 
-        />
+        <div className="content-visibility-auto">
+          <CarouselRow 
+            title="Trending Sci-Fi" 
+            movies={distinctSciFiHits} 
+            viewAllLink="/genres/Sci-Fi" 
+            layout={layout} 
+          />
+        </div>
 
         {/* 12. Comedy Hits */}
-        <CarouselRow 
-          title="Comedy Hits" 
-          movies={comedyMovies} 
-          viewAllLink="/genres/Comedy" 
-          layout={layout} 
-        />
+        <div className="content-visibility-auto">
+          <CarouselRow 
+            title="Comedy Hits" 
+            movies={comedyMovies} 
+            viewAllLink="/genres/Comedy" 
+            layout={layout} 
+          />
+        </div>
 
         {/* 13. Coming Soon */}
-        <CarouselRow 
-          title="Coming Soon to MovieStream" 
-          movies={upcomingMovies} 
-          layout={layout} 
-        />
+        <div className="content-visibility-auto">
+          <CarouselRow 
+            title="Coming Soon to MovieStream" 
+            movies={upcomingMovies} 
+            layout={layout} 
+          />
+        </div>
       </div>
     </div>
   );

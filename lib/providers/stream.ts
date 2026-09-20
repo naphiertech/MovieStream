@@ -78,7 +78,7 @@ class StreamProviderManagerClass {
 export const StreamProviderManager = new StreamProviderManagerClass();
 StreamProviderManager.registerProvider(new VidLinkProvider());
 
-// StreamResolver: Normalizes raw responses into a single playback-ready object, rewrites proxy URLs when required
+// StreamResolver: Normalizes raw responses into a single playback-ready object directly from external provider CDNs
 export class StreamResolver {
   static normalize(providerId: string, rawData: any): PlaybackMetadata {
     if (!rawData) {
@@ -98,19 +98,15 @@ export class StreamResolver {
         videoUrl = stream.playlist;
       }
 
-      // 2. Otherwise parse qualities (MP4 / HLS streams)
+      // 2. Parse qualities (MP4 / HLS streams) directly from external source (no Vercel proxy)
       if (stream.qualities) {
         const qualityKeys = Object.keys(stream.qualities);
         
         qualityKeys.forEach((quality) => {
           const streamObj = stream.qualities[quality];
           if (streamObj && streamObj.url) {
-            // Rewrite URL through proxy if required
-            let finalUrl = streamObj.url;
-            if (streamObj.requiresProxy || rawData.requiresProxy) {
-              const headersParam = streamObj.headers ? encodeURIComponent(JSON.stringify(streamObj.headers)) : '';
-              finalUrl = `/api/proxy?url=${encodeURIComponent(streamObj.url)}&headers=${headersParam}`;
-            }
+            // Keep direct external CDN URL to avoid proxying media bytes through Vercel
+            const finalUrl = streamObj.url;
             qualities[`${quality}p`] = finalUrl;
 
             // Set main videoUrl if we don't have one yet (defaulting to the first available or 1080p if present)
@@ -123,13 +119,7 @@ export class StreamResolver {
 
       // If playlist is present but qualities is empty, populate the default quality option
       if (videoUrl && Object.keys(qualities).length === 0) {
-        let finalVideoUrl = videoUrl;
-        if (rawData.requiresProxy || stream.requiresProxy) {
-          const headersParam = stream.headers ? encodeURIComponent(JSON.stringify(stream.headers)) : '';
-          finalVideoUrl = `/api/proxy?url=${encodeURIComponent(videoUrl)}&headers=${headersParam}`;
-        }
-        qualities['Auto'] = finalVideoUrl;
-        videoUrl = finalVideoUrl;
+        qualities['Auto'] = videoUrl;
       }
     }
 

@@ -30,7 +30,11 @@ export const GENRE_MAP: Record<string, string> = {
   "Western": "37"
 };
 
-const fetchTMDB = async (endpoint: string, params: Record<string, string> = {}) => {
+const fetchTMDB = async (
+  endpoint: string, 
+  params: Record<string, string> = {},
+  revalidate: number = 3600
+) => {
   const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
   Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
@@ -40,7 +44,7 @@ const fetchTMDB = async (endpoint: string, params: Record<string, string> = {}) 
         Authorization: `Bearer ${process.env.TMDB_ACCESS_TOKEN}`,
         'Content-Type': 'application/json',
       },
-      next: { revalidate: 3600 }, // Cache for 1 hour
+      next: { revalidate },
     });
 
     if (!response.ok) {
@@ -148,7 +152,7 @@ export async function getTrendingAll(page: number = 1) {
 
 export async function getMovieLogo(id: string, type: 'movie' | 'tv' = 'movie'): Promise<string | undefined> {
   try {
-    const data = await fetchTMDB(`/${type}/${id}/images`, { include_image_language: 'en,null' });
+    const data = await fetchTMDB(`/${type}/${id}/images`, { include_image_language: 'en,null' }, 86400);
     const logo = data.logos?.find((l: any) => l.iso_639_1 === 'en') || data.logos?.[0];
     return logo ? `${TMDB_IMAGE_BASE}/w500${logo.file_path}` : undefined;
   } catch (error) {
@@ -178,32 +182,32 @@ export async function getTrendingMediaWithLogos(type: 'all' | 'movie' | 'tv' = '
 }
 
 export async function getUpcomingMovies(page: number = 1) {
-  const data = await fetchTMDB('/movie/upcoming', { page: page.toString() });
+  const data = await fetchTMDB('/movie/upcoming', { page: page.toString() }, 43200);
   return data.results.map((m: any) => mapMovie(m, 'movie'));
 }
 
 export async function getTopRatedMovies(page: number = 1) {
-  const data = await fetchTMDB('/movie/top_rated', { page: page.toString() });
+  const data = await fetchTMDB('/movie/top_rated', { page: page.toString() }, 86400);
   return data.results.map((m: any) => mapMovie(m, 'movie'));
 }
 
 export async function getTopRatedTV(page: number = 1) {
-  const data = await fetchTMDB('/tv/top_rated', { page: page.toString() });
+  const data = await fetchTMDB('/tv/top_rated', { page: page.toString() }, 86400);
   return data.results.map((m: any) => mapMovie(m, 'tv'));
 }
 
 export async function getPopularTV(page: number = 1) {
-  const data = await fetchTMDB('/tv/popular', { page: page.toString() });
+  const data = await fetchTMDB('/tv/popular', { page: page.toString() }, 43200);
   return data.results.map((m: any) => mapMovie(m, 'tv'));
 }
 
 export async function searchMovies(query: string) {
-  const data = await fetchTMDB('/search/movie', { query });
+  const data = await fetchTMDB('/search/movie', { query }, 1800);
   return data.results.map((m: any) => mapMovie(m, 'movie'));
 }
 
 export async function searchMulti(query: string) {
-  const data = await fetchTMDB('/search/multi', { query });
+  const data = await fetchTMDB('/search/multi', { query }, 1800);
   return data.results
     .filter((m: any) => m.media_type === 'movie' || m.media_type === 'tv')
     .map((m: any) => mapMovie(m, m.media_type));
@@ -211,8 +215,8 @@ export async function searchMulti(query: string) {
 
 export async function getMovieDetails(id: string) {
   const [data, credits, logoUrl] = await Promise.all([
-    fetchTMDB(`/movie/${id}`),
-    fetchTMDB(`/movie/${id}/credits`),
+    fetchTMDB(`/movie/${id}`, {}, 86400),
+    fetchTMDB(`/movie/${id}/credits`, {}, 86400),
     getMovieLogo(id, 'movie')
   ]);
   
@@ -232,9 +236,9 @@ export async function getMovieDetails(id: string) {
 
 export async function getTVDetails(id: string): Promise<TVShow> {
   const [data, credits, externalIds, logoUrl] = await Promise.all([
-    fetchTMDB(`/tv/${id}`),
-    fetchTMDB(`/tv/${id}/credits`),
-    fetchTMDB(`/tv/${id}/external_ids`),
+    fetchTMDB(`/tv/${id}`, {}, 43200),
+    fetchTMDB(`/tv/${id}/credits`, {}, 86400),
+    fetchTMDB(`/tv/${id}/external_ids`, {}, 86400),
     getMovieLogo(id, 'tv')
   ]);
 
@@ -256,23 +260,23 @@ export async function getTVDetails(id: string): Promise<TVShow> {
 }
 
 export async function getSeasonDetails(tvId: string, seasonNumber: number) {
-  const data = await fetchTMDB(`/tv/${tvId}/season/${seasonNumber}`);
+  const data = await fetchTMDB(`/tv/${tvId}/season/${seasonNumber}`, {}, 43200);
   return data;
 }
 
 export async function getMoviesByGenre(genreId: string, page: number = 1) {
-  const data = await fetchTMDB('/discover/movie', { with_genres: genreId, page: page.toString() });
+  const data = await fetchTMDB('/discover/movie', { with_genres: genreId, page: page.toString() }, 43200);
   return data.results.map((m: any) => mapMovie(m, 'movie'));
 }
 
 export async function getTVByGenre(genreId: string, page: number = 1) {
-  const data = await fetchTMDB('/discover/tv', { with_genres: genreId, page: page.toString() });
+  const data = await fetchTMDB('/discover/tv', { with_genres: genreId, page: page.toString() }, 43200);
   return data.results.map((m: any) => mapMovie(m, 'tv'));
 }
 
 export async function getRecommendations(id: string, type: 'movie' | 'tv' = 'movie') {
   try {
-    const data = await fetchTMDB(`/${type}/${id}/recommendations`);
+    const data = await fetchTMDB(`/${type}/${id}/recommendations`, {}, 86400);
     return data.results.map((m: any) => mapMovie(m, type));
   } catch (error) {
     console.error(`Error fetching recommendations for ${type} ${id}:`, error);
@@ -282,7 +286,7 @@ export async function getRecommendations(id: string, type: 'movie' | 'tv' = 'mov
 
 export async function getGenres(type: 'movie' | 'tv' = 'movie'): Promise<Genre[]> {
   try {
-    const data = await fetchTMDB(`/genre/${type}/list`);
+    const data = await fetchTMDB(`/genre/${type}/list`, {}, 604800);
     return data.genres;
   } catch (error) {
     console.error(`Error fetching genres for ${type}:`, error);
@@ -292,7 +296,7 @@ export async function getGenres(type: 'movie' | 'tv' = 'movie'): Promise<Genre[]
 
 export async function getMovieVideos(id: string, type: 'movie' | 'tv' = 'movie') {
   try {
-    const data = await fetchTMDB(`/${type}/${id}/videos`);
+    const data = await fetchTMDB(`/${type}/${id}/videos`, {}, 86400);
     return data.results;
   } catch (error) {
     console.error(`Error fetching videos for ${type} ${id}:`, error);
@@ -302,7 +306,7 @@ export async function getMovieVideos(id: string, type: 'movie' | 'tv' = 'movie')
 
 export async function getSimilar(id: string, type: 'movie' | 'tv' = 'movie') {
   try {
-    const data = await fetchTMDB(`/${type}/${id}/similar`);
+    const data = await fetchTMDB(`/${type}/${id}/similar`, {}, 86400);
     return data.results.map((m: any) => mapMovie(m, type));
   } catch (error) {
     console.error(`Error fetching similar for ${type} ${id}:`, error);

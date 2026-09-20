@@ -49,7 +49,6 @@ export function SpotlightBanner({
           fill
           className="object-cover opacity-50"
           sizes="100vw"
-          priority
           referrerPolicy="no-referrer"
           unoptimized={!bgImage.startsWith('http')}
         />
@@ -98,7 +97,7 @@ export function SpotlightBanner({
               </Link>
               <Link
                 href={movie.type === 'tv' ? `/tv/${movie.id}` : `/movie/${movie.id}`}
-                className="px-6 md:px-8 py-3 bg-white/10 border border-white/15 text-white rounded-full text-xs md:text-sm font-black uppercase tracking-wider hover:bg-white/20 transition-all flex items-center gap-2 backdrop-blur-md"
+                className="px-6 md:px-8 py-3 bg-white/10 border border-white/15 text-white rounded-full text-xs md:text-sm font-black uppercase tracking-wider hover:bg-white/20 transition-all flex items-center gap-2"
               >
                 <Info size={16} />
                 More Info

@@ -8,6 +8,10 @@ import { SeasonSelector } from '@/components/SeasonSelector';
 import { MovieRow } from '@/components/MovieRow';
 import { ActorList } from '@/components/ActorList';
 
+// Enable 12-hour Incremental Static Regeneration (ISR) on Vercel CDN Edge
+export const revalidate = 43200; // 12 hours
+export const dynamicParams = true; // On-demand static generation for any TV show ID
+
 export default async function TVDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
@@ -15,11 +19,14 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
   let recommendations: any[] = [];
   let similar: any[] = [];
   try {
-    show = await getTVDetails(id);
-    [recommendations, similar] = await Promise.all([
-      getRecommendations(id, 'tv'),
-      getSimilar(id, 'tv'),
+    const [showData, recData, simData] = await Promise.all([
+      getTVDetails(id),
+      getRecommendations(id, 'tv').catch(() => []),
+      getSimilar(id, 'tv').catch(() => [])
     ]);
+    show = showData;
+    recommendations = recData;
+    similar = simData;
   } catch (error) {
     notFound();
   }

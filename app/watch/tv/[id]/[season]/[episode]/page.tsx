@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, ChevronRight, Settings, Timer } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
@@ -51,14 +51,42 @@ export default function TVWatchPage() {
     setIsCustomPlayerActive(false);
   };
 
-  const handleSourceSelect = (source: VideoSource) => {
+  const handleSourceSelect = async (source: VideoSource) => {
     setActiveSource(source);
-    if (source.id === 'vidlink' && playbackData) {
-      setIsCustomPlayerActive(true);
-    } else {
-      setIsCustomPlayerActive(false);
+    if (source.id === 'vidlink') {
+      if (!playbackData) {
+        try {
+          const streamRes = await fetch(`/api/stream/tv/${id}/${season}/${episode}`);
+          if (streamRes.ok) {
+            const streamData = await streamRes.json();
+            setPlaybackData(streamData);
+            setIsCustomPlayerActive(true);
+            return;
+          }
+        } catch (err) {
+          console.warn('[TVWatchPage] Direct stream fetch fallback to iframe:', err);
+        }
+      } else {
+        setIsCustomPlayerActive(true);
+        return;
+      }
     }
+    setIsCustomPlayerActive(false);
   };
+
+  // Handle manual "Next Episode"
+  const handleNext = useCallback(() => {
+    if (nextEpisode) {
+      router.push(`/watch/tv/${id}/${nextEpisode.season_number}/${nextEpisode.episode_number}`);
+    }
+  }, [nextEpisode, router, id]);
+
+  // Handle manual "Previous Episode"
+  const handlePrev = useCallback(() => {
+    if (prevEpisode) {
+      router.push(`/watch/tv/${id}/${prevEpisode.season_number}/${prevEpisode.episode_number}`);
+    }
+  }, [prevEpisode, router, id]);
 
   // Sync preferences on load
   useEffect(() => {
@@ -82,11 +110,6 @@ export default function TVWatchPage() {
       window.removeEventListener('resize', handleOrientation);
       window.removeEventListener('orientationchange', handleOrientation);
     };
-  }, []);
-
-  // Pre-warm Hugging Face scraper container in the background
-  useEffect(() => {
-    fetch('https://missourimonster-vyla.hf.space/').catch(() => {});
   }, []);
 
   // Fullscreen → Auto-Landscape Link
@@ -128,12 +151,13 @@ export default function TVWatchPage() {
     };
   }, []);
 
-  // Listen for ended messages from VidLink or VidFast iframe
+  // Listen for ended messages from VidLink or Viduki iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const isVidLink = event.origin.includes('vidlink.pro');
-      const isVidFast = event.origin.includes('vidfast.pro');
-      if (isVidLink || isVidFast) {
+      const isViduki = event.origin.includes('viduki.net');
+      
+      if (isVidLink || isViduki) {
         try {
           let data = event.data;
           if (typeof data === 'string' && data.startsWith('{')) {
@@ -170,7 +194,7 @@ export default function TVWatchPage() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [countdown]);
+  }, [countdown, handleNext]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -216,52 +240,23 @@ export default function TVWatchPage() {
         }
         setPrevEpisode(prev);
 
-        // Map sources
+        // Map sources (Viduki Primary + VidLink)
         const sourcesList = [
           {
-            id: 'vidfast',
-            name: 'VidFast (Pro)',
-            url: `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=ef4444&autoPlay=true`,
+            id: 'viduki',
+            name: 'Viduki (Primary)',
+            url: `https://viduki.net/1/tv/${id}/${season}/${episode}?color=ef4444`,
             quality: '1080p'
           },
           {
             id: 'vidlink',
-            name: 'VidLink (Pro)',
-            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=ef4444&autoplay=1`,
-            quality: '1080p'
-          },
-          {
-            id: 'vidsrc',
-            name: 'VidSrc (Fast)',
-            url: `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`,
+            name: 'VidLink',
+            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=ef4444`,
             quality: '1080p'
           }
         ];
         setSources(sourcesList);
-        
-        // Try fetching stream details for custom player
-        try {
-          const streamRes = await fetch(`/api/stream/tv/${id}/${season}/${episode}`, { signal: controller.signal });
-          if (streamRes.ok) {
-            const streamData = await streamRes.json();
-            setPlaybackData(streamData);
-            setIsCustomPlayerActive(true);
-            const vidlinkSource = sourcesList.find(s => s.id === 'vidlink');
-            if (vidlinkSource) {
-              setActiveSource(vidlinkSource);
-            } else {
-              setActiveSource(sourcesList[0]);
-            }
-          } else {
-            console.warn('[TVWatchPage] Stream API failed to resolve, falling back to legacy iframe.');
-            setIsCustomPlayerActive(false);
-            setActiveSource(sourcesList[0]);
-          }
-        } catch (streamErr) {
-          console.error('[TVWatchPage] Failed to fetch stream details:', streamErr);
-          setIsCustomPlayerActive(false);
-          setActiveSource(sourcesList[0]);
-        }
+        setActiveSource(sourcesList[0]);
 
         // Save history
         const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
@@ -290,32 +285,15 @@ export default function TVWatchPage() {
     if (id) fetchData();
   }, [id, season, episode]);
 
-  // Handle manual "Next Episode"
-  const handleNext = () => {
-    if (nextEpisode) {
-      router.push(`/watch/tv/${id}/${nextEpisode.season_number}/${nextEpisode.episode_number}`);
-    }
-  };
-
-  // Handle manual "Previous Episode"
-  const handlePrev = () => {
-    if (prevEpisode) {
-      router.push(`/watch/tv/${id}/${prevEpisode.season_number}/${prevEpisode.episode_number}`);
-    }
-  };
-
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
-    if (sourceId === 'vidfast') {
-      return `https://vidfast.pro/tv/${id}/${season}/${episode}?theme=ef4444&autoPlay=${autoPlay ? 'true' : 'false'}`;
+    if (sourceId === 'viduki') {
+      return `https://viduki.net/1/tv/${id}/${season}/${episode}?color=ef4444`;
     }
     if (sourceId === 'vidlink') {
       return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=ef4444&autoplay=${autoPlay ? 1 : 0}`;
     }
-    if (sourceId === 'vidsrc') {
-      return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=${autoPlay ? 1 : 0}`;
-    }
-    return '';
+    return `https://viduki.net/1/tv/${id}/${season}/${episode}?color=ef4444`;
   };
 
   if (loading) {

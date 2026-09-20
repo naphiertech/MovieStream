@@ -40,29 +40,10 @@ export function SeasonSelector({ tvId, seasons }: SeasonSelectorProps) {
     }
   }, [tvId, selectedSeason]);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) {
-      const onWheel = (e: WheelEvent) => {
-        if (e.deltaY === 0) return;
-        e.preventDefault();
-        el.scrollTo({
-          left: el.scrollLeft + e.deltaY * 1.5,
-          behavior: 'auto'
-        });
-      };
-      el.addEventListener('wheel', onWheel, { passive: false });
-      return () => el.removeEventListener('wheel', onWheel);
-    }
-  }, []);
-
   return (
     <div className="mt-12">
       {/* Season Tabs - Cineby Style */}
       <div 
-        ref={scrollRef}
         className="flex items-center gap-4 overflow-x-auto pb-6 scrollbar-hide h-20 scrolling-touch"
       >
         {seasons.filter(s => s.season_number > 0).map((season) => (
@@ -89,47 +70,43 @@ export function SeasonSelector({ tvId, seasons }: SeasonSelectorProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <AnimatePresence mode="popLayout">
-              {episodes.map((episode, index) => (
-                <motion.div
-                  key={episode.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="group relative"
-                >
-                  <Link href={`/watch/tv/${tvId}/${selectedSeason}/${episode.episode_number}`} className="block">
-                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/5 group-hover:border-red-600/40 transition-all duration-500 shadow-xl">
-                      <Image
-                        src={episode.still_path ? `https://image.tmdb.org/t/p/w500${episode.still_path}` : PLACEHOLDERS.STILL}
-                        alt={episode.name}
-                        fill
-                        className="object-cover opacity-60 group-hover:opacity-100 transition-all duration-700"
-                        referrerPolicy="no-referrer"
-                        unoptimized={!episode.still_path}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-black text-red-500 uppercase tracking-[1px]">Ep {episode.episode_number}</span>
-                          <span className="w-1 h-1 bg-white/20 rounded-full" />
-                          <span className="text-[10px] text-white/40 font-bold uppercase tracking-[1px]">
-                            {episode.air_date ? new Date(episode.air_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBA'}
-                          </span>
-                        </div>
-                        <h4 className="text-white font-black text-[13px] uppercase tracking-tight line-clamp-1 group-hover:text-red-500 transition-colors">
-                          {episode.name}
-                        </h4>
+            {episodes.map((episode) => (
+              <div
+                key={episode.id}
+                className="group relative animate-in fade-in duration-200"
+              >
+                <Link href={`/watch/tv/${tvId}/${selectedSeason}/${episode.episode_number}`} className="block">
+                  <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/5 group-hover:border-red-600/40 transition-all duration-300 shadow-xl">
+                    <Image
+                      src={episode.still_path ? `https://image.tmdb.org/t/p/w500${episode.still_path}` : PLACEHOLDERS.STILL}
+                      alt={episode.name}
+                      fill
+                      className="object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                      referrerPolicy="no-referrer"
+                      unoptimized={!episode.still_path}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 300px"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-black text-red-500 uppercase tracking-[1px]">Ep {episode.episode_number}</span>
+                        <span className="w-1 h-1 bg-white/20 rounded-full" />
+                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-[1px]">
+                          {episode.air_date ? new Date(episode.air_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBA'}
+                        </span>
                       </div>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                         <div className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center shadow-2xl scale-75 group-hover:scale-100 transition-transform">
-                            <Play size={20} fill="currentColor" />
-                         </div>
-                      </div>
+                      <h4 className="text-white font-black text-[13px] uppercase tracking-tight line-clamp-1 group-hover:text-red-500 transition-colors">
+                        {episode.name}
+                      </h4>
                     </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                       <div className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-200">
+                          <Play size={20} fill="currentColor" />
+                       </div>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
           </div>
         )}
       </div>

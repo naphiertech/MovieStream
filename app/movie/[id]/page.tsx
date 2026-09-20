@@ -7,6 +7,10 @@ import { ActorList } from '@/components/ActorList';
 import { CinematicBackground } from '@/components/CinematicBackground';
 import { MovieRow } from '@/components/MovieRow';
 
+// Enable 24-hour Incremental Static Regeneration (ISR) on Vercel CDN Edge
+export const revalidate = 86400; // 24 hours
+export const dynamicParams = true; // On-demand static generation for any movie ID
+
 export default async function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
@@ -14,11 +18,14 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
   let recommendations: any[] = [];
   let similar: any[] = [];
   try {
-    movie = await getMovieDetails(id);
-    [recommendations, similar] = await Promise.all([
-      getRecommendations(id, 'movie'),
-      getSimilar(id, 'movie'),
+    const [movieData, recData, simData] = await Promise.all([
+      getMovieDetails(id),
+      getRecommendations(id, 'movie').catch(() => []),
+      getSimilar(id, 'movie').catch(() => [])
     ]);
+    movie = movieData;
+    recommendations = recData;
+    similar = simData;
   } catch (error) {
     notFound();
   }

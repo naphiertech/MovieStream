@@ -1,13 +1,13 @@
-const CACHE_NAME = 'moviestream-pro-v2';
+const CACHE_NAME = 'moviestream-pro-v3';
 
-// Standard assets to precache
+// Only precache immutable static PWA manifest and icon assets
 const PRECACHE_ASSETS = [
-  '/',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/screenshots/mobile.png',
-  '/screenshots/desktop.png'
+  '/screenshots/desktop.png',
+  '/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -31,34 +31,42 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Do not cache localhost or local development requests to avoid HMR cache collisions
   const url = new URL(event.request.url);
-  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+
+  // Ignore non-GET requests and cross-origin requests
+  if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
     return;
   }
 
-  // Stale-while-revalidate strategy for the most responsive feel
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Return cached response but refresh it in the background
-        fetch(event.request).then((networkResponse) => {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse);
-          });
-        });
-        return cachedResponse;
-      }
+  // Do not intercept or cache HTML documents, Next.js chunks, API routes, or media
+  if (
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/_next/') ||
+    url.pathname.startsWith('/movie/') ||
+    url.pathname.startsWith('/tv/') ||
+    url.pathname.startsWith('/watch/') ||
+    url.pathname.startsWith('/genres') ||
+    url.pathname.startsWith('/movies') ||
+    url.pathname.startsWith('/tv-shows') ||
+    url.pathname.startsWith('/trending') ||
+    url.pathname.startsWith('/search') ||
+    url.pathname === '/'
+  ) {
+    return;
+  }
 
-      return fetch(event.request).then((networkResponse) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          // Cache the new resource for future use
-          if (event.request.method === 'GET') {
-            cache.put(event.request, networkResponse.clone());
-          }
-          return networkResponse;
-        });
-      });
-    })
-  );
+  // Only handle precached static PWA assets (Cache-First strategy)
+  if (
+    url.pathname.startsWith('/icons/') ||
+    url.pathname.startsWith('/screenshots/') ||
+    url.pathname === '/manifest.json' ||
+    url.pathname === '/icon.svg'
+  ) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        return cachedResponse || fetch(event.request);
+      })
+    );
+  }
 });
+

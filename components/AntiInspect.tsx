@@ -74,7 +74,7 @@ export function AntiInspect() {
 
   return (
     <div 
-      className="fixed z-[9999] bg-[#0f0f0f]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] w-[240px] p-1.5 flex flex-col gap-0.5 animate-in fade-in zoom-in-95 duration-150"
+      className="fixed z-[9999] bg-[#0f0f0f] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] w-[240px] p-1.5 flex flex-col gap-0.5 animate-in fade-in zoom-in-95 duration-150"
       style={{ left: adjustedX, top: adjustedY }}
       onContextMenu={(e) => e.preventDefault()}
     >

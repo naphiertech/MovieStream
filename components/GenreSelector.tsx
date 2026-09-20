@@ -2,7 +2,6 @@
 
 import { Genre } from '@/lib/tmdb';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { LayoutGrid } from 'lucide-react';
 
 interface GenreSelectorProps {
@@ -46,12 +45,9 @@ export function GenreSelector({ genres, activeGenreId, baseUrl }: GenreSelectorP
                   : 'bg-white/5 text-white/40 border-white/5 hover:border-white/20 hover:text-white hover:scale-105'
               }`}
             >
-              <motion.span
-                animate={isActive ? { scale: [1, 1.1, 1] } : {}}
-                className="block"
-              >
+              <span className="block">
                 {genre.name}
-              </motion.span>
+              </span>
             </Link>
           );
         })}
@@ -59,3 +55,4 @@ export function GenreSelector({ genres, activeGenreId, baseUrl }: GenreSelectorP
     </div>
   );
 }
+

@@ -5,7 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Movie } from '@/lib/tmdb';
 import { MovieCard } from '@/components/MovieCard';
 import { Search as SearchIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+
+const searchPageCache = new Map<string, Movie[]>();
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -18,27 +19,44 @@ function SearchContent() {
   const [layout, setLayout] = useState<'portrait' | 'landscape'>('landscape');
 
   useEffect(() => {
+    const trimmed = q.trim().toLowerCase();
+    if (!trimmed) {
+      setResults([]);
+      return;
+    }
+
+    if (searchPageCache.has(trimmed)) {
+      setResults(searchPageCache.get(trimmed) || []);
+      return;
+    }
+    
+    const controller = new AbortController();
+
     const fetchResults = async () => {
-      if (!q) {
-        setResults([]);
-        return;
-      }
-      
       setLoading(true);
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, {
+          signal: controller.signal
+        });
         if (res.ok) {
           const data = await res.json();
+          searchPageCache.set(trimmed, data);
           setResults(data);
         }
-      } catch (error) {
-        console.error("Search failed", error);
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error("Search failed", error);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchResults();
+
+    return () => {
+      controller.abort();
+    };
   }, [q]);
 
   useEffect(() => {
@@ -79,7 +97,7 @@ function SearchContent() {
             placeholder="Type a movie or tv show..."
             value={localQuery}
             onChange={(e) => setLocalQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-14 pr-24 py-4 md:py-5 text-base md:text-lg focus:outline-none focus:border-red-600/40 focus:bg-white/10 transition-all duration-500 placeholder:text-white/20 font-medium shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+            className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-14 pr-24 py-4 md:py-5 text-base md:text-lg focus:outline-none focus:border-red-600/40 focus:bg-white/10 transition-all duration-300 placeholder:text-white/20 font-medium shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
             autoFocus
           />
           <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors duration-300" size={22} />
@@ -136,17 +154,13 @@ function SearchContent() {
           </div>
         </div>
       ) : q ? (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center py-40"
-        >
+        <div className="text-center py-40 animate-in fade-in duration-200">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/10 mb-6 text-white/20">
             <SearchIcon size={32} />
           </div>
           <h3 className="text-2xl font-black text-white tracking-tight uppercase">No results found</h3>
           <p className="mt-2 text-white/30 font-bold text-[11px] uppercase tracking-[2px]">Try different keywords or genres</p>
-        </motion.div>
+        </div>
       ) : (
         <div className="text-center py-40">
           <p className="text-white/20 font-black text-[12px] uppercase tracking-[4px]">
