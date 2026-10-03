@@ -1,4 +1,7 @@
 import type {NextConfig} from 'next';
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+
+initOpenNextCloudflareForDev();
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -31,8 +34,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  output: 'standalone',
-  outputFileTracingRoot: process.cwd(),
   webpack: (config, {dev}) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.
     // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
