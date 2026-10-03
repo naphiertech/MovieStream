@@ -44,7 +44,7 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
   const firstSeasonNum = firstSeason?.season_number ?? 1;
 
   return (
-    <div className="min-h-screen bg-[#060606] selection:bg-red-600/30 overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#060606] selection:bg-sage-600/30 overflow-x-hidden relative">
       
       {/* Cinematic Hero Backdrop */}
       <div className="absolute top-0 left-0 w-full h-[75vh] md:h-[85vh] overflow-hidden pointer-events-none">
@@ -62,8 +62,8 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
           
           {/* Back Button */}
           <div className="fixed top-6 left-6 z-50">
-            <Link href="/tv-shows" className="group inline-flex items-center justify-center w-10 h-10 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full text-white/60 hover:text-white hover:border-white/30 transition-all duration-300">
-              <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+            <Link href="/tv-shows" className="group inline-flex items-center justify-center w-11 h-11 bg-black/60 md:backdrop-blur-xl border border-white/10 rounded-full text-white/60 hover:text-white hover:border-white/30 md:transition-all md:duration-300">
+              <ArrowLeft size={18} className="md:group-hover:-translate-x-0.5 md:transition-transform" />
             </Link>
           </div>
 
@@ -101,7 +101,7 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
                 ) : (
                   <h1 className="text-[28px] md:text-[42px] lg:text-[50px] font-black text-white leading-[0.9] tracking-[-2px] uppercase italic drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] font-outfit">
                     {mainTitle && <span className="opacity-90 block">{mainTitle}</span>}
-                    <span className="text-red-500 drop-shadow-[0_0_20px_rgba(229,9,20,0.4)] block">{accentTitle}</span>
+                    <span className="text-sage-400 drop-shadow-[0_0_20px_rgba(132, 169, 140,0.4)] block">{accentTitle}</span>
                   </h1>
                 )}
               </div>
@@ -160,7 +160,7 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
           {/* Season Selector */}
           <div id="episodes" className="mt-16 pt-12 border-t border-white/5 scroll-mt-24">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-1.5 h-8 bg-red-600 rounded-full shadow-[0_0_15px_rgba(229,9,20,0.5)]" />
+              <div className="w-1.5 h-8 bg-sage-600 rounded-full shadow-[0_0_15px_rgba(132, 169, 140,0.5)]" />
               <h2 className="text-2xl font-black text-white uppercase tracking-tight italic font-outfit">Select Episode</h2>
             </div>
             <SeasonSelector tvId={show.id} seasons={show.seasons} />

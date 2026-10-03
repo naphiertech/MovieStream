@@ -27,8 +27,8 @@ const GENRE_DETAILS: Record<string, { icon: any, description: string, colorClass
   "Action": {
     icon: Swords,
     description: "High-octane excitement, intense battles, and stunts.",
-    colorClass: "text-red-400 group-hover:text-red-300",
-    bgGlow: "from-red-500/10 via-red-500/5 to-transparent"
+    colorClass: "text-sage-300 group-hover:text-sage-200",
+    bgGlow: "from-sage-500/10 via-sage-500/5 to-transparent"
   },
   "Adventure": {
     icon: Compass,
@@ -87,8 +87,8 @@ const GENRE_DETAILS: Record<string, { icon: any, description: string, colorClass
   "Horror": {
     icon: Ghost,
     description: "Creepy encounters, jumpscares, and dark forces.",
-    colorClass: "text-red-500 group-hover:text-red-400",
-    bgGlow: "from-red-600/10 via-red-600/5 to-transparent"
+    colorClass: "text-sage-400 group-hover:text-sage-300",
+    bgGlow: "from-sage-600/10 via-sage-600/5 to-transparent"
   },
   "Music": {
     icon: Music,
@@ -149,8 +149,8 @@ const GENRE_DETAILS: Record<string, { icon: any, description: string, colorClass
 const DEFAULT_DETAIL = {
   icon: Film,
   description: "Browse curated premium titles under this category.",
-  colorClass: "text-red-500 group-hover:text-red-400",
-  bgGlow: "from-red-600/10 via-red-600/5 to-transparent"
+  colorClass: "text-sage-400 group-hover:text-sage-300",
+  bgGlow: "from-sage-600/10 via-sage-600/5 to-transparent"
 };
 
 export const revalidate = 3600;
@@ -161,20 +161,20 @@ export default async function GenresIndexPage() {
   return (
     <div className="min-h-screen bg-[#060606] relative overflow-hidden">
       
-      {/* Decorative Radial Accents for Depth */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-red-600/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-indigo-500/[0.03] rounded-full blur-[150px] pointer-events-none" />
+      {/* Decorative Radial Accents for Depth (Desktop Only) */}
+      <div className="hidden md:block absolute top-0 left-1/4 w-[500px] h-[500px] bg-sage-600/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="hidden md:block absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-indigo-500/[0.03] rounded-full blur-[150px] pointer-events-none" />
       
       <div className="container mx-auto px-6 md:px-14 lg:px-20 pt-36 pb-24 relative z-10">
         
         {/* Header Section */}
         <div className="max-w-2xl mb-16">
-          <div className="flex items-center gap-3 text-red-500 mb-3">
-            <div className="w-8 h-[2px] bg-red-600 rounded-full" />
+          <div className="flex items-center gap-3 text-sage-400 mb-3">
+            <div className="w-8 h-[2px] bg-sage-600 rounded-full" />
             <span className="text-[10px] font-black uppercase tracking-[3px] font-outfit">Category Hub</span>
           </div>
           <h1 className="text-[34px] md:text-[54px] font-black text-white leading-[0.95] tracking-tight uppercase italic mb-5">
-            Browse By <span className="text-red-500 drop-shadow-[0_0_25px_rgba(229,9,20,0.25)]">Genres</span>
+            Browse By <span className="text-sage-400 drop-shadow-[0_0_25px_rgba(132, 169, 140,0.25)]">Genres</span>
           </h1>
           <p className="text-white/40 text-sm md:text-base leading-relaxed font-medium">
             Select a cinematic sector to discover premium movies, trending releases, and top-rated series matching your preferences.
@@ -191,7 +191,7 @@ export default async function GenresIndexPage() {
               <Link 
                 key={genre.id} 
                 href={`/genres/${encodeURIComponent(genre.name)}`}
-                className="group relative flex flex-col justify-between h-[220px] bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-red-600/30 rounded-[2rem] p-6 transition-all duration-300 hover:-translate-y-1.5 shadow-2xl overflow-hidden cursor-pointer"
+                className="group relative flex flex-col justify-between h-[220px] bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-sage-600/30 rounded-[2rem] p-6 transition-all duration-300 hover:-translate-y-1.5 shadow-2xl overflow-hidden cursor-pointer"
               >
                 {/* Custom Gradient Radial Glow */}
                 <div className={`absolute -inset-px bg-gradient-to-br ${detail.bgGlow} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem]`} />
@@ -202,14 +202,14 @@ export default async function GenresIndexPage() {
                     <Icon size={24} strokeWidth={2} className="transition-transform duration-500 group-hover:scale-110" />
                   </div>
                   
-                  <div className="w-8 h-8 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/30 group-hover:text-red-500 group-hover:border-red-600/20 transition-all duration-300">
+                  <div className="w-8 h-8 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-white/30 group-hover:text-sage-400 group-hover:border-sage-600/20 transition-all duration-300">
                     <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-0.5" />
                   </div>
                 </div>
                 
                 {/* Card Bottom: Text Details */}
                 <div className="relative z-10 mt-4">
-                  <h2 className="text-lg font-black text-white group-hover:text-red-500 transition-colors duration-300 uppercase tracking-wider font-outfit mb-1">
+                  <h2 className="text-lg font-black text-white group-hover:text-sage-400 transition-colors duration-300 uppercase tracking-wider font-outfit mb-1">
                     {genre.name}
                   </h2>
                   <p className="text-[11px] text-white/45 group-hover:text-white/60 transition-colors duration-300 line-clamp-2 leading-relaxed">

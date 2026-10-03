@@ -13,7 +13,7 @@ brand
 
 ## Brand & Tone
 - **Visual identity**: Dark, cinematic, premium. Inspired by theatrical experiences.
-- **Color**: Teal accent (#2dd4bf) on deep black (#060606). Restrained palette with accent used for interactive elements only.
+- **Color**: Sage green accent (#84a98c / #98c1a9) on deep obsidian black (#000000). Restrained palette with organic sage for interactive elements and ratings.
 - **Typography**: Bold, uppercase, tracking-heavy headings. Clean body text.
 - **Tone**: Confident, minimal, no unnecessary UI chrome. Content (posters, backdrops) is the star.
 

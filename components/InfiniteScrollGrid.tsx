@@ -89,9 +89,9 @@ export function InfiniteScrollGrid({
         <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-xl p-0.5">
           <button
             onClick={() => setLayout('landscape')}
-            className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] transition-all duration-300 ${
+            className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
               isLandscape
-                ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                 : 'text-white/40 hover:text-white/70'
             }`}
           >
@@ -99,9 +99,9 @@ export function InfiniteScrollGrid({
           </button>
           <button
             onClick={() => setLayout('portrait')}
-            className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] transition-all duration-300 ${
+            className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
               !isLandscape
-                ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                 : 'text-white/40 hover:text-white/70'
             }`}
           >
@@ -127,8 +127,8 @@ export function InfiniteScrollGrid({
       >
         {loading && (
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin shadow-[0_0_15px_rgba(229,9,20,0.2)]" />
-            <span className="text-[10px] font-black text-red-500 uppercase tracking-[2px] animate-pulse">
+            <div className="w-10 h-10 border-4 border-sage-600/20 border-t-sage-500 rounded-full animate-spin shadow-[0_0_15px_rgba(132, 169, 140,0.2)]" />
+            <span className="text-[10px] font-black text-sage-400 uppercase tracking-[2px] animate-pulse">
               Buffering Catalog...
             </span>
           </div>

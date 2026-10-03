@@ -95,9 +95,9 @@ export function GenreGrid({
         <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-xl p-0.5">
           <button
             onClick={() => setLayout('landscape')}
-            className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] transition-all duration-300 ${
+            className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
               isLandscape
-                ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                 : 'text-white/40 hover:text-white/70'
             }`}
           >
@@ -105,9 +105,9 @@ export function GenreGrid({
           </button>
           <button
             onClick={() => setLayout('portrait')}
-            className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] transition-all duration-300 ${
+            className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
               !isLandscape
-                ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                 : 'text-white/40 hover:text-white/70'
             }`}
           >
@@ -128,7 +128,7 @@ export function GenreGrid({
 
       {hasMore && (
         <div ref={loaderRef} className="flex justify-center items-center py-10 w-full">
-          <Loader2 className="animate-spin text-red-500" size={36} />
+          <Loader2 className="animate-spin text-sage-400" size={36} />
         </div>
       )}
       

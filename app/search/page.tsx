@@ -78,7 +78,7 @@ function SearchContent() {
     <div className="container mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-20 min-h-screen">
       <div className="mb-12">
         <div className="flex items-center gap-4 mb-8">
-          <div className="p-3 rounded-2xl bg-red-600/10 border border-red-600/20 text-red-500 shadow-[0_0_20px_rgba(229,9,20,0.1)] flex-shrink-0">
+          <div className="p-3 rounded-2xl bg-sage-600/10 border border-sage-600/20 text-sage-400 shadow-[0_0_20px_rgba(132, 169, 140,0.1)] flex-shrink-0">
             <SearchIcon size={24} strokeWidth={3} />
           </div>
           <div>
@@ -97,11 +97,11 @@ function SearchContent() {
             placeholder="Type a movie or tv show..."
             value={localQuery}
             onChange={(e) => setLocalQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-14 pr-24 py-4 md:py-5 text-base md:text-lg focus:outline-none focus:border-red-600/40 focus:bg-white/10 transition-all duration-300 placeholder:text-white/20 font-medium shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+            className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-14 pr-24 py-4 md:py-5 text-base md:text-lg focus:outline-none focus:border-sage-600/40 focus:bg-white/10 md:transition-all md:duration-300 placeholder:text-white/20 font-medium shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
             autoFocus
           />
-          <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors duration-300" size={22} />
-          <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-wider hover:bg-red-500 transition-all duration-300 shadow-[0_0_15px_rgba(229,9,20,0.3)]">
+          <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-sage-400 transition-colors duration-300" size={22} />
+          <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 bg-sage-600 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-wider hover:bg-sage-500 md:transition-all md:duration-300 shadow-[0_0_15px_rgba(132, 169, 140,0.3)]">
             Search
           </button>
         </form>
@@ -111,7 +111,7 @@ function SearchContent() {
         <div className="flex justify-center py-40">
           <div className="relative w-16 h-16">
             <div className="absolute inset-0 rounded-full border-4 border-white/5"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-t-red-600 border-r-transparent border-b-transparent border-l-transparent animate-spin shadow-[0_0_15px_rgba(229,9,20,0.5)]"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-t-sage-500 border-r-transparent border-b-transparent border-l-transparent animate-spin shadow-[0_0_15px_rgba(132, 169, 140,0.5)]"></div>
           </div>
         </div>
       ) : results.length > 0 ? (
@@ -122,9 +122,9 @@ function SearchContent() {
             <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-xl p-0.5">
               <button
                 onClick={() => setLayout('landscape')}
-                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] transition-all duration-300 ${
+                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
                   isLandscape
-                    ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                     : 'text-white/40 hover:text-white/70'
                 }`}
               >
@@ -132,9 +132,9 @@ function SearchContent() {
               </button>
               <button
                 onClick={() => setLayout('portrait')}
-                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] transition-all duration-300 ${
+                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
                   !isLandscape
-                    ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                     : 'text-white/40 hover:text-white/70'
                 }`}
               >

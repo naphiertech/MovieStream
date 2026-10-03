@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { ClientTransition } from '@/components/ClientTransition';
 import { ConditionalLayout } from '@/components/ConditionalLayout';
-import { AntiInspect } from '@/components/AntiInspect';
-import { SmoothScroll } from '@/components/SmoothScroll';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
@@ -18,16 +15,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: '#e50914',
+  themeColor: '#84a98c',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
-      <body className="bg-bg-dark text-white min-h-screen flex flex-col selection:bg-[#e50914]/30" suppressHydrationWarning>
+      <body className="bg-bg-dark text-white min-h-screen flex flex-col selection:bg-[#84a98c]/30" suppressHydrationWarning>
         <Script id="register-sw" strategy="afterInteractive">
           {`
             if ('serviceWorker' in navigator) {
@@ -59,13 +57,8 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
             }
           `}
         </Script>
-        <AntiInspect />
         <ConditionalLayout>
-          <SmoothScroll>
-            <ClientTransition>
-              {children}
-            </ClientTransition>
-          </SmoothScroll>
+          {children}
         </ConditionalLayout>
       </body>
     </html>

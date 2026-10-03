@@ -70,7 +70,7 @@ export function RankedCarousel({ title, movies, exploreLink = '/trending' }: Ran
         {exploreLink && (
           <Link 
             href={exploreLink} 
-            className="text-xs md:text-sm font-bold text-red-500 hover:text-red-400 transition-colors flex items-center gap-1 group"
+            className="text-xs md:text-sm font-bold text-sage-400 hover:text-sage-300 transition-colors flex items-center gap-1 group"
           >
             Explore all 
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -80,22 +80,22 @@ export function RankedCarousel({ title, movies, exploreLink = '/trending' }: Ran
 
       {/* Carousel Container */}
       <div className="relative px-6 md:px-14 lg:px-20">
-        {/* Left Arrow */}
+        {/* Left Arrow (Desktop Only) */}
         {canScrollLeft && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="hidden md:flex absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 md:backdrop-blur-xl border border-white/10 items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-sage-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
             aria-label="Scroll left"
           >
             <ChevronLeft size={20} />
           </button>
         )}
 
-        {/* Right Arrow */}
+        {/* Right Arrow (Desktop Only) */}
         {canScrollRight && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="hidden md:flex absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 md:backdrop-blur-xl border border-white/10 items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-sage-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
             aria-label="Scroll right"
           >
             <ChevronRight size={20} />

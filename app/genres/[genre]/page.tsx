@@ -29,8 +29,8 @@ export default async function GenrePage({ params }: { params: Promise<{ genre: s
   return (
     <div className="min-h-screen bg-[#060606] relative overflow-hidden">
       
-      {/* Cinematic Background Glow */}
-      <div className="absolute top-0 left-1/3 w-[600px] h-[600px] bg-red-600/5 rounded-full blur-[140px] pointer-events-none" />
+      {/* Cinematic Background Glow (Desktop Only) */}
+      <div className="hidden md:block absolute top-0 left-1/3 w-[600px] h-[600px] bg-sage-600/5 rounded-full blur-[140px] pointer-events-none" />
       
       <div className="container mx-auto px-6 md:px-14 lg:px-20 pt-36 pb-24 relative z-10">
         
@@ -48,22 +48,22 @@ export default async function GenrePage({ params }: { params: Promise<{ genre: s
         {/* Page Header */}
         <div className="mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-white/5 pb-8">
           <div className="flex items-start gap-5">
-            <div className="p-4 rounded-2.5xl bg-white/5 border border-white/5 text-red-500 shadow-inner">
+            <div className="p-4 rounded-2.5xl bg-white/5 border border-white/5 text-sage-400 shadow-inner">
               <LayoutGrid size={28} strokeWidth={2} className="animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2 text-red-500 mb-2">
+              <div className="flex items-center gap-2 text-sage-400 mb-2">
                 <span className="text-[10px] font-black uppercase tracking-[3px] font-outfit">Discovery Portal</span>
               </div>
               <h1 className="text-[34px] md:text-[50px] font-black text-white leading-none tracking-tight uppercase italic font-outfit">
-                {decodedGenre} <span className="text-red-500/40 not-italic">Movies</span>
+                {decodedGenre} <span className="text-sage-400/40 not-italic">Movies</span>
               </h1>
             </div>
           </div>
           
           {genreMovies.length > 0 && (
             <div className="flex items-center gap-2.5 px-4 py-2 bg-white/5 border border-white/5 rounded-xl text-white/50 font-black text-[10px] uppercase tracking-[2px]">
-              <Film size={12} className="text-red-500" />
+              <Film size={12} className="text-sage-400" />
               <span>{genreMovies.length} Productions Available</span>
             </div>
           )}

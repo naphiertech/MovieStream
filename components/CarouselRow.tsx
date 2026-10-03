@@ -99,7 +99,7 @@ export function CarouselRow({
                 onClick={() => setActiveTab('main')}
                 className={`px-3 md:px-4 py-1.5 rounded-md text-[10px] md:text-[11px] font-bold uppercase tracking-[1.5px] transition-all duration-300 ${
                   activeTab === 'main'
-                    ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                     : 'text-white/40 hover:text-white/70'
                 }`}
               >
@@ -109,7 +109,7 @@ export function CarouselRow({
                 onClick={() => setActiveTab('alt')}
                 className={`px-3 md:px-4 py-1.5 rounded-md text-[10px] md:text-[11px] font-bold uppercase tracking-[1.5px] transition-all duration-300 ${
                   activeTab === 'alt'
-                    ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                     : 'text-white/40 hover:text-white/70'
                 }`}
               >
@@ -121,7 +121,7 @@ export function CarouselRow({
           {/* Explore all Link */}
           <Link 
             href={viewAllLink || (title.toLowerCase().includes('tv') ? '/tv-shows' : '/movies')}
-            className="text-xs md:text-sm font-bold text-red-500 hover:text-red-400 transition-colors flex items-center gap-1 group"
+            className="text-xs md:text-sm font-bold text-sage-400 hover:text-sage-300 transition-colors flex items-center gap-1 group"
           >
             Explore all 
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -131,22 +131,22 @@ export function CarouselRow({
 
       {/* Carousel Container */}
       <div className="relative px-6 md:px-14 lg:px-20">
-        {/* Left Arrow */}
+        {/* Left Arrow (Desktop Only) */}
         {canScrollLeft && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="hidden md:flex absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 border border-white/10 items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-sage-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
             aria-label="Scroll left"
           >
             <ChevronLeft size={20} />
           </button>
         )}
 
-        {/* Right Arrow */}
+        {/* Right Arrow (Desktop Only) */}
         {canScrollRight && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-red-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="hidden md:flex absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 border border-white/10 items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-sage-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
             aria-label="Scroll right"
           >
             <ChevronRight size={20} />
@@ -162,7 +162,7 @@ export function CarouselRow({
           {activeData.map((movie) => (
             <div
               key={movie.id}
-              className={`flex-shrink-0 transition-all duration-300 ${
+              className={`flex-shrink-0 ${
                 layout === 'landscape'
                   ? 'w-[220px] sm:w-[240px] md:w-[260px] lg:w-[285px]'
                   : 'w-[140px] sm:w-[155px] md:w-[175px] lg:w-[190px]'

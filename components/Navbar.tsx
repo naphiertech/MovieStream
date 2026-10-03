@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Search, User, Zap, Sparkles, Star, Clapperboard, MonitorPlay } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
 const navbarSearchCache = new Map<string, any[]>();
@@ -123,13 +122,13 @@ export function Navbar() {
           <div className="flex items-center gap-[60px]">
             <Link href="/">
               <div className="flex items-center gap-2 group cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95">
-                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-red-600 flex items-center justify-center text-white shadow-[0_0_15px_rgba(229,9,20,0.5)]">
+                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-sage-600 flex items-center justify-center text-white shadow-[0_0_15px_rgba(132, 169, 140,0.5)]">
                   <svg className="w-4 h-4 md:w-5 md:h-5 fill-white ml-0.5" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </div>
                 <span className="text-white font-black text-xl md:text-2xl tracking-tighter uppercase font-outfit italic">
-                  Movie<span className="text-red-500">Stream</span>
+                  Movie<span className="text-sage-400">Stream</span>
                 </span>
               </div>
             </Link>
@@ -148,7 +147,7 @@ export function Navbar() {
                   className="text-white/50 hover:text-white transition-all duration-200 relative group flex items-center gap-1.5"
                 >
                   {item.label}
-                  <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-red-600 transition-all duration-200 group-hover:w-full" />
+                  <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-sage-600 transition-all duration-200 group-hover:w-full" />
                 </Link>
               ))}
             </nav>
@@ -164,9 +163,9 @@ export function Navbar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => searchQuery.length > 0 && setShowSuggestions(true)}
-                  className="bg-white/5 border border-white/10 text-white text-[13px] rounded-full pl-11 pr-5 py-2.5 focus:outline-none focus:border-red-600/40 focus:bg-white/10 w-[240px] lg:w-[320px] transition-all duration-300 placeholder:text-white/20"
+                  className="bg-white/5 border border-white/10 text-white text-[13px] rounded-full pl-11 pr-5 py-2.5 focus:outline-none focus:border-sage-600/40 focus:bg-white/10 w-[240px] lg:w-[320px] transition-all duration-300 placeholder:text-white/20"
                 />
-                <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isSearching ? 'text-red-500 animate-pulse' : 'text-white/20 group-focus-within:text-red-500'}`} size={16} />
+                <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isSearching ? 'text-sage-400 animate-pulse' : 'text-white/20 group-focus-within:text-sage-400'}`} size={16} />
               </div>
             </form>
 
@@ -195,14 +194,14 @@ export function Navbar() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-white text-[13px] font-black uppercase tracking-tight truncate group-hover:text-red-500 transition-colors">{item.title}</h4>
+                        <h4 className="text-white text-[13px] font-black uppercase tracking-tight truncate group-hover:text-sage-400 transition-colors">{item.title}</h4>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="flex items-center gap-1 text-[10px] font-bold py-0.5 px-1.5 rounded bg-white/5 text-white/40 uppercase tracking-tighter">
                             {item.type === 'tv' ? <MonitorPlay size={10} /> : <Clapperboard size={10} />}
                             {item.type === 'tv' ? 'Series' : 'Movie'}
                           </span>
                           <span className="text-[10px] text-white/20 font-bold">{item.year}</span>
-                          <span className="flex items-center gap-0.5 text-[10px] text-red-500 font-black">
+                          <span className="flex items-center gap-0.5 text-[10px] text-sage-400 font-black">
                             <Star size={10} fill="currentColor" />
                             {item.rating}
                           </span>
@@ -218,7 +217,7 @@ export function Navbar() {
             <div className="flex items-center gap-3">
               <button 
                 onClick={handleSignInClick}
-                className="px-5 md:px-6 py-2 md:py-2.5 rounded-full bg-red-600 text-white font-black text-[10px] md:text-[12px] uppercase tracking-wider hover:bg-red-500 active:scale-95 transition-all duration-200 shadow-[0_4px_15px_rgba(229,9,20,0.3)]"
+                className="px-5 md:px-6 py-2 md:py-2.5 rounded-full bg-sage-600 text-white font-black text-[10px] md:text-[12px] uppercase tracking-wider hover:bg-sage-500 active:scale-95 transition-all duration-200 shadow-[0_4px_15px_rgba(132, 169, 140,0.3)]"
               >
                 Sign In
               </button>
@@ -228,13 +227,13 @@ export function Navbar() {
       </header>
 
       {showComingSoon && (
-        <div className="fixed bottom-10 right-6 md:right-14 z-[100] px-6 py-4 bg-[#0a0a0a]/95 border border-red-600/30 rounded-2xl flex items-center gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_20px_rgba(229,9,20,0.2)] animate-in fade-in slide-in-from-bottom-5 duration-200">
-          <div className="w-10 h-10 rounded-full bg-red-600/10 flex items-center justify-center text-red-500">
+        <div className="fixed bottom-10 right-6 md:right-14 z-[100] px-6 py-4 bg-[#0a0a0a]/95 border border-sage-600/30 rounded-2xl flex items-center gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_20px_rgba(132, 169, 140,0.2)] animate-in fade-in slide-in-from-bottom-5 duration-200">
+          <div className="w-10 h-10 rounded-full bg-sage-600/10 flex items-center justify-center text-sage-400">
             <Sparkles size={20} />
           </div>
           <div>
             <p className="text-white font-black text-[11px] uppercase tracking-[2px]">Authenticating Protocol</p>
-            <p className="text-red-500 font-bold text-[13px]">User Hub Coming Early Next Week</p>
+            <p className="text-sage-400 font-bold text-[13px]">User Hub Coming Early Next Week</p>
           </div>
         </div>
       )}

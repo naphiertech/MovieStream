@@ -26,9 +26,9 @@ export default async function TrendingPage() {
 
   return (
     <main className="min-h-screen pt-32 pb-20 relative overflow-hidden bg-[#060606]">
-      {/* Background Ambience */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-red-600/5 blur-[120px] rounded-full pointer-events-none" />
+      {/* Background Ambience (Desktop Only) */}
+      <div className="hidden md:block absolute top-0 right-0 w-[500px] h-[500px] bg-sage-600/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="hidden md:block absolute bottom-0 left-0 w-[500px] h-[500px] bg-sage-600/5 blur-[120px] rounded-full pointer-events-none" />
       
       <TrendingClient
         trendingAll={trendingAll}
@@ -38,8 +38,8 @@ export default async function TrendingPage() {
         animationTV={animationTV}
       />
 
-      {/* Grid Noise Overlay */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none mix-blend-overlay" />
+      {/* Grid Noise Overlay (Desktop Only) */}
+      <div className="hidden md:block absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none mix-blend-overlay" />
     </main>
   );
 }

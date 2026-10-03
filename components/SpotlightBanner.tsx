@@ -32,7 +32,7 @@ export function SpotlightBanner({
         {exploreLink && (
           <Link 
             href={exploreLink} 
-            className="text-xs md:text-sm font-bold text-red-500 hover:text-red-400 transition-colors flex items-center gap-1 group"
+            className="text-xs md:text-sm font-bold text-sage-400 hover:text-sage-300 transition-colors flex items-center gap-1 group"
           >
             Explore all 
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -61,7 +61,7 @@ export function SpotlightBanner({
           {/* Left Column: Title, Synopsis, Rating & Action Buttons */}
           <div className="lg:col-span-7 flex flex-col items-start space-y-4">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-red-600/20 border border-red-600/40 text-red-500 rounded-md text-[10px] md:text-xs font-black uppercase tracking-widest">
+              <span className="px-3 py-1 bg-sage-600/20 border border-sage-600/40 text-sage-400 rounded-md text-[10px] md:text-xs font-black uppercase tracking-widest">
                 Featured Spotlight
               </span>
               <span className="text-white/40 text-xs font-bold">•</span>
@@ -73,12 +73,12 @@ export function SpotlightBanner({
             </h3>
 
             <div className="flex items-center gap-3 text-sm text-white/80 font-bold">
-              <div className="flex items-center gap-1 text-red-500">
+              <div className="flex items-center gap-1 text-sage-400">
                 <Star size={16} fill="currentColor" />
                 <span className="text-white font-black">{movie.rating.toFixed(1)}</span>
               </div>
               <span>•</span>
-              <span className="text-red-500 border border-red-600/30 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-red-600/10">
+              <span className="text-sage-400 border border-sage-600/30 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-sage-600/10">
                 Cinematic
               </span>
             </div>
@@ -90,7 +90,7 @@ export function SpotlightBanner({
             <div className="flex items-center gap-4 pt-4">
               <Link
                 href={movie.type === 'tv' ? `/tv/${movie.id}` : `/watch/${movie.id}`}
-                className="px-6 md:px-8 py-3 bg-white text-black rounded-full text-xs md:text-sm font-black uppercase tracking-wider hover:bg-white/90 transition-all flex items-center gap-2 shadow-xl hover:scale-105"
+                className="px-6 md:px-8 py-3 bg-white text-black rounded-full text-xs md:text-sm font-black uppercase tracking-wider hover:bg-white/90 transition-all flex items-center gap-2 shadow-xl md:hover:scale-105"
               >
                 <Play size={16} fill="black" />
                 Play
@@ -112,7 +112,7 @@ export function SpotlightBanner({
                 <Link
                   key={item.id}
                   href={item.type === 'tv' ? `/tv/${item.id}` : `/movie/${item.id}`}
-                  className="group relative w-36 sm:w-44 md:w-48 aspect-[2/3] flex-shrink-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl transition-all duration-500 hover:scale-105 hover:border-red-600/50"
+                  className="group relative w-36 sm:w-44 md:w-48 aspect-[2/3] flex-shrink-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl md:transition-all md:duration-500 md:hover:scale-105 hover:border-sage-600/50"
                 >
                   <Image
                     src={item.posterUrl || item.bannerUrl || PLACEHOLDERS.POSTER}
@@ -124,7 +124,7 @@ export function SpotlightBanner({
                     unoptimized={!item.posterUrl}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
-                    <span className="text-xs font-black text-white uppercase tracking-tight line-clamp-1 group-hover:text-red-500 transition-colors">
+                    <span className="text-xs font-black text-white uppercase tracking-tight line-clamp-1 group-hover:text-sage-400 transition-colors">
                       {item.title}
                     </span>
                     <span className="text-[10px] text-white/60 font-bold">{item.year}</span>

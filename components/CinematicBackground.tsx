@@ -120,29 +120,44 @@ export function CinematicBackground({
       {/* FALLBACK IMAGE */}
       {/* ───────────────────────────────────────────── */}
 
-      <AnimatePresence>
-        {(isMobile || !videoKey || !isReady) && (
-          <motion.div
-            key={`fallback-${id}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ opacity: { duration: 0.8, ease: 'easeOut' } }}
-            className="absolute inset-0 z-0"
-          >
-            <Image
-              src={fallbackImage}
-              alt="Cinematic Background"
-              fill
-              priority
-              sizes="100vw"
-              referrerPolicy="no-referrer"
-              unoptimized={!fallbackImage.startsWith('http')}
-              className="object-cover opacity-60"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isMobile ? (
+        <div key={`fallback-${id}`} className="absolute inset-0 z-0">
+          <Image
+            src={fallbackImage}
+            alt="Cinematic Background"
+            fill
+            priority
+            sizes="100vw"
+            referrerPolicy="no-referrer"
+            unoptimized={!fallbackImage.startsWith('http')}
+            className="object-cover opacity-60"
+          />
+        </div>
+      ) : (
+        <AnimatePresence>
+          {(!videoKey || !isReady) && (
+            <motion.div
+              key={`fallback-${id}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ opacity: { duration: 0.8, ease: 'easeOut' } }}
+              className="absolute inset-0 z-0"
+            >
+              <Image
+                src={fallbackImage}
+                alt="Cinematic Background"
+                fill
+                priority
+                sizes="100vw"
+                referrerPolicy="no-referrer"
+                unoptimized={!fallbackImage.startsWith('http')}
+                className="object-cover opacity-60"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
 
       {/* ───────────────────────────────────────────── */}
       {/* CINEMATIC OVERLAYS */}

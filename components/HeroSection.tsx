@@ -17,7 +17,17 @@ export function HeroSection({ movies }: HeroSectionProps) {
   const [isPlayingTrailer, setIsPlayingTrailer] = useState(false);
   const [isLoadingTrailer, setIsLoadingTrailer] = useState(false);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const prevIndex = (currentIndex - 1 + movies.length) % movies.length;
   const nextIndex = (currentIndex + 1) % movies.length;
@@ -50,6 +60,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
   }, [nextSlide, isPlayingTrailer, isLoadingTrailer]);
 
   const toggleInlineTrailer = async () => {
+    if (isMobile) return;
     if (isPlayingTrailer) {
       setIsPlayingTrailer(false);
       return;
@@ -87,8 +98,12 @@ export function HeroSection({ movies }: HeroSectionProps) {
   const prevMovie = movies[prevIndex];
   const nextMovie = movies[nextIndex];
 
-  // Motion variants for seamless sliding carousel transition (No blank gap!)
-  const slideVariants: Variants = {
+  // Motion variants for seamless sliding carousel transition (Instant on mobile, smooth on desktop)
+  const slideVariants: Variants = isMobile ? {
+    enter: { x: 0, opacity: 1, scale: 1 },
+    center: { x: 0, opacity: 1, scale: 1, transition: { duration: 0 } },
+    exit: { x: 0, opacity: 1, scale: 1, transition: { duration: 0 } }
+  } : {
     enter: (dir: number) => ({
       x: dir > 0 ? '100%' : '-100%',
       opacity: 0,
@@ -150,7 +165,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
           <div className="absolute inset-x-0 bottom-0 p-4">
-            <span className="text-[10px] font-black uppercase text-red-500 tracking-wider block mb-1">Previous</span>
+            <span className="text-[10px] font-black uppercase text-sage-400 tracking-wider block mb-1">Previous</span>
             <p className="text-xs font-bold text-white uppercase truncate font-outfit">{prevMovie.title}</p>
           </div>
         </div>
@@ -209,14 +224,14 @@ export function HeroSection({ movies }: HeroSectionProps) {
 
                 {/* Metadata Badges */}
                 <div className="flex items-center gap-3 mb-3 text-xs md:text-sm font-bold text-white/90">
-                  <div className="flex items-center gap-1 text-red-500 font-black">
+                  <div className="flex items-center gap-1 text-sage-400 font-black">
                     <Star size={16} fill="currentColor" />
                     <span className="text-white font-black">{currentMovie.rating.toFixed(1)}</span>
                   </div>
                   <span>•</span>
                   <span>{currentMovie.year}</span>
                   <span>•</span>
-                  <span className="text-red-500 border border-red-600/40 px-2.5 py-0.5 rounded text-[10px] uppercase font-black tracking-widest bg-red-600/15">
+                  <span className="text-sage-400 border border-sage-600/40 px-2.5 py-0.5 rounded text-[10px] uppercase font-black tracking-widest bg-sage-600/15">
                     Cinematic
                   </span>
                 </div>
@@ -240,7 +255,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
                     className="px-6 md:px-8 py-3 bg-white/15 hover:bg-white/25 border border-white/20 text-white rounded-full text-xs md:text-sm font-black uppercase tracking-wider transition-all flex items-center gap-2 backdrop-blur-md"
                   >
                     {isLoadingTrailer ? (
-                      <Loader2 size={16} className="animate-spin text-red-500" />
+                      <Loader2 size={16} className="animate-spin text-sage-400" />
                     ) : isPlayingTrailer ? (
                       <Volume2 size={16} />
                     ) : (
@@ -281,7 +296,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
           <div className="absolute inset-x-0 bottom-0 p-4">
-            <span className="text-[10px] font-black uppercase text-red-500 tracking-wider block mb-1">Next Up</span>
+            <span className="text-[10px] font-black uppercase text-sage-400 tracking-wider block mb-1">Next Up</span>
             <p className="text-xs font-bold text-white uppercase truncate font-outfit">{nextMovie.title}</p>
           </div>
         </div>
@@ -302,7 +317,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
               key={i}
               onClick={() => goToSlide(i)}
               className={`h-1.5 transition-all duration-500 rounded-full ${
-                i === currentIndex ? 'w-8 bg-red-600 shadow-[0_0_12px_#e50914]' : 'w-2 bg-white/25 hover:bg-white/50'
+                i === currentIndex ? 'w-8 bg-sage-600 shadow-[0_0_12px_#84a98c]' : 'w-2 bg-white/25 hover:bg-white/50'
               }`}
             />
           ))}

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Server, Settings, Loader2, Timer } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RecommendationCard } from '@/components/RecommendationCard';
+import { MovieCard } from '@/components/MovieCard';
 import { ActorList } from '@/components/ActorList';
 import { SubtitleOverlay } from '@/components/SubtitleOverlay';
 import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
@@ -203,7 +203,7 @@ export default function WatchPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white">
-        <Loader2 className="animate-spin text-red-500 mb-8" size={64} />
+        <Loader2 className="animate-spin text-sage-400 mb-8" size={64} />
         <p className="text-white font-black text-[12px] uppercase tracking-[4px] animate-pulse">Syncing Signal...</p>
       </div>
     );
@@ -212,7 +212,7 @@ export default function WatchPage() {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] text-white px-10 text-center">
-        <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-8 border border-red-500/20">
+        <div className="w-20 h-20 rounded-full bg-sage-500/10 flex items-center justify-center text-sage-400 mb-8 border border-sage-500/20">
           <Settings size={40} className="animate-pulse" />
         </div>
         <h2 className="text-white font-black text-2xl uppercase italic tracking-tight mb-4">Signal Interrupted</h2>
@@ -221,7 +221,7 @@ export default function WatchPage() {
         </p>
         <button 
           onClick={() => window.location.reload()}
-          className="px-10 py-4 bg-white text-black font-black text-[12px] uppercase tracking-[2px] rounded-2xl hover:bg-red-600 hover:text-white hover:shadow-[0_0_20px_rgba(229,9,20,0.3)] transition-all"
+          className="px-10 py-4 bg-white text-black font-black text-[12px] uppercase tracking-[2px] rounded-2xl hover:bg-sage-600 hover:text-white hover:shadow-[0_0_20px_rgba(132, 169, 140,0.3)] transition-all"
         >
           Re-initialize Signal
         </button>
@@ -245,7 +245,7 @@ export default function WatchPage() {
                   unlockOrientation();
                 }
               }}
-              className="group flex items-center gap-3 bg-white/5 backdrop-blur-3xl border border-white/10 px-5 py-2.5 rounded-2xl text-white/50 hover:text-white hover:border-red-600/40 transition-all duration-300"
+              className="group flex items-center gap-3 bg-white/5 backdrop-blur-3xl border border-white/10 px-5 py-2.5 rounded-2xl text-white/50 hover:text-white hover:border-sage-600/40 transition-all duration-300"
             >
               <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
               <span className="text-[11px] font-black uppercase tracking-[2px]">Exit</span>
@@ -256,7 +256,7 @@ export default function WatchPage() {
                 {movie.title}
               </h1>
               <div className="flex items-center gap-3 mt-1">
-                <span className="text-red-500 text-[10px] font-black uppercase tracking-[2px]">{movie.releaseDate?.split('-')[0]}</span>
+                <span className="text-sage-400 text-[10px] font-black uppercase tracking-[2px]">{movie.releaseDate?.split('-')[0]}</span>
                 <div className="w-1 h-1 rounded-full bg-white/20" />
                 <span className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">{movie.duration}</span>
               </div>
@@ -308,7 +308,7 @@ export default function WatchPage() {
             {/* Server Selection */}
             <div className="flex-grow">
               <div className="flex items-center gap-3 text-white/30 mb-6">
-                <Server size={18} className="text-red-500" />
+                <Server size={18} className="text-sage-400" />
                 <h3 className="font-black text-[11px] uppercase tracking-[2px] font-outfit">Switch Provider</h3>
               </div>
               <div className="flex flex-wrap gap-4">
@@ -318,13 +318,13 @@ export default function WatchPage() {
                     onClick={() => handleSourceSelect(source)}
                     className={`px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all duration-500 relative overflow-hidden group/btn ${
                       activeSource?.id === source.id 
-                        ? 'bg-red-600 text-white shadow-[0_10px_30px_rgba(229,9,20,0.4)] scale-105' 
+                        ? 'bg-sage-600 text-white shadow-[0_10px_30px_rgba(132, 169, 140,0.4)] scale-105' 
                         : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/5 hover:border-white/20'
                     }`}
                   >
                     {source.name}
                     {activeSource?.id === source.id && (
-                      <motion.div layoutId="activeServer" className="absolute inset-0 bg-white/20 pointer-events-none" />
+                      <div className="absolute inset-0 bg-white/20 pointer-events-none" />
                     )}
                   </button>
                 ))}
@@ -334,7 +334,7 @@ export default function WatchPage() {
                   onClick={() => setShowSubtitleSync(!showSubtitleSync)}
                   className={`px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all duration-500 relative overflow-hidden group/btn border border-white/5 ${
                     showSubtitleSync 
-                      ? 'bg-red-600/20 text-red-500 border-red-600/40 shadow-[0_0_15px_rgba(229,9,20,0.2)]' 
+                      ? 'bg-sage-600/20 text-sage-400 border-sage-600/40 shadow-[0_0_15px_rgba(132, 169, 140,0.2)]' 
                       : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -356,7 +356,7 @@ export default function WatchPage() {
                   }}
                   className="flex items-center gap-2 hover:text-white transition-colors"
                 >
-                  <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlay ? 'bg-red-600 text-white' : 'bg-white/5 border border-white/20'}`}>
+                  <div className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all ${autoPlay ? 'bg-sage-600 text-white' : 'bg-white/5 border border-white/20'}`}>
                     {autoPlay && <span className="text-[9px] font-bold">✓</span>}
                   </div>
                   <span>Autoplay</span>
@@ -376,12 +376,12 @@ export default function WatchPage() {
             {activeSource && (
               <div className="flex items-center gap-6 bg-white/5 px-8 py-6 rounded-3xl border border-white/5 shadow-lg">
                 <div className="flex items-center gap-3 text-white/30">
-                  <Settings size={20} className="text-red-500" />
+                  <Settings size={20} className="text-sage-400" />
                   <span className="text-[11px] font-black uppercase tracking-[2px] font-outfit">Delivery:</span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-white font-black text-xl leading-none italic">{activeSource.quality}</span>
-                  <span className="text-red-500 text-[9px] font-black uppercase tracking-[1px] mt-1 font-outfit">Ultra Smooth</span>
+                  <span className="text-sage-400 text-[9px] font-black uppercase tracking-[1px] mt-1 font-outfit">Ultra Smooth</span>
                 </div>
               </div>
             )}
@@ -409,13 +409,13 @@ export default function WatchPage() {
       {recommendations.length > 0 && (
         <div className="container mx-auto px-6 py-12 max-w-[1400px] z-20">
           <div className="flex items-center gap-3 mb-10">
-            <div className="w-1.5 h-8 bg-red-600 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
+            <div className="w-1.5 h-8 bg-sage-600 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
             <h2 className="text-2xl font-black text-white uppercase tracking-tight italic">You May Like</h2>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {recommendations.slice(0, 12).map((rec) => (
-              <RecommendationCard key={rec.id} movie={rec} />
+              <MovieCard key={rec.id} movie={rec} layout="landscape" />
             ))}
           </div>
         </div>
@@ -440,7 +440,7 @@ export default function WatchPage() {
             >
               <h3 className="text-white font-black text-lg italic uppercase tracking-wider mb-4 border-b border-white/10 pb-2 flex items-center justify-between font-outfit">
                 <span>⌨ Keyboard Controls</span>
-                <span className="text-red-500 text-[10px] tracking-normal not-italic font-medium bg-red-600/10 px-2 py-0.5 rounded">HLS Only</span>
+                <span className="text-sage-400 text-[10px] tracking-normal not-italic font-medium bg-sage-600/10 px-2 py-0.5 rounded">HLS Only</span>
               </h3>
               
               <div className="flex flex-col gap-3.5 mb-6">
@@ -468,7 +468,7 @@ export default function WatchPage() {
 
               <button 
                 onClick={() => setShowShortcuts(false)}
-                className="w-full py-3 bg-white text-black hover:bg-red-600 hover:text-white transition-all font-black text-[11px] uppercase tracking-[2px] rounded-xl"
+                className="w-full py-3 bg-white text-black hover:bg-sage-600 hover:text-white transition-all font-black text-[11px] uppercase tracking-[2px] rounded-xl"
               >
                 Got It
               </button>

@@ -201,11 +201,6 @@ export async function getPopularTV(page: number = 1) {
   return data.results.map((m: any) => mapMovie(m, 'tv'));
 }
 
-export async function searchMovies(query: string) {
-  const data = await fetchTMDB('/search/movie', { query }, 1800);
-  return data.results.map((m: any) => mapMovie(m, 'movie'));
-}
-
 export async function searchMulti(query: string) {
   const data = await fetchTMDB('/search/multi', { query }, 1800);
   return data.results

@@ -11,74 +11,42 @@ export interface StreamCaption {
   url: string;
 }
 
-// Playback-ready model returned by the StreamResolver to the client player
 export interface PlaybackMetadata {
   videoUrl: string;
-  qualities: Record<string, string>; // Maps quality label (e.g. '1080p') to local proxy-resolved play URL
+  qualities: Record<string, string>;
   captions: StreamCaption[];
   providerId: string;
 }
 
-export interface StreamProvider {
-  id: string;
-  name: string;
-  priority: number;
-  getMovieStream(tmdbId: string): Promise<any>;
-  getEpisodeStream(tmdbId: string, season: number, episode: number): Promise<any>;
+const VIDLINK_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Referer': 'https://vidlink.pro/',
+  'Origin': 'https://vidlink.pro',
+};
+
+async function fetchVidLink(endpoint: string): Promise<any> {
+  const res = await fetch(`https://vidlink.pro/api/${endpoint}`, {
+    headers: VIDLINK_HEADERS,
+    next: { revalidate: 3600 },
+  });
+  if (!res.ok) {
+    throw new Error(`VidLink API returned status ${res.status}`);
+  }
+  return res.json();
 }
 
-import { VidLinkProvider } from './vidlink';
-
-class StreamProviderManagerClass {
-  private providers: StreamProvider[] = [];
-
-  registerProvider(provider: StreamProvider) {
-    this.providers.push(provider);
-    // Sort ascending by priority number
-    this.providers.sort((a, b) => a.priority - b.priority);
-  }
-
-  getProviders(): StreamProvider[] {
-    return this.providers;
-  }
-
+export const StreamProviderManager = {
   async fetchMovieStream(tmdbId: string): Promise<{ providerId: string; rawData: any }> {
-    for (const provider of this.providers) {
-      try {
-        console.log(`[StreamProviderManager] Attempting to fetch movie stream from provider: ${provider.name} (${provider.id})`);
-        const rawData = await provider.getMovieStream(tmdbId);
-        if (rawData) {
-          console.log(`[StreamProviderManager] Successfully fetched stream from: ${provider.name}`);
-          return { providerId: provider.id, rawData };
-        }
-      } catch (error) {
-        console.error(`[StreamProviderManager] Provider ${provider.name} failed:`, error);
-      }
-    }
-    throw new Error('All registered stream providers failed to resolve.');
-  }
+    const rawData = await fetchVidLink(`movie/${tmdbId}`);
+    return { providerId: 'vidlink', rawData };
+  },
 
   async fetchEpisodeStream(tmdbId: string, season: number, episode: number): Promise<{ providerId: string; rawData: any }> {
-    for (const provider of this.providers) {
-      try {
-        console.log(`[StreamProviderManager] Attempting to fetch episode stream from provider: ${provider.name} (${provider.id})`);
-        const rawData = await provider.getEpisodeStream(tmdbId, season, episode);
-        if (rawData) {
-          console.log(`[StreamProviderManager] Successfully fetched stream from: ${provider.name}`);
-          return { providerId: provider.id, rawData };
-        }
-      } catch (error) {
-        console.error(`[StreamProviderManager] Provider ${provider.name} failed:`, error);
-      }
-    }
-    throw new Error('All registered stream providers failed to resolve.');
-  }
-}
+    const rawData = await fetchVidLink(`tv/${tmdbId}/${season}/${episode}`);
+    return { providerId: 'vidlink', rawData };
+  },
+};
 
-export const StreamProviderManager = new StreamProviderManagerClass();
-StreamProviderManager.registerProvider(new VidLinkProvider());
-
-// StreamResolver: Normalizes raw responses into a single playback-ready object directly from external provider CDNs
 export class StreamResolver {
   static normalize(providerId: string, rawData: any): PlaybackMetadata {
     if (!rawData) {
@@ -93,31 +61,22 @@ export class StreamResolver {
       const stream = rawData.stream || {};
       captions = stream.captions || [];
 
-      // 1. Check if there is a main playlist (.m3u8) file directly
       if (stream.playlist) {
         videoUrl = stream.playlist;
       }
 
-      // 2. Parse qualities (MP4 / HLS streams) directly from external source (no Vercel proxy)
       if (stream.qualities) {
-        const qualityKeys = Object.keys(stream.qualities);
-        
-        qualityKeys.forEach((quality) => {
+        for (const quality of Object.keys(stream.qualities)) {
           const streamObj = stream.qualities[quality];
-          if (streamObj && streamObj.url) {
-            // Keep direct external CDN URL to avoid proxying media bytes through Vercel
-            const finalUrl = streamObj.url;
-            qualities[`${quality}p`] = finalUrl;
-
-            // Set main videoUrl if we don't have one yet (defaulting to the first available or 1080p if present)
+          if (streamObj?.url) {
+            qualities[`${quality}p`] = streamObj.url;
             if (!videoUrl || quality === '1080' || quality === 'auto') {
-              videoUrl = finalUrl;
+              videoUrl = streamObj.url;
             }
           }
-        });
+        }
       }
 
-      // If playlist is present but qualities is empty, populate the default quality option
       if (videoUrl && Object.keys(qualities).length === 0) {
         qualities['Auto'] = videoUrl;
       }
@@ -131,7 +90,7 @@ export class StreamResolver {
       videoUrl,
       qualities,
       captions,
-      providerId
+      providerId,
     };
   }
 }

@@ -3,17 +3,30 @@
 
 @theme {
   --font-sans: "Outfit", "Geist", "Inter", system-ui, sans-serif;
-  --color-brand: #e50914;
-  --color-brand-cyan: #ef4444;
+  --color-brand: #84a98c;
+  --color-brand-cyan: #98c1a9;
   --color-bg-dark: #000000;
-  --color-accent-glow: rgba(229, 9, 20, 0.15);
+  --color-accent-glow: rgba(132, 169, 140, 0.2);
+
+  --color-sage-50: #f4f7f5;
+  --color-sage-100: #e5ede7;
+  --color-sage-200: #cbdbd0;
+  --color-sage-300: #a7c2af;
+  --color-sage-400: #98c1a9;
+  --color-sage-500: #84a98c;
+  --color-sage-600: #6b8f74;
+  --color-sage-700: #52796f;
+  --color-sage-800: #354f52;
+  --color-sage-900: #243537;
+  --color-sage-950: #131c18;
 }
 
 :root {
   --background: #000000;
   --foreground: #ffffff;
-  --accent-cyan: #ef4444;
-  --accent-teal: #e50914;
+  --accent-cyan: #98c1a9;
+  --accent-teal: #84a98c;
+  --accent-sage: #84a98c;
 }
 
 html, body {
@@ -25,31 +38,59 @@ html, body {
   background-image: none !important;
 }
 
-/* ── Mobile Performance ── */
+/* ── Mobile View: Complete Zero-Animation & Performance Optimization ── */
 @media (max-width: 767px) {
   body {
     background-image: none !important;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* Force GPU compositing for fixed/sticky elements */
-  header, nav, [class*="fixed"] {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    will-change: transform;
+  /* Strip all CSS animations, transitions, keyframes, and transforms on mobile */
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
   }
 
-  /* Disable hover effects that cause layout recalculation on touch */
-  .card-hover-glow:hover {
+  /* Nullify GPU-crushing filters and backdrop filters on mobile */
+  [class*="backdrop-blur"],
+  .backdrop-blur-3xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-xl,
+  .backdrop-blur-lg,
+  .backdrop-blur-md,
+  .backdrop-blur-sm {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: rgba(12, 12, 12, 0.95) !important;
+  }
+
+  /* Completely hide heavy ambient blur glow elements on mobile */
+  [class*="blur-[1"],
+  [class*="blur-3xl"],
+  [class*="blur-2xl"] {
+    display: none !important;
+  }
+
+  /* Disable hover transitions and active bounce scales that cause touch hitching */
+  .card-hover-glow:hover,
+  [class*="hover:scale-"],
+  [class*="active:scale-"] {
+    transform: none !important;
     box-shadow: none !important;
   }
 
-  /* Smoother touch scrolling */
-  .carousel-track {
+  /* Smooth touch scrolling for carousels and lists */
+  .carousel-track,
+  [class*="overflow-x-auto"] {
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    touch-action: pan-x pan-y;
   }
 
-  /* Reduce paint complexity on iframe containers */
+  /* Optimize iframe layers */
   iframe {
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
@@ -83,7 +124,7 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-teal);
+  background: var(--accent-sage);
   border: 3px solid #000000;
   background-clip: padding-box;
 }
@@ -115,7 +156,7 @@ html, body {
   }
 
   .text-neon {
-    text-shadow: 0 0 10px var(--accent-teal), 0 0 20px rgba(229, 9, 20, 0.4);
+    text-shadow: 0 0 10px var(--accent-sage), 0 0 20px rgba(132, 169, 140, 0.4);
   }
 
   .text-outline {
@@ -146,7 +187,7 @@ html, body {
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-teal);
+    background: var(--accent-sage);
   }
   
   .hero-vignette {
@@ -156,7 +197,7 @@ html, body {
   }
 
   .card-hover-glow:hover {
-    border-color: rgba(229, 9, 20, 0.35);
+    border-color: rgba(132, 169, 140, 0.35);
   }
 
   /* Carousel scroll snap */

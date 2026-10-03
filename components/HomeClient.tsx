@@ -87,7 +87,7 @@ export function HomeClient({
         {/* Dynamic Layout Style Control Bar */}
         <div className="flex justify-between items-center px-6 md:px-14 lg:px-20 pt-2 pb-2 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-sage-600 animate-pulse" />
             <span className="text-[10px] font-black uppercase tracking-[2px] text-white/50">
               Curated Catalog • Updated Today
             </span>
@@ -98,9 +98,9 @@ export function HomeClient({
             <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-xl p-0.5">
               <button
                 onClick={() => setLayout('landscape')}
-                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] transition-all duration-300 ${
+                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
                   isLandscape
-                    ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                     : 'text-white/40 hover:text-white/70'
                 }`}
               >
@@ -108,9 +108,9 @@ export function HomeClient({
               </button>
               <button
                 onClick={() => setLayout('portrait')}
-                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] transition-all duration-300 ${
+                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
                   !isLandscape
-                    ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(229,9,20,0.3)]'
+                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
                     : 'text-white/40 hover:text-white/70'
                 }`}
               >

@@ -414,7 +414,7 @@ export function CustomPlayer({
       {/* Loading indicator */}
       {loading && (
         <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center pointer-events-none z-30">
-          <Loader2 className="animate-spin text-red-500 mb-3" size={48} />
+          <Loader2 className="animate-spin text-sage-400 mb-3" size={48} />
           <p className="text-white/60 font-black text-[9px] uppercase tracking-[3px]">Syncing stream...</p>
         </div>
       )}
@@ -423,7 +423,7 @@ export function CustomPlayer({
       {!playing && !loading && (
         <button 
           onClick={togglePlay}
-          className="absolute w-20 h-20 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-[0_0_30px_rgba(229,9,20,0.5)] transform hover:scale-110 transition-all duration-300 z-20"
+          className="absolute w-20 h-20 rounded-full bg-sage-600 hover:bg-sage-500 text-white flex items-center justify-center shadow-[0_0_30px_rgba(132, 169, 140,0.5)] transform hover:scale-110 transition-all duration-300 z-20"
         >
           <Play size={32} fill="currentColor" className="ml-1" />
         </button>
@@ -438,11 +438,11 @@ export function CustomPlayer({
         {/* Top Info Header */}
         <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
           <div className="flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-sage-600 animate-pulse" />
             <span className="text-[10px] font-black text-white/50 uppercase tracking-[2px]">Custom Player Active</span>
           </div>
           <div className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/5">
-            <Tv size={12} className="text-red-500" />
+            <Tv size={12} className="text-sage-400" />
             <span className="text-[9px] font-black text-white/60 uppercase tracking-[1px]">{providerId} source</span>
           </div>
         </div>
@@ -460,7 +460,7 @@ export function CustomPlayer({
             {/* Play progress */}
             <div 
               style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
-              className="absolute left-0 h-1 bg-red-600 group-hover/timeline:h-1.5 transition-all duration-200 rounded shadow-[0_0_10px_rgba(220,38,38,0.5)]"
+              className="absolute left-0 h-1 bg-sage-600 group-hover/timeline:h-1.5 transition-all duration-200 rounded shadow-[0_0_10px_rgba(220,38,38,0.5)]"
             />
             {/* Range Input element overlapping */}
             <input 
@@ -516,7 +516,7 @@ export function CustomPlayer({
                     setVolume(v);
                     if (v > 0) setMuted(false);
                   }}
-                  className="w-0 group-hover/volume:w-16 h-1 rounded bg-white/20 accent-red-600 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="w-0 group-hover/volume:w-16 h-1 rounded bg-white/20 accent-sage-500 transition-all duration-300 cursor-pointer overflow-hidden"
                 />
               </div>
 
@@ -539,7 +539,7 @@ export function CustomPlayer({
                       setShowQualityMenu(false);
                       setShowSpeedMenu(false);
                     }}
-                    className={`transition-colors ${activeCaption ? 'text-red-500 hover:text-red-400' : 'text-white/50 hover:text-white'}`}
+                    className={`transition-colors ${activeCaption ? 'text-sage-400 hover:text-sage-300' : 'text-white/50 hover:text-white'}`}
                     title="Subtitles/Captions"
                   >
                     <Subtitles size={20} />
@@ -553,7 +553,7 @@ export function CustomPlayer({
                           setActiveCaption(null);
                           setShowCaptionMenu(false);
                         }}
-                        className={`text-left px-3 py-1.5 rounded-xl text-[10px] font-bold ${!activeCaption ? 'text-red-500 bg-red-600/10' : 'text-white/60 hover:bg-white/5'}`}
+                        className={`text-left px-3 py-1.5 rounded-xl text-[10px] font-bold ${!activeCaption ? 'text-sage-400 bg-sage-600/10' : 'text-white/60 hover:bg-white/5'}`}
                       >
                         Off
                       </button>
@@ -564,7 +564,7 @@ export function CustomPlayer({
                             setActiveCaption(cap);
                             setShowCaptionMenu(false);
                           }}
-                          className={`text-left px-3 py-1.5 rounded-xl text-[10px] font-bold truncate ${activeCaption?.language === cap.language ? 'text-red-500 bg-red-600/10' : 'text-white/60 hover:bg-white/5'}`}
+                          className={`text-left px-3 py-1.5 rounded-xl text-[10px] font-bold truncate ${activeCaption?.language === cap.language ? 'text-sage-400 bg-sage-600/10' : 'text-white/60 hover:bg-white/5'}`}
                         >
                           {cap.label}
                         </button>
@@ -598,7 +598,7 @@ export function CustomPlayer({
                           setPlaybackSpeed(speed);
                           setShowSpeedMenu(false);
                         }}
-                        className={`text-left px-3 py-1.5 rounded-xl text-[10px] font-bold ${playbackSpeed === speed ? 'text-red-500 bg-red-600/10' : 'text-white/60 hover:bg-white/5'}`}
+                        className={`text-left px-3 py-1.5 rounded-xl text-[10px] font-bold ${playbackSpeed === speed ? 'text-sage-400 bg-sage-600/10' : 'text-white/60 hover:bg-white/5'}`}
                       >
                         {speed === 1 ? 'Normal' : `${speed}x`}
                       </button>
@@ -630,7 +630,7 @@ export function CustomPlayer({
                         <button 
                           key={label}
                           onClick={() => handleQualityChange(label, url)}
-                          className={`text-left px-3 py-1.5 rounded-xl text-[10px] font-bold ${activeQuality === label ? 'text-red-500 bg-red-600/10' : 'text-white/60 hover:bg-white/5'}`}
+                          className={`text-left px-3 py-1.5 rounded-xl text-[10px] font-bold ${activeQuality === label ? 'text-sage-400 bg-sage-600/10' : 'text-white/60 hover:bg-white/5'}`}
                         >
                           {label}
                         </button>

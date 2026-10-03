@@ -106,7 +106,7 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Timer size={16} className="text-[#2dd4bf]" />
+                <Timer size={16} className="text-[#84a98c]" />
                 <span className="text-[10px] font-black uppercase tracking-[2px] text-white/50">Sync Engine</span>
               </div>
               <button onClick={() => setShowControls(false)} className="text-white/20 hover:text-white transition-colors">
@@ -115,8 +115,8 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
             </div>
 
             {!fileName ? (
-              <label className="flex flex-col items-center justify-center gap-3 p-6 border-2 border-dashed border-white/10 rounded-2xl hover:border-[#2dd4bf]/40 hover:bg-[#2dd4bf]/5 transition-all cursor-pointer group">
-                <Upload size={24} className="text-white/20 group-hover:text-[#2dd4bf] transition-colors" />
+              <label className="flex flex-col items-center justify-center gap-3 p-6 border-2 border-dashed border-white/10 rounded-2xl hover:border-[#84a98c]/40 hover:bg-[#84a98c]/5 transition-all cursor-pointer group">
+                <Upload size={24} className="text-white/20 group-hover:text-[#84a98c] transition-colors" />
                 <span className="text-[9px] font-black uppercase tracking-[1px] text-white/40 group-hover:text-white">Upload SRT</span>
                 <input type="file" accept=".srt" onChange={handleFileUpload} className="hidden" />
               </label>
@@ -125,7 +125,7 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
                 <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/5">
                   <Check size={14} className="text-green-500" />
                   <span className="text-[10px] font-bold text-white truncate max-w-[120px]">{fileName}</span>
-                  <button onClick={() => { setFileName(null); setSubtitles([]); setIsActive(false); }} className="ml-auto text-white/20 hover:text-red-500 transition-colors">
+                  <button onClick={() => { setFileName(null); setSubtitles([]); setIsActive(false); }} className="ml-auto text-white/20 hover:text-sage-400 transition-colors">
                     <X size={14} />
                   </button>
                 </div>
@@ -134,7 +134,7 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
                   <button 
                     onClick={() => setIsActive(!isActive)}
                     className={`flex items-center justify-center gap-2 py-3 rounded-xl font-black text-[9px] uppercase tracking-[1px] transition-all ${
-                      isActive ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-[#2dd4bf]/20 text-[#2dd4bf] border border-[#2dd4bf]/30'
+                      isActive ? 'bg-sage-500/20 text-sage-400 border border-sage-500/30' : 'bg-[#84a98c]/20 text-[#84a98c] border border-[#84a98c]/30'
                     }`}
                   >
                     {isActive ? <Pause size={12} /> : <Play size={12} />}
@@ -151,7 +151,7 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between px-2">
                     <span className="text-[9px] font-black uppercase tracking-[1px] text-white/30">Offset</span>
-                    <span className={`text-[10px] font-black ${offset === 0 ? 'text-white/50' : offset > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    <span className={`text-[10px] font-black ${offset === 0 ? 'text-white/50' : offset > 0 ? 'text-green-500' : 'text-sage-400'}`}>
                       {offset > 0 ? '+' : ''}{offset.toFixed(1)}s
                     </span>
                   </div>
@@ -173,7 +173,7 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
         ) : (
           <button 
             onClick={() => setShowControls(true)}
-            className="w-12 h-12 bg-[#0f0f0f]/95 border border-white/10 rounded-full flex items-center justify-center text-[#2dd4bf] hover:scale-110 transition-all shadow-2xl"
+            className="w-12 h-12 bg-[#0f0f0f]/95 border border-white/10 rounded-full flex items-center justify-center text-[#84a98c] hover:scale-110 transition-all shadow-2xl"
           >
             <Timer size={20} />
           </button>

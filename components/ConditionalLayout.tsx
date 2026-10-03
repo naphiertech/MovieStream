@@ -12,7 +12,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {!isWatchPage && <Navbar />}
-      <main className="flex-grow">
+      <main className="flex-grow pb-16 lg:pb-0">
         {children}
       </main>
       {!isWatchPage && <MobileNav />}

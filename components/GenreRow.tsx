@@ -53,7 +53,7 @@ export function GenreRow() {
         </h2>
         <Link 
           href="/genres" 
-          className="text-xs md:text-sm font-bold text-red-500 hover:text-red-400 transition-colors flex items-center gap-1 group"
+          className="text-xs md:text-sm font-bold text-sage-400 hover:text-sage-300 transition-colors flex items-center gap-1 group"
         >
           Explore all 
           <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -66,18 +66,18 @@ export function GenreRow() {
           <Link
             key={genre.name}
             href={`/genres/${genre.name}`}
-            className="group relative h-28 md:h-36 rounded-2xl overflow-hidden border border-white/10 shadow-xl transition-all duration-500 hover:scale-[1.04] hover:border-red-600/50 hover:shadow-red-600/20"
+            className="group relative h-28 md:h-36 rounded-2xl overflow-hidden border border-white/10 shadow-xl md:transition-all md:duration-500 md:hover:scale-[1.04] hover:border-sage-600/50 hover:shadow-sage-600/20"
           >
             <Image
               src={genre.image}
               alt={genre.name}
               fill
-              className="object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 ease-out"
+              className="object-cover opacity-60 md:group-hover:opacity-80 md:group-hover:scale-110 md:transition-all md:duration-700 ease-out"
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
             <div className="absolute inset-0 flex items-center justify-center p-2">
-              <span className="text-sm md:text-base font-black text-white uppercase tracking-wider text-center drop-shadow-lg font-outfit group-hover:text-red-400 group-hover:scale-105 transition-all">
+              <span className="text-sm md:text-base font-black text-white uppercase tracking-wider text-center drop-shadow-lg font-outfit md:group-hover:text-sage-300 md:group-hover:scale-105 md:transition-all">
                 {genre.name}
               </span>
             </div>

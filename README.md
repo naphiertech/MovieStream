@@ -71,12 +71,12 @@ The easiest way to deploy MovieStream is via the [Vercel Platform](https://verce
 
 ---
 
-## 🔐 Security & Architecture
+## 🔐 Architecture
 
-MovieStream implements a strict security boundary:
-- **Middleware-Driven Protection**: Unauthorized access to `/admin` is intercepted at the edge.
-- **Anti-Scraping**: Intelligent restrictions on browser dev-tools inspection.
+MovieStream implements a clean, resilient architecture:
+- **Edge Stream Routing**: Dynamic stream extraction normalized directly from provider CDNs.
 - **Stateless API Consumption**: No local database required for core discovery—fully decoupled and powered by TMDB.
+- **Zero-Bloat Bundle**: Lightweight client bundles with fast hydration and strict performance budgets.
 
 ---
 

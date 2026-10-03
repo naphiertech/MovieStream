@@ -23,7 +23,7 @@ export function ActorList({ cast }: { cast: CastMember[] }) {
     <div className="flex flex-col w-full">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-1.5 h-7 bg-red-600 rounded-full shadow-[0_0_15px_rgba(229,9,20,0.5)]" />
+          <div className="w-1.5 h-7 bg-sage-600 rounded-full shadow-[0_0_15px_rgba(132, 169, 140,0.5)]" />
           <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight italic font-outfit">Cast</h2>
           <span className="text-white/20 text-xs font-bold ml-1">{cast.length}</span>
         </div>
@@ -55,7 +55,7 @@ export function ActorList({ cast }: { cast: CastMember[] }) {
       >
         {cast.map((actor) => (
           <div key={actor.id} className="flex-shrink-0 w-[120px] md:w-[150px] group cursor-pointer">
-            <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-white/5 border border-white/5 mb-3 relative shadow-lg group-hover:border-red-600/40 transition-all duration-500">
+            <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-white/5 border border-white/5 mb-3 relative shadow-lg group-hover:border-sage-600/40 transition-all duration-500">
               {actor.profileUrl ? (
                 <Image 
                   src={actor.profileUrl} 
@@ -72,7 +72,7 @@ export function ActorList({ cast }: { cast: CastMember[] }) {
                 </div>
               )}
             </div>
-            <h4 className="text-white text-[12px] md:text-[13px] font-bold leading-tight mb-0.5 truncate group-hover:text-red-500 transition-colors">{actor.name}</h4>
+            <h4 className="text-white text-[12px] md:text-[13px] font-bold leading-tight mb-0.5 truncate group-hover:text-sage-400 transition-colors">{actor.name}</h4>
             <p className="text-white/30 text-[10px] font-medium truncate leading-tight uppercase tracking-wider">{actor.character}</p>
           </div>
         ))}
