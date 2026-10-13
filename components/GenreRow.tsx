@@ -1,88 +1,163 @@
 'use client';
 
+import { useRef, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface GenreTile {
   name: string;
   id: string;
   image: string;
+  tintClass: string;
 }
 
 const GENRE_TILES: GenreTile[] = [
   {
-    name: 'Action',
-    id: '28',
-    image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800&auto=format&fit=crop',
-  },
-  {
     name: 'Comedy',
     id: '35',
-    image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=800&auto=format&fit=crop',
+    image: 'https://image.tmdb.org/t/p/w780/qdIMHd4sEfJSckfVJfKQvisL02a.jpg',
+    tintClass: 'from-[#284b6e]/95 via-[#284b6e]/55 to-transparent',
   },
   {
-    name: 'Romance',
-    id: '10749',
-    image: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=800&auto=format&fit=crop',
+    name: 'Action',
+    id: '28',
+    image: 'https://image.tmdb.org/t/p/w780/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg',
+    tintClass: 'from-[#7a281d]/95 via-[#7a281d]/55 to-transparent',
+  },
+  {
+    name: 'Drama',
+    id: '18',
+    image: 'https://image.tmdb.org/t/p/w780/hZkgoQYus5vegHoetLkCJzb17zJ.jpg',
+    tintClass: 'from-[#134e5e]/95 via-[#134e5e]/55 to-transparent',
   },
   {
     name: 'Horror',
     id: '27',
-    image: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=800&auto=format&fit=crop',
+    image: 'https://image.tmdb.org/t/p/w780/tcheoA2nPATCm2vvXw2hVQoaEFD.jpg',
+    tintClass: 'from-[#44207a]/95 via-[#44207a]/55 to-transparent',
+  },
+  {
+    name: 'Romance',
+    id: '10749',
+    image: 'https://image.tmdb.org/t/p/w780/qJeU7KM4nT2C1WpOrwPcSDGFUWE.jpg',
+    tintClass: 'from-[#821c35]/95 via-[#821c35]/55 to-transparent',
+  },
+  {
+    name: 'Sci-Fi',
+    id: '878',
+    image: 'https://image.tmdb.org/t/p/w780/xJHokMbljvjADYdit5fK5VQsXEG.jpg',
+    tintClass: 'from-[#1a4d36]/95 via-[#1a4d36]/55 to-transparent',
   },
   {
     name: 'Animation',
     id: '16',
-    image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800&auto=format&fit=crop',
+    image: 'https://image.tmdb.org/t/p/w780/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg',
+    tintClass: 'from-[#743a15]/95 via-[#743a15]/55 to-transparent',
   },
   {
-    name: 'Documentary',
-    id: '99',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop',
+    name: 'Thriller',
+    id: '53',
+    image: 'https://image.tmdb.org/t/p/w780/i91mfvFcPPlaegcbOyjGgiWfZzh.jpg',
+    tintClass: 'from-[#1f344d]/95 via-[#1f344d]/55 to-transparent',
   },
 ];
 
 export function GenreRow() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 10);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener('scroll', checkScroll, { passive: true });
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      el.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [checkScroll]);
+
+  const scroll = (direction: 'left' | 'right') => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distance = el.clientWidth * 0.75;
+    el.scrollBy({
+      left: direction === 'left' ? -distance : distance,
+      behavior: 'smooth',
+    });
+  };
+
   return (
-    <section className="py-8 md:py-12 px-6 md:px-14 lg:px-20">
-      {/* StreamCraze Style Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight font-outfit">
+    <section className="py-3 md:py-4 max-w-[1920px] mx-auto px-5 md:px-12 lg:px-16">
+      <div className="flex items-center justify-between mb-3.5">
+        <h2 className="text-[16px] md:text-[18px] font-semibold text-white tracking-tight">
           Genres
         </h2>
-        <Link 
-          href="/genres" 
-          className="text-xs md:text-sm font-bold text-sage-400 hover:text-sage-300 transition-colors flex items-center gap-1 group"
-        >
-          Explore all 
-          <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-        </Link>
       </div>
 
-      {/* Genre Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
-        {GENRE_TILES.map((genre) => (
-          <Link
-            key={genre.name}
-            href={`/genres/${genre.name}`}
-            className="group relative h-28 md:h-36 rounded-2xl overflow-hidden border border-white/10 shadow-xl md:transition-all md:duration-500 md:hover:scale-[1.04] hover:border-sage-600/50 hover:shadow-sage-600/20"
+      <div className="relative group/genres">
+        {canScrollLeft && (
+          <button
+            type="button"
+            onClick={() => scroll('left')}
+            aria-label="Scroll genres left"
+            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-black border border-white/15 items-center justify-center text-white shadow-xl transition-opacity cursor-pointer"
           >
-            <Image
-              src={genre.image}
-              alt={genre.name}
-              fill
-              className="object-cover opacity-60 md:group-hover:opacity-80 md:group-hover:scale-110 md:transition-all md:duration-700 ease-out"
-              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
-            <div className="absolute inset-0 flex items-center justify-center p-2">
-              <span className="text-sm md:text-base font-black text-white uppercase tracking-wider text-center drop-shadow-lg font-outfit md:group-hover:text-sage-300 md:group-hover:scale-105 md:transition-all">
+            <ChevronLeft size={18} />
+          </button>
+        )}
+
+        {canScrollRight && (
+          <button
+            type="button"
+            onClick={() => scroll('right')}
+            aria-label="Scroll genres right"
+            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-black border border-white/15 items-center justify-center text-white shadow-xl transition-opacity cursor-pointer"
+          >
+            <ChevronRight size={18} />
+          </button>
+        )}
+
+        <div
+          ref={scrollRef}
+          className="flex items-center gap-3.5 md:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
+        >
+          {GENRE_TILES.map((genre) => (
+            <Link
+              key={genre.name}
+              href={`/movies?genre=${genre.id}`}
+              className="group relative flex-shrink-0 w-[210px] sm:w-[235px] md:w-[255px] h-[118px] sm:h-[130px] md:h-[140px] rounded-2xl overflow-hidden border border-white/[0.08] bg-zinc-900 shadow-lg md:transition-all md:duration-300 md:hover:scale-[1.02] md:hover:border-white/25"
+            >
+              <Image
+                src={genre.image}
+                alt={genre.name}
+                fill
+                className="object-cover object-center opacity-90 md:group-hover:opacity-100 md:group-hover:scale-105 md:transition-all md:duration-500 ease-out"
+                sizes="260px"
+                referrerPolicy="no-referrer"
+              />
+              {/* Left-to-right color-tinted atmospheric gradient (Matching Image 1) */}
+              <div
+                className={`absolute inset-0 bg-gradient-to-r ${genre.tintClass}`}
+              />
+              {/* Subtle bottom vignette for crisp title contrast */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+              <span className="absolute bottom-3.5 left-4 z-10 text-[15px] md:text-[17px] font-bold text-white tracking-tight drop-shadow-md">
                 {genre.name}
               </span>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );

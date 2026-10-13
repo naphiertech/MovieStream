@@ -1,117 +1,111 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { 
-  getTrendingMovies, 
-  getUpcomingMovies, 
-  getTopRatedMovies, 
-  getMoviesByGenre,
+import {
+  getUpcomingMovies,
   getGenres,
-  Movie 
+  discoverMedia,
+  Movie,
 } from '@/lib/tmdb';
-import { GenreSelector } from '@/components/GenreSelector';
+import { CatalogHeader } from '@/components/CatalogHeader';
+import { FeaturedPosterStrip } from '@/components/FeaturedPosterStrip';
+import { CatalogFilterBar } from '@/components/CatalogFilterBar';
 import { InfiniteScrollGrid } from '@/components/InfiniteScrollGrid';
 
-// Enable 1-hour Incremental Static Regeneration (ISR) on Vercel CDN Edge
+export const metadata: Metadata = {
+  title: 'Movies',
+  description: 'Explore and stream top movies online in high definition.',
+};
+
 export const revalidate = 3600;
+
+const MOVIE_SORT_OPTIONS = [
+  { id: 'trending', label: 'Most popular' },
+  { id: 'top', label: 'Top rated' },
+  { id: 'latest', label: 'Latest releases' },
+];
 
 export default async function MoviesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string, genre?: string }>;
+  searchParams: Promise<{
+    filter?: string;
+    genre?: string;
+    year?: string;
+    country?: string;
+  }>;
 }) {
-  const { filter, genre } = await searchParams;
-  const genres = await getGenres('movie');
-  
+  const { filter, genre, year, country } = await searchParams;
+
+  let genres: Awaited<ReturnType<typeof getGenres>> = [];
+  let upcomingMovies: Movie[] = [];
   let initialItems: Movie[] = [];
-  let title = "All Movies";
-  let subtitle = "Exploring the Pro Catalog";
 
   try {
-    if (genre) {
-      const activeGenre = genres.find(g => g.id.toString() === genre);
-      initialItems = await getMoviesByGenre(genre);
-      title = activeGenre ? `${activeGenre.name} Movies` : "Genre Collection";
-      subtitle = "Sector Specific Discovery";
-    } else if (filter === 'trending') {
-      initialItems = await getTrendingMovies();
-      title = "Trending Now";
-      subtitle = "Most watched this week";
-    } else if (filter === 'latest' || filter === 'upcoming') {
-      initialItems = await getUpcomingMovies();
-      title = "Coming Soon";
-      subtitle = "Be the first to watch";
-    } else if (filter === 'top') {
-      initialItems = await getTopRatedMovies();
-      title = "Top Rated";
-      subtitle = "All-time cinematic classics";
-    } else {
-      initialItems = await getTrendingMovies();
-      title = "Movie Catalog";
-      subtitle = "Premium high-fidelity titles";
-    }
+    [genres, upcomingMovies, initialItems] = await Promise.all([
+      getGenres('movie'),
+      getUpcomingMovies(1),
+      discoverMedia('movie', {
+        filter,
+        genreId: genre,
+        year,
+        country,
+      }),
+    ]);
   } catch (error) {
-    console.error("Failed to fetch movies:", error);
-    initialItems = [];
+    console.error('Failed to fetch movies:', error);
   }
 
   return (
-    <div className="container mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-20 min-h-screen">
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-3 text-sage-400 mb-3">
-            <div className="w-8 h-[2px] bg-sage-600 rounded-full" />
-            <span className="text-[10px] font-black uppercase tracking-[3px]">{subtitle}</span>
-          </div>
-          <h1 className="text-[34px] md:text-[50px] font-black text-white leading-none tracking-tight uppercase italic drop-shadow-xl font-outfit">
-            {title}
-          </h1>
-        </div>
-        
-        <div className="flex items-center gap-1.5 p-1 bg-white/5 backdrop-blur-3xl border border-white/10 rounded-2xl">
-          {[
-            { id: 'trending', label: 'Trending' },
-            { id: 'latest', label: 'Upcoming' },
-            { id: 'top', label: 'Top Rated' }
-          ].map((tab) => {
-            const isActive = filter === tab.id || (!filter && !genre && tab.id === 'trending');
-            return (
-              <Link
-                key={tab.id}
-                href={`/movies?filter=${tab.id}`}
-                scroll={false}
-                className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[1px] transition-all whitespace-nowrap ${
-                  isActive
-                    ? 'bg-sage-600 text-white shadow-[0_0_20px_rgba(132, 169, 140,0.3)]'
-                    : 'text-white/40 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      <GenreSelector 
-        genres={genres} 
-        activeGenreId={genre} 
-        baseUrl="/movies" 
+    <div className="min-h-screen bg-black">
+      <CatalogHeader
+        title="Movies"
+        subtitle="Blockbuster cinema, indie gems, and timeless classics"
+        backdropItems={upcomingMovies.length > 0 ? upcomingMovies : initialItems}
       />
-      
-      {initialItems.length > 0 ? (
-        <InfiniteScrollGrid 
-          initialItems={initialItems} 
-          type="movie" 
-          filter={filter} 
-          genreId={genre} 
+
+      <div className="max-w-[1920px] mx-auto px-5 md:px-12 lg:px-16 pb-20">
+        <FeaturedPosterStrip
+          title="Current & upcoming movies"
+          items={upcomingMovies}
         />
-      ) : (
-        <div className="flex flex-col items-center justify-center py-40 border border-white/5 rounded-[3rem] bg-white/[0.02]">
-          <div className="w-20 h-20 rounded-full bg-sage-600/10 flex items-center justify-center mb-6 text-white/10">
-            <span className="text-sage-400 animate-pulse">⚙️</span>
+
+        <CatalogFilterBar
+          baseUrl="/movies"
+          genres={genres}
+          activeGenreId={genre}
+          activeYear={year}
+          activeCountry={country}
+          activeFilter={filter}
+          sortOptions={MOVIE_SORT_OPTIONS}
+        />
+
+        {initialItems.length > 0 ? (
+          <InfiniteScrollGrid
+            initialItems={initialItems}
+            type="movie"
+            filter={filter}
+            genreId={genre}
+            year={year}
+            country={country}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-28 border border-white/[0.06] rounded-2xl bg-white/[0.01] text-center px-6 mt-4">
+            <p className="text-white/70 font-semibold text-base mb-1.5">
+              No movies match these filters
+            </p>
+            <p className="text-white/40 text-xs mb-5">
+              Try adjusting your genre, release year, or country selection.
+            </p>
+            <Link
+              href="/movies"
+              className="px-5 py-2 rounded-full bg-sage-600 hover:bg-sage-500 text-white text-xs font-semibold transition-colors"
+            >
+              Reset filters
+            </Link>
           </div>
-          <p className="text-white/30 font-black text-[11px] uppercase tracking-[4px]">No productions found in this sector</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
+

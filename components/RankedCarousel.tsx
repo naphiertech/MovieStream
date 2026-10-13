@@ -61,9 +61,9 @@ export function RankedCarousel({ title, movies, exploreLink = '/trending' }: Ran
   if (!movies.length) return null;
 
   return (
-    <section className="py-8 md:py-12 relative group/section overflow-hidden">
-      {/* StreamCraze Style Header */}
-      <div className="flex items-center justify-between mb-6 px-6 md:px-14 lg:px-20">
+    <section className="py-4 md:py-5 max-w-[1920px] mx-auto relative group/section overflow-hidden">
+      {/* StreamCraze Style Header (Preserved per Image 3) */}
+      <div className="flex items-center justify-between mb-4 px-5 md:px-12 lg:px-16">
         <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight font-outfit">
           {title}
         </h2>
@@ -79,7 +79,7 @@ export function RankedCarousel({ title, movies, exploreLink = '/trending' }: Ran
       </div>
 
       {/* Carousel Container */}
-      <div className="relative px-6 md:px-14 lg:px-20">
+      <div className="relative px-5 md:px-12 lg:px-16">
         {/* Left Arrow (Desktop Only) */}
         {canScrollLeft && (
           <button
@@ -105,7 +105,7 @@ export function RankedCarousel({ title, movies, exploreLink = '/trending' }: Ran
         {/* Scrollable Track */}
         <div
           ref={scrollRef}
-          className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 pr-12 md:pr-20"
+          className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-2 pr-12 md:pr-20"
           style={{ scrollSnapType: 'x mandatory' }}
         >
           {movies.map((movie, index) => (

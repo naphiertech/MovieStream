@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Loader2, ChevronRight, Settings, Timer } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getTVDetails, getSeasonDetails, TVShow, Episode } from '@/lib/tmdb';
+import type { TVShow, Episode } from '@/lib/tmdb';
 import { ActorList } from '@/components/ActorList';
 import { SubtitleOverlay } from '@/components/SubtitleOverlay';
 import { lockLandscape, isMobile, unlockOrientation } from '@/lib/orientation';
@@ -97,6 +97,15 @@ export default function TVWatchPage() {
     }
   }, []);
 
+  // Dynamic Browser Tab Name
+  useEffect(() => {
+    if (show?.title && currentEpisode?.name) {
+      document.title = `Watching ${show.title} S${season}:E${episode} - ${currentEpisode.name} | MoviesStream`;
+    } else if (show?.title) {
+      document.title = `Watching ${show.title} S${season}:E${episode} | MoviesStream`;
+    }
+  }, [show?.title, currentEpisode?.name, season, episode]);
+
   useEffect(() => {
     const handleOrientation = () => {
       setIsPortrait(window.innerHeight > window.innerWidth);
@@ -151,13 +160,14 @@ export default function TVWatchPage() {
     };
   }, []);
 
-  // Listen for ended messages from VidLink or Viduki iframe
+  // Listen for ended messages from Vidy, VidLink, or Viduki iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      const isVidy = event.origin.includes('vidy.st');
       const isVidLink = event.origin.includes('vidlink.pro');
       const isViduki = event.origin.includes('viduki.net');
       
-      if (isVidLink || isViduki) {
+      if (isVidy || isVidLink || isViduki) {
         try {
           let data = event.data;
           if (typeof data === 'string' && data.startsWith('{')) {
@@ -240,18 +250,24 @@ export default function TVWatchPage() {
         }
         setPrevEpisode(prev);
 
-        // Map sources (Viduki Primary + VidLink)
+        // Map sources: Vidy (Primary Default), VidLink (Secondary), Viduki (3rd Backup)
         const sourcesList = [
           {
-            id: 'viduki',
-            name: 'Viduki (Primary)',
-            url: `https://viduki.net/1/tv/${id}/${season}/${episode}?color=ef4444`,
+            id: 'vidy',
+            name: 'Vidy (Primary)',
+            url: `https://vidy.st/tv/${id}/${season}/${episode}?color=84a98c`,
             quality: '1080p'
           },
           {
             id: 'vidlink',
             name: 'VidLink',
-            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=ef4444`,
+            url: `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=84a98c`,
+            quality: '1080p'
+          },
+          {
+            id: 'viduki',
+            name: 'Viduki (Backup)',
+            url: `https://viduki.net/1/tv/${id}/${season}/${episode}?color=84a98c`,
             quality: '1080p'
           }
         ];
@@ -287,13 +303,16 @@ export default function TVWatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
-    if (sourceId === 'viduki') {
-      return `https://viduki.net/1/tv/${id}/${season}/${episode}?color=ef4444`;
+    if (sourceId === 'vidy') {
+      return `https://vidy.st/tv/${id}/${season}/${episode}?color=84a98c&autoplay=${autoPlay ? 'true' : 'false'}&nextEpisode=true&episodeSelector=true&autoplayNextEpisode=${autoPlayNext ? 'true' : 'false'}`;
     }
     if (sourceId === 'vidlink') {
-      return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=ef4444&autoplay=${autoPlay ? 1 : 0}`;
+      return `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=84a98c&autoplay=${autoPlay ? 1 : 0}`;
     }
-    return `https://viduki.net/1/tv/${id}/${season}/${episode}?color=ef4444`;
+    if (sourceId === 'viduki') {
+      return `https://viduki.net/1/tv/${id}/${season}/${episode}?color=84a98c`;
+    }
+    return `https://vidy.st/tv/${id}/${season}/${episode}?color=84a98c&autoplay=${autoPlay ? 'true' : 'false'}&nextEpisode=true&episodeSelector=true&autoplayNextEpisode=${autoPlayNext ? 'true' : 'false'}`;
   };
 
   if (loading) {
@@ -388,7 +407,7 @@ export default function TVWatchPage() {
               className="w-full h-full border-0"
               allowFullScreen
               referrerPolicy="no-referrer"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay *; clipboard-write; encrypted-media; fullscreen *; gyroscope; picture-in-picture"
             />
             
             {/* Custom Subtitle Overlay */}

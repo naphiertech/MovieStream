@@ -109,6 +109,7 @@ export interface Episode {
   episode_number: number;
   season_number: number;
   vote_average: number;
+  runtime?: number | null;
 }
 
 export interface TVShow extends Movie {
@@ -308,3 +309,114 @@ export async function getSimilar(id: string, type: 'movie' | 'tv' = 'movie') {
     return [];
   }
 }
+
+export interface CountryOption {
+  code: string;
+  name: string;
+}
+
+export const CATALOG_COUNTRIES: CountryOption[] = [
+  { code: 'US', name: 'United States' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'KR', name: 'South Korea' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'FR', name: 'France' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'IN', name: 'India' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'CN', name: 'China' },
+  { code: 'HK', name: 'Hong Kong' },
+  { code: 'TW', name: 'Taiwan' },
+  { code: 'BR', name: 'Brazil' },
+  { code: 'MX', name: 'Mexico' },
+  { code: 'PH', name: 'Philippines' },
+  { code: 'TH', name: 'Thailand' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'DK', name: 'Denmark' },
+];
+
+export const CATALOG_YEARS: string[] = Array.from(
+  { length: 27 },
+  (_, idx) => (2026 - idx).toString()
+);
+
+export interface DiscoverOptions {
+  page?: number;
+  filter?: string;
+  genreId?: string;
+  year?: string;
+  country?: string;
+}
+
+export async function discoverMedia(
+  type: 'movie' | 'tv',
+  options: DiscoverOptions = {}
+): Promise<Movie[]> {
+  const { page = 1, filter, genreId, year, country } = options;
+  const hasCustomFilters = Boolean(genreId || year || country);
+
+  if (!hasCustomFilters) {
+    if (type === 'movie') {
+      if (filter === 'trending') return getTrendingMovies(page);
+      if (filter === 'latest' || filter === 'upcoming') return getUpcomingMovies(page);
+      if (filter === 'top') return getTopRatedMovies(page);
+      if (filter === 'popular') {
+        const data = await fetchTMDB('/movie/popular', { page: page.toString() }, 43200);
+        return data.results.map((m: any) => mapMovie(m, 'movie'));
+      }
+      return getTrendingMovies(page);
+    } else {
+      if (filter === 'trending') return getTrendingTV(page);
+      if (filter === 'popular') return getPopularTV(page);
+      if (filter === 'top') return getTopRatedTV(page);
+      if (filter === 'anime') return getTVByGenre('16', page);
+      return getTrendingTV(page);
+    }
+  }
+
+  const params: Record<string, string> = {
+    page: page.toString(),
+    include_adult: 'false',
+  };
+
+  if (genreId) {
+    params.with_genres = genreId;
+  } else if (type === 'tv' && filter === 'anime') {
+    params.with_genres = '16';
+  }
+
+  if (year) {
+    if (type === 'movie') {
+      params.primary_release_year = year;
+    } else {
+      params.first_air_date_year = year;
+    }
+  }
+
+  if (country) {
+    params.with_origin_country = country;
+  }
+
+  if (filter === 'top') {
+    params.sort_by = 'vote_average.desc';
+    params['vote_count.gte'] = '150';
+  } else if (filter === 'latest' || filter === 'upcoming') {
+    params.sort_by =
+      type === 'movie' ? 'primary_release_date.desc' : 'first_air_date.desc';
+    const today = new Date().toISOString().split('T')[0];
+    if (type === 'movie') {
+      params['primary_release_date.lte'] = today;
+    } else {
+      params['first_air_date.lte'] = today;
+    }
+  } else {
+    params.sort_by = 'popularity.desc';
+  }
+
+  const data = await fetchTMDB(`/discover/${type}`, params, 1800);
+  return (data.results || []).map((m: any) => mapMovie(m, type));
+}
+

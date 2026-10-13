@@ -23,9 +23,9 @@ export function SpotlightBanner({
   const bgImage = movie.bannerUrl || movie.posterUrl || PLACEHOLDERS.BANNER;
 
   return (
-    <section className="py-8 md:py-14 px-6 md:px-14 lg:px-20 relative">
-      {/* StreamCraze Section Header */}
-      <div className="flex items-center justify-between mb-6">
+    <section className="py-4 md:py-5 max-w-[1920px] mx-auto px-5 md:px-12 lg:px-16 relative">
+      {/* StreamCraze Section Header (Preserved per Image 3) */}
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight font-outfit">
           {sectionTitle}
         </h2>
@@ -41,7 +41,7 @@ export function SpotlightBanner({
       </div>
 
       {/* Main Full-Width Spotlight Container */}
-      <div className="relative w-full rounded-3xl overflow-hidden border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] min-h-[420px] md:min-h-[500px] flex items-center">
+      <div className="relative w-full rounded-3xl overflow-hidden border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] min-h-[380px] md:min-h-[440px] flex items-center">
         {/* Background Image with Dark Vignette Gradients */}
         <Image
           src={bgImage}

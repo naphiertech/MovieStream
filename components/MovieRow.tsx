@@ -1,6 +1,7 @@
 import { Movie } from '@/lib/tmdb';
 import { MovieCard } from './MovieCard';
 import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 
 interface MovieRowProps {
   title: string;
@@ -9,42 +10,46 @@ interface MovieRowProps {
   layout?: 'portrait' | 'landscape';
 }
 
-export function MovieRow({ 
-  title, 
-  movies, 
+export function MovieRow({
+  title,
+  movies,
   viewAllLink,
-  layout = 'landscape' 
+  layout = 'portrait',
 }: MovieRowProps) {
   if (!movies.length) return null;
 
   const isLandscape = layout === 'landscape';
 
   return (
-    <section className="py-6 flex-1">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-[18px] md:text-[22px] font-black text-white uppercase tracking-[0.5px] flex items-center gap-3 font-outfit">
-          <span className="w-1.5 h-6 bg-sage-600 rounded-full shadow-[0_0_12px_rgba(132, 169, 140,0.5)]" />
-          {title}
+    <section className="py-4 flex-1">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-[16px] md:text-[18px] font-semibold text-white tracking-tight flex items-center gap-2.5">
+          <span className="w-1 h-5 bg-sage-500 rounded-full" />
+          <span>{title}</span>
         </h2>
         {viewAllLink && (
-          <Link 
-            href={viewAllLink} 
-            className="text-[10px] font-black text-white/30 uppercase tracking-[2px] hover:text-sage-400 transition-all bg-white/5 px-5 py-2.5 rounded-full border border-white/5 hover:border-sage-600/40 shadow-sm"
+          <Link
+            href={viewAllLink}
+            className="text-xs font-medium text-white/55 hover:text-sage-400 transition-colors flex items-center gap-1"
           >
-            VIEW ALL
+            <span>Explore all</span>
+            <ChevronRight size={14} />
           </Link>
         )}
       </div>
-      
-      <div className={`grid gap-x-[20px] gap-y-[35px] ${
-        isLandscape 
-          ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' 
-          : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'
-      }`}>
-        {movies.map(movie => (
+
+      <div
+        className={`grid gap-x-4 gap-y-7 ${
+          isLandscape
+            ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'
+            : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7'
+        }`}
+      >
+        {movies.map((movie) => (
           <MovieCard key={movie.id} movie={movie} layout={layout} />
         ))}
       </div>
     </section>
   );
 }
+

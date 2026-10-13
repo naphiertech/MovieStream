@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import NextImage from 'next/image';
 import Link from 'next/link';
 import { Star, ArrowLeft, Plus, Download, Sparkles, Play } from 'lucide-react';
@@ -11,6 +12,21 @@ import { ActorList } from '@/components/ActorList';
 // Enable 12-hour Incremental Static Regeneration (ISR) on Vercel CDN Edge
 export const revalidate = 43200; // 12 hours
 export const dynamicParams = true; // On-demand static generation for any TV show ID
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const show = await getTVDetails(id);
+    return {
+      title: `${show.title} (${show.year})`,
+      description: show.description || undefined,
+    };
+  } catch {
+    return {
+      title: 'Series Details',
+    };
+  }
+}
 
 export default async function TVDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -159,9 +175,17 @@ export default async function TVDetailPage({ params }: { params: Promise<{ id: s
 
           {/* Season Selector */}
           <div id="episodes" className="mt-16 pt-12 border-t border-white/5 scroll-mt-24">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-1.5 h-8 bg-sage-600 rounded-full shadow-[0_0_15px_rgba(132, 169, 140,0.5)]" />
-              <h2 className="text-2xl font-black text-white uppercase tracking-tight italic font-outfit">Select Episode</h2>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-2">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="w-2 h-2 rounded-full bg-sage-500 shadow-[0_0_8px_rgba(132,169,140,0.8)]" />
+                  <span className="text-[10px] font-bold text-sage-400 uppercase tracking-[2px]">Series Episodes</span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight font-outfit">Episodes & Seasons</h2>
+              </div>
+              <p className="text-xs text-white/40 font-medium">
+                {show.numberOfSeasons} {show.numberOfSeasons === 1 ? 'Season' : 'Seasons'} · {show.numberOfEpisodes} Total Episodes
+              </p>
             </div>
             <SeasonSelector tvId={show.id} seasons={show.seasons} />
           </div>

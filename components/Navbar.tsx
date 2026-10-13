@@ -1,22 +1,44 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, User, Zap, Sparkles, Star, Clapperboard, MonitorPlay } from 'lucide-react';
+import {
+  Search,
+  User,
+  Sparkles,
+  Star,
+  Clapperboard,
+  MonitorPlay,
+  Home,
+  Film,
+  Tv,
+  Flame,
+  X,
+} from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 
 const navbarSearchCache = new Map<string, any[]>();
 
+const NAV_ITEMS = [
+  { label: 'Home', href: '/', icon: Home },
+  { label: 'Movies', href: '/movies', icon: Film },
+  { label: 'TV Shows', href: '/tv-shows', icon: Tv },
+  { label: 'Trending', href: '/trending', icon: Flame },
+];
+
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -24,26 +46,44 @@ export function Navbar() {
       if (rafId !== null) return;
       rafId = requestAnimationFrame(() => {
         const scrolled = window.scrollY > 10;
-        setIsScrolled(prev => (prev !== scrolled ? scrolled : prev));
+        setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
         rafId = null;
       });
     };
-    
+
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
+        if (!searchQuery.trim()) {
+          setIsSearchOpen(false);
+        }
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowSuggestions(false);
+        setIsSearchOpen(false);
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     document.addEventListener('mousedown', handleClickOutside);
-    
+    document.addEventListener('keydown', handleKeyDown);
+
     return () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (isSearchOpen) {
+      searchInputRef.current?.focus();
+    }
+  }, [isSearchOpen]);
 
   useEffect(() => {
     const trimmed = searchQuery.trim().toLowerCase();
@@ -65,7 +105,7 @@ export function Navbar() {
       setIsSearching(true);
       try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, {
-          signal: controller.signal
+          signal: controller.signal,
         });
         if (response.ok) {
           const data = await response.json();
@@ -99,6 +139,7 @@ export function Navbar() {
     e.preventDefault();
     if (searchQuery.trim()) {
       setShowSuggestions(false);
+      setIsSearchOpen(false);
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
@@ -107,7 +148,8 @@ export function Navbar() {
     setSearchQuery('');
     setSuggestions([]);
     setShowSuggestions(false);
-    
+    setIsSearchOpen(false);
+
     if (suggestion.type === 'tv') {
       router.push(`/tv/${suggestion.id}`);
     } else {
@@ -117,75 +159,167 @@ export function Navbar() {
 
   return (
     <>
-      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-[#0a0a0a]/95 border-b border-white/5 py-2 md:py-3 shadow-2xl' : 'bg-transparent py-4 md:py-6'}`}>
-        <div className="px-5 md:px-14 flex items-center justify-between max-w-[1920px] mx-auto">
-          <div className="flex items-center gap-[60px]">
-            <Link href="/">
-              <div className="flex items-center gap-2 group cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95">
-                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-sage-600 flex items-center justify-center text-white shadow-[0_0_15px_rgba(132, 169, 140,0.5)]">
-                  <svg className="w-4 h-4 md:w-5 md:h-5 fill-white ml-0.5" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-                <span className="text-white font-black text-xl md:text-2xl tracking-tighter uppercase font-outfit italic">
-                  Movie<span className="text-sage-400">Stream</span>
-                </span>
-              </div>
-            </Link>
-            
-            <nav className="hidden lg:flex items-center gap-[35px] text-[12px] font-black uppercase tracking-[2px]">
-              {[
-                { label: 'Home', href: '/' },
-                { label: 'Movies', href: '/movies' },
-                { label: 'TV Shows', href: '/tv-shows' },
-                { label: 'Genres', href: '/genres' },
-                { label: 'Trending', href: '/trending' }
-              ].map((item) => (
-                <Link 
-                  key={item.label} 
-                  href={item.href}
-                  className="text-white/50 hover:text-white transition-all duration-200 relative group flex items-center gap-1.5"
-                >
-                  {item.label}
-                  <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-sage-600 transition-all duration-200 group-hover:w-full" />
-                </Link>
-              ))}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? 'bg-gradient-to-b from-black/90 via-black/60 to-transparent py-3'
+            : 'bg-gradient-to-b from-black/70 via-black/25 to-transparent py-4 md:py-5'
+        }`}
+      >
+        <div className="px-5 md:px-12 lg:px-16 flex items-center justify-between max-w-[1920px] mx-auto">
+          {/* Left: Folded 'M' Ribbon Emblem */}
+          <Link
+            href="/"
+            aria-label="MovieStream Home"
+            className="group relative flex items-center cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
+          >
+            <svg
+              viewBox="0 0 40 40"
+              className="w-8 h-8 md:w-9 md:h-9 drop-shadow-[0_4px_14px_rgba(132,169,140,0.45)]"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient id="ms-stem-left" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6b8f74" />
+                  <stop offset="100%" stopColor="#354f52" />
+                </linearGradient>
+                <linearGradient id="ms-stem-right" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6b8f74" />
+                  <stop offset="100%" stopColor="#354f52" />
+                </linearGradient>
+                <linearGradient id="ms-ribbon-fold" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#a7c2af" />
+                  <stop offset="50%" stopColor="#84a98c" />
+                  <stop offset="100%" stopColor="#52796f" />
+                </linearGradient>
+              </defs>
+              {/* Left Stem */}
+              <path d="M5 4H12V36H5V4Z" fill="url(#ms-stem-left)" />
+              {/* Right Stem */}
+              <path d="M28 4H35V36H28V4Z" fill="url(#ms-stem-right)" />
+              {/* Right Inner Fold */}
+              <path d="M28 4H35L23 29H17L28 4Z" fill="#52796f" />
+              {/* Left Top-Over Fold Ribbon */}
+              <path
+                d="M5 4H12L23 29H17L5 4Z"
+                fill="url(#ms-ribbon-fold)"
+                style={{ filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.6))' }}
+              />
+            </svg>
+          </Link>
+
+          {/* Right: Unified Floating Glass Pill Dock */}
+          <div
+            ref={searchRef}
+            className="relative flex items-center bg-[#18181b]/85 backdrop-blur-xl border border-white/[0.08] rounded-xl p-1.5 shadow-[0_10px_35px_rgba(0,0,0,0.75)]"
+          >
+            {/* Desktop Navigation Links inside Pill */}
+            <nav className="hidden lg:flex items-center gap-1">
+              {NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== '/' && pathname?.startsWith(item.href));
+
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-[9px] text-[13px] transition-all duration-200 cursor-pointer ${
+                      isActive
+                        ? 'bg-white/[0.14] text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]'
+                        : 'text-white/65 hover:text-white hover:bg-white/[0.06] font-medium'
+                    }`}
+                  >
+                    <Icon
+                      size={15}
+                      strokeWidth={isActive ? 2.3 : 1.9}
+                      className={isActive ? 'text-white' : 'text-white/65'}
+                    />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
             </nav>
-          </div>
 
-          <div className="flex items-center gap-4 md:gap-6">
-            <div ref={searchRef} className="hidden md:flex items-center group relative">
-            <form onSubmit={handleSearch} className="flex items-center">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search titles..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => searchQuery.length > 0 && setShowSuggestions(true)}
-                  className="bg-white/5 border border-white/10 text-white text-[13px] rounded-full pl-11 pr-5 py-2.5 focus:outline-none focus:border-sage-600/40 focus:bg-white/10 w-[240px] lg:w-[320px] transition-all duration-300 placeholder:text-white/20"
-                />
-                <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isSearching ? 'text-sage-400 animate-pulse' : 'text-white/20 group-focus-within:text-sage-400'}`} size={16} />
-              </div>
-            </form>
+            {/* Subtle Divider */}
+            <div className="hidden lg:block w-[1px] h-4 bg-white/[0.12] mx-1.5" />
 
+            {/* Expandable Inline Search + Action Icons */}
+            <div className="flex items-center gap-1">
+              {isSearchOpen ? (
+                <form
+                  onSubmit={handleSearch}
+                  className="flex items-center bg-white/[0.08] border border-white/[0.12] focus-within:border-sage-400/50 rounded-[9px] px-2.5 py-1 transition-all duration-200"
+                >
+                  <Search
+                    size={15}
+                    className={`mr-2 flex-shrink-0 ${
+                      isSearching ? 'text-sage-400 animate-pulse' : 'text-white/50'
+                    }`}
+                  />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search titles..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => searchQuery.length > 0 && setShowSuggestions(true)}
+                    className="bg-transparent text-white text-[13px] w-[150px] sm:w-[210px] focus:outline-none placeholder:text-white/35"
+                  />
+                  <button
+                    type="button"
+                    aria-label="Close search"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setShowSuggestions(false);
+                      setIsSearchOpen(false);
+                    }}
+                    className="ml-1.5 text-white/40 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <X size={14} />
+                  </button>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  aria-label="Search titles"
+                  onClick={() => setIsSearchOpen(true)}
+                  className="p-2 rounded-[9px] text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors duration-200 cursor-pointer"
+                >
+                  <Search size={16} strokeWidth={2} />
+                </button>
+              )}
+
+              <button
+                type="button"
+                aria-label="User Account"
+                onClick={handleSignInClick}
+                className="p-2 rounded-[9px] text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors duration-200 cursor-pointer"
+              >
+                <User size={16} strokeWidth={2} />
+              </button>
+            </div>
+
+            {/* Search Autocomplete Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full mt-3 right-0 w-[320px] lg:w-[400px] bg-[#0c0c0c] border border-white/10 rounded-2xl overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute top-full mt-2.5 right-0 w-[300px] sm:w-[360px] lg:w-[400px] bg-[#121214]/95 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.85)] z-50 animate-in fade-in zoom-in-95 duration-150">
                 <div className="p-2">
                   {suggestions.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => handleSuggestionClick(item)}
-                      className="w-full flex items-center gap-4 p-2 hover:bg-white/5 rounded-xl transition-all group text-left"
+                      className="w-full flex items-center gap-3.5 p-2 hover:bg-white/[0.06] rounded-xl transition-all group text-left cursor-pointer"
                     >
-                      <div className="relative w-12 h-16 flex-shrink-0 overflow-hidden rounded-lg bg-white/5">
+                      <div className="relative w-11 h-15 flex-shrink-0 overflow-hidden rounded-lg bg-white/5">
                         {item.posterUrl ? (
-                          <Image 
-                            src={item.posterUrl} 
-                            alt={item.title} 
-                            fill 
+                          <Image
+                            src={item.posterUrl}
+                            alt={item.title}
+                            fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            sizes="48px"
+                            sizes="44px"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-white/20">
@@ -194,14 +328,22 @@ export function Navbar() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-white text-[13px] font-black uppercase tracking-tight truncate group-hover:text-sage-400 transition-colors">{item.title}</h4>
+                        <h4 className="text-white text-[13px] font-semibold truncate group-hover:text-sage-400 transition-colors">
+                          {item.title}
+                        </h4>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="flex items-center gap-1 text-[10px] font-bold py-0.5 px-1.5 rounded bg-white/5 text-white/40 uppercase tracking-tighter">
-                            {item.type === 'tv' ? <MonitorPlay size={10} /> : <Clapperboard size={10} />}
+                          <span className="flex items-center gap-1 text-[10px] font-bold py-0.5 px-1.5 rounded bg-white/5 text-white/45 uppercase tracking-tight">
+                            {item.type === 'tv' ? (
+                              <MonitorPlay size={10} />
+                            ) : (
+                              <Clapperboard size={10} />
+                            )}
                             {item.type === 'tv' ? 'Series' : 'Movie'}
                           </span>
-                          <span className="text-[10px] text-white/20 font-bold">{item.year}</span>
-                          <span className="flex items-center gap-0.5 text-[10px] text-sage-400 font-black">
+                          <span className="text-[11px] text-white/30 font-medium">
+                            {item.year}
+                          </span>
+                          <span className="flex items-center gap-0.5 text-[11px] text-sage-400 font-bold">
                             <Star size={10} fill="currentColor" />
                             {item.rating}
                           </span>
@@ -213,30 +355,25 @@ export function Navbar() {
               </div>
             )}
           </div>
-
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={handleSignInClick}
-                className="px-5 md:px-6 py-2 md:py-2.5 rounded-full bg-sage-600 text-white font-black text-[10px] md:text-[12px] uppercase tracking-wider hover:bg-sage-500 active:scale-95 transition-all duration-200 shadow-[0_4px_15px_rgba(132, 169, 140,0.3)]"
-              >
-                Sign In
-              </button>
-            </div>
-          </div>
         </div>
       </header>
 
       {showComingSoon && (
-        <div className="fixed bottom-10 right-6 md:right-14 z-[100] px-6 py-4 bg-[#0a0a0a]/95 border border-sage-600/30 rounded-2xl flex items-center gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_20px_rgba(132, 169, 140,0.2)] animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-10 right-6 md:right-14 z-[100] px-6 py-4 bg-[#0a0a0a]/95 border border-sage-600/30 rounded-2xl flex items-center gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_20px_rgba(132,169,140,0.2)] animate-in fade-in slide-in-from-bottom-5 duration-200">
           <div className="w-10 h-10 rounded-full bg-sage-600/10 flex items-center justify-center text-sage-400">
             <Sparkles size={20} />
           </div>
           <div>
-            <p className="text-white font-black text-[11px] uppercase tracking-[2px]">Authenticating Protocol</p>
-            <p className="text-sage-400 font-bold text-[13px]">User Hub Coming Early Next Week</p>
+            <p className="text-white font-black text-[11px] uppercase tracking-[2px]">
+              Authenticating Protocol
+            </p>
+            <p className="text-sage-400 font-bold text-[13px]">
+              User Hub Coming Early Next Week
+            </p>
           </div>
         </div>
       )}
     </>
   );
 }
+

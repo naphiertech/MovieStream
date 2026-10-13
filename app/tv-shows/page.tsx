@@ -1,123 +1,113 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { 
+import {
   getTrendingTV,
-  getPopularTV, 
-  getTopRatedTV, 
-  getTVByGenre,
   getGenres,
-  Movie 
+  discoverMedia,
+  Movie,
 } from '@/lib/tmdb';
-import { GenreSelector } from '@/components/GenreSelector';
+import { CatalogHeader } from '@/components/CatalogHeader';
+import { FeaturedPosterStrip } from '@/components/FeaturedPosterStrip';
+import { CatalogFilterBar } from '@/components/CatalogFilterBar';
 import { InfiniteScrollGrid } from '@/components/InfiniteScrollGrid';
 
-// Enable 1-hour Incremental Static Regeneration (ISR) on Vercel CDN Edge
+export const metadata: Metadata = {
+  title: 'TV Shows',
+  description: 'Binge-watch and stream trending television series and episodes.',
+};
+
 export const revalidate = 3600;
+
+const TV_SORT_OPTIONS = [
+  { id: 'trending', label: 'Most popular' },
+  { id: 'popular', label: 'Community favorites' },
+  { id: 'top', label: 'Top rated' },
+  { id: 'latest', label: 'Latest episodes' },
+  { id: 'anime', label: 'Anime' },
+];
 
 export default async function TvShowsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string, genre?: string }>;
+  searchParams: Promise<{
+    filter?: string;
+    genre?: string;
+    year?: string;
+    country?: string;
+  }>;
 }) {
-  const { filter, genre } = await searchParams;
-  const genres = await getGenres('tv');
-  
+  const { filter, genre, year, country } = await searchParams;
+
+  let genres: Awaited<ReturnType<typeof getGenres>> = [];
+  let trendingTV: Movie[] = [];
   let initialItems: Movie[] = [];
-  let title = "All Series";
-  let subtitle = "Exploring the Pro Catalog";
 
   try {
-    if (genre) {
-      const activeGenre = genres.find(g => g.id.toString() === genre);
-      initialItems = await getTVByGenre(genre);
-      title = activeGenre ? `${activeGenre.name} Series` : "Genre Collection";
-      subtitle = "Sector Specific Discovery";
-    } else if (filter === 'trending') {
-      initialItems = await getTrendingTV();
-      title = "Trending Now";
-      subtitle = "Most watched this week";
-    } else if (filter === 'popular') {
-      initialItems = await getPopularTV();
-      title = "Popular Shows";
-      subtitle = "Most loved by the community";
-    } else if (filter === 'top') {
-      initialItems = await getTopRatedTV();
-      title = "Top Rated";
-      subtitle = "All-time television legends";
-    } else if (filter === 'anime') {
-      const animeGenre = genres.find(g => g.name === 'Animation');
-      initialItems = await getTVByGenre(animeGenre?.id.toString() || '16');
-      title = "Epic Anime";
-      subtitle = "The best in global animation";
-    } else {
-      initialItems = await getTrendingTV();
-      title = "TV Show Catalog";
-      subtitle = "Premium high-fidelity titles";
-    }
+    [genres, trendingTV, initialItems] = await Promise.all([
+      getGenres('tv'),
+      getTrendingTV(1),
+      discoverMedia('tv', {
+        filter,
+        genreId: genre,
+        year,
+        country,
+      }),
+    ]);
   } catch (error) {
-    console.error("Failed to fetch TV shows:", error);
-    initialItems = [];
+    console.error('Failed to fetch TV shows:', error);
   }
 
   return (
-    <div className="container mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-20 min-h-screen">
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-3 text-sage-400 mb-3">
-            <div className="w-8 h-[2px] bg-sage-600 rounded-full" />
-            <span className="text-[10px] font-black uppercase tracking-[3px]">{subtitle}</span>
-          </div>
-          <h1 className="text-[34px] md:text-[50px] font-black text-white leading-none tracking-tight uppercase italic drop-shadow-xl font-outfit">
-            {title}
-          </h1>
-        </div>
-        
-        <div className="flex items-center gap-1.5 p-1 bg-white/5 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-x-auto no-scrollbar scroll-smooth">
-          {[
-            { id: 'trending', label: 'Trending' },
-            { id: 'popular', label: 'Popular' },
-            { id: 'top', label: 'Top Rated' },
-            { id: 'anime', label: 'Anime' }
-          ].map((tab) => {
-            const isActive = filter === tab.id || (!filter && !genre && tab.id === 'trending');
-            return (
-              <Link
-                key={tab.id}
-                href={`/tv-shows?filter=${tab.id}`}
-                scroll={false}
-                className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[1px] transition-all whitespace-nowrap ${
-                  isActive
-                    ? 'bg-sage-600 text-white shadow-[0_0_20px_rgba(132, 169, 140,0.3)]'
-                    : 'text-white/40 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      <GenreSelector 
-        genres={genres} 
-        activeGenreId={genre} 
-        baseUrl="/tv-shows" 
+    <div className="min-h-screen bg-black">
+      <CatalogHeader
+        title="Shows"
+        subtitle="Binge-worthy series and episodes"
+        backdropItems={trendingTV.length > 0 ? trendingTV : initialItems}
       />
-      
-      {initialItems.length > 0 ? (
-        <InfiniteScrollGrid 
-          initialItems={initialItems} 
-          type="tv" 
-          filter={filter} 
-          genreId={genre} 
+
+      <div className="max-w-[1920px] mx-auto px-5 md:px-12 lg:px-16 pb-20">
+        <FeaturedPosterStrip
+          title="Current & upcoming TV shows"
+          items={trendingTV}
         />
-      ) : (
-        <div className="flex flex-col items-center justify-center py-40 border border-white/5 rounded-[3rem] bg-white/[0.02]">
-          <div className="w-20 h-20 rounded-full bg-sage-600/10 flex items-center justify-center mb-6 text-white/10">
-            <span className="text-sage-400 animate-pulse">⚙️</span>
+
+        <CatalogFilterBar
+          baseUrl="/tv-shows"
+          genres={genres}
+          activeGenreId={genre}
+          activeYear={year}
+          activeCountry={country}
+          activeFilter={filter}
+          sortOptions={TV_SORT_OPTIONS}
+        />
+
+        {initialItems.length > 0 ? (
+          <InfiniteScrollGrid
+            initialItems={initialItems}
+            type="tv"
+            filter={filter}
+            genreId={genre}
+            year={year}
+            country={country}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-28 border border-white/[0.06] rounded-2xl bg-white/[0.01] text-center px-6 mt-4">
+            <p className="text-white/70 font-semibold text-base mb-1.5">
+              No series match these filters
+            </p>
+            <p className="text-white/40 text-xs mb-5">
+              Try adjusting your genre, release year, or country selection.
+            </p>
+            <Link
+              href="/tv-shows"
+              className="px-5 py-2 rounded-full bg-sage-600 hover:bg-sage-500 text-white text-xs font-semibold transition-colors"
+            >
+              Reset filters
+            </Link>
           </div>
-          <p className="text-white/30 font-black text-[11px] uppercase tracking-[4px]">No productions found in this sector</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
+

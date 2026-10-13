@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import NextImage from 'next/image';
 import Link from 'next/link';
 import { Play, Star, ArrowLeft, Plus } from 'lucide-react';
@@ -10,6 +11,21 @@ import { MovieRow } from '@/components/MovieRow';
 // Enable 24-hour Incremental Static Regeneration (ISR) on Vercel CDN Edge
 export const revalidate = 86400; // 24 hours
 export const dynamicParams = true; // On-demand static generation for any movie ID
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const movie = await getMovieDetails(id);
+    return {
+      title: `${movie.title} (${movie.year})`,
+      description: movie.description || undefined,
+    };
+  } catch {
+    return {
+      title: 'Movie Details',
+    };
+  }
+}
 
 export default async function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

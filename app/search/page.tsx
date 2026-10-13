@@ -16,7 +16,15 @@ function SearchContent() {
   const [localQuery, setLocalQuery] = useState(q);
   const [results, setResults] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
-  const [layout, setLayout] = useState<'portrait' | 'landscape'>('landscape');
+  const [layout, setLayout] = useState<'portrait' | 'landscape'>('portrait');
+
+  useEffect(() => {
+    if (q) {
+      document.title = `Search: "${q}" | MoviesStream`;
+    } else {
+      document.title = `Search | MoviesStream`;
+    }
+  }, [q]);
 
   useEffect(() => {
     const trimmed = q.trim().toLowerCase();
@@ -116,26 +124,27 @@ function SearchContent() {
         </div>
       ) : results.length > 0 ? (
         <div className="flex flex-col gap-6">
-          {/* Cineby Layout Style Switcher */}
-          <div className="flex justify-end items-center border-b border-white/5 pb-4 mb-4">
-            <span className="text-[10px] font-black uppercase tracking-[2px] text-white/30 mr-3">Layout Style:</span>
-            <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-xl p-0.5">
+          {/* Layout Style Switcher (Matching Image 2) */}
+          <div className="flex justify-end items-center border-b border-white/[0.05] pb-4 mb-2">
+            <div className="flex items-center bg-[#141416] border border-white/[0.08] rounded-full p-1">
               <button
+                type="button"
                 onClick={() => setLayout('landscape')}
-                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
+                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                   isLandscape
-                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
-                    : 'text-white/40 hover:text-white/70'
+                    ? 'bg-white/[0.14] text-white font-semibold'
+                    : 'text-white/55 hover:text-white'
                 }`}
               >
                 Landscape
               </button>
               <button
+                type="button"
                 onClick={() => setLayout('portrait')}
-                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
+                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                   !isLandscape
-                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
-                    : 'text-white/40 hover:text-white/70'
+                    ? 'bg-white/[0.14] text-white font-semibold'
+                    : 'text-white/55 hover:text-white'
                 }`}
               >
                 Portrait

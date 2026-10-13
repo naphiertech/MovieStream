@@ -18,15 +18,21 @@ export async function GET(
     
     const sources = [
       {
-        id: `viduki_${movie.id}`,
-        name: "Viduki (Primary)",
-        url: `https://viduki.net/1/movie/${movie.id}?color=ef4444`,
+        id: `vidy_${movie.id}`,
+        name: "Vidy (Primary)",
+        url: `https://vidy.st/movie/${movie.id}?color=84a98c`,
         quality: "1080p"
       },
       {
         id: `vidlink_${movie.id}`,
         name: "VidLink",
-        url: `https://vidlink.pro/movie/${movie.id}`,
+        url: `https://vidlink.pro/movie/${movie.id}?primaryColor=84a98c`,
+        quality: "1080p"
+      },
+      {
+        id: `viduki_${movie.id}`,
+        name: "Viduki (Backup)",
+        url: `https://viduki.net/1/movie/${movie.id}?color=84a98c`,
         quality: "1080p"
       }
     ];

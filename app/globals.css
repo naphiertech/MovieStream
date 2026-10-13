@@ -1,8 +1,9 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Righteous&family=Geist:wght@300;400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Outfit:wght@300;400;500;600;700;900&family=Righteous&family=Geist:wght@300;400;500;600;700;900&display=swap');
 
 @theme {
   --font-sans: "Outfit", "Geist", "Inter", system-ui, sans-serif;
+  --font-cursive: "Dancing Script", cursive;
   --color-brand: #84a98c;
   --color-brand-cyan: #98c1a9;
   --color-bg-dark: #000000;

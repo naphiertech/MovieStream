@@ -55,21 +55,19 @@ export function WatchHistory() {
   if (watchHistory.length === 0) return null;
 
   return (
-    <section 
-      className="relative mt-8 md:-mt-24 pt-12 md:pt-28 px-6 md:px-14 lg:px-20 mb-0"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-[18px] md:text-[22px] font-black text-white uppercase tracking-[0.5px] flex items-center gap-3 relative z-20 font-outfit">
-          <span className="w-1.5 h-6 bg-sage-600 rounded-full shadow-[0_0_12px_rgba(132, 169, 140,0.5)]" />
-          Continue Watching
+    <section className="relative py-3 md:py-4 max-w-[1920px] mx-auto px-5 md:px-12 lg:px-16">
+      <div className="flex items-center justify-between mb-3.5">
+        <h2 className="text-[16px] md:text-[18px] font-semibold text-white tracking-tight flex items-center gap-2.5 relative z-20">
+          <span className="w-1 h-4 md:h-5 bg-sage-500 rounded-full" />
+          <span>Continue Watching</span>
         </h2>
-        <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[10px] font-black uppercase tracking-[1px]">
-           <span className="w-1.5 h-1.5 rounded-full bg-sage-600 animate-pulse" />
-           {watchHistory.length} Titles
+        <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#141416] border border-white/[0.08] text-white/55 text-xs font-medium">
+          <span className="w-1.5 h-1.5 rounded-full bg-sage-500 animate-pulse" />
+          <span>{watchHistory.length} {watchHistory.length === 1 ? 'Title' : 'Titles'}</span>
         </div>
       </div>
 
-      <div className="flex gap-5 md:gap-6 overflow-x-auto pb-8 scrollbar-hide scroll-smooth relative z-20">
+      <div className="flex gap-4 md:gap-5 overflow-x-auto pb-2 scrollbar-hide scroll-smooth relative z-20">
         {watchHistory.map((item) => {
           // Deterministic progress width and mock timestamp based on id
           const numericId = parseInt(item.id) || 0;

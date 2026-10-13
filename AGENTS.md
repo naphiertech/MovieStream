@@ -22,4 +22,4 @@
 ## 3. MovieStream Project Guardrails
 - **Color Palette**: Sage Green theme (`--color-brand: #84a98c`, `--color-brand-cyan: #98c1a9`, Tailwind v4 `sage-*` tokens in `app/globals.css`). Never revert to red or old teal.
 - **Mobile Performance**: Zero animations on mobile viewport (`< 768px`). Keep desktop animations, hover scales, and transitions fully intact.
-- **Streaming Pipeline**: Viduki primary stream, VidLink secondary stream.
+- **Streaming Pipeline**: Vidy (`vidy.st`) primary stream, VidLink secondary stream, Viduki 3rd backup stream (`color=84a98c`).

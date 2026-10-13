@@ -24,7 +24,7 @@ export function CarouselRow({
   altLabel = 'Series', 
   mainLabel = 'Movies',
   viewAllLink,
-  layout = 'landscape'
+  layout = 'portrait'
 }: CarouselRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -84,33 +84,36 @@ export function CarouselRow({
   if (!movies.length) return null;
 
   return (
-    <section className="py-8 md:py-12 relative group/section">
-      {/* StreamCraze Style Header */}
-      <div className="flex items-center justify-between mb-6 px-6 md:px-14 lg:px-20">
-        <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight font-outfit">
-          {title}
+    <section className="py-3 md:py-4 max-w-[1920px] mx-auto relative group/section">
+      {/* Editorial Section Header (Synced with Movies, TV Shows & Trending) */}
+      <div className="flex items-center justify-between mb-3.5 px-5 md:px-12 lg:px-16">
+        <h2 className="text-[16px] md:text-[18px] font-semibold text-white tracking-tight flex items-center gap-2.5">
+          <span className="w-1 h-4 md:h-5 bg-sage-500 rounded-full" />
+          <span>{title}</span>
         </h2>
         
-        <div className="flex items-center gap-4">
-          {/* Movies / Series Toggle */}
+        <div className="flex items-center gap-3">
+          {/* Movies / Series Segmented Pill Toggle */}
           {altMovies && (
-            <div className="flex items-center gap-1 bg-white/5 rounded-lg p-0.5 border border-white/5">
+            <div className="flex items-center bg-[#141416] rounded-full p-0.5 border border-white/[0.08]">
               <button
+                type="button"
                 onClick={() => setActiveTab('main')}
-                className={`px-3 md:px-4 py-1.5 rounded-md text-[10px] md:text-[11px] font-bold uppercase tracking-[1.5px] transition-all duration-300 ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                   activeTab === 'main'
-                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
-                    : 'text-white/40 hover:text-white/70'
+                    ? 'bg-white/[0.14] text-white font-semibold'
+                    : 'text-white/55 hover:text-white'
                 }`}
               >
                 {mainLabel}
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab('alt')}
-                className={`px-3 md:px-4 py-1.5 rounded-md text-[10px] md:text-[11px] font-bold uppercase tracking-[1.5px] transition-all duration-300 ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                   activeTab === 'alt'
-                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
-                    : 'text-white/40 hover:text-white/70'
+                    ? 'bg-white/[0.14] text-white font-semibold'
+                    : 'text-white/55 hover:text-white'
                 }`}
               >
                 {altLabel}
@@ -121,42 +124,44 @@ export function CarouselRow({
           {/* Explore all Link */}
           <Link 
             href={viewAllLink || (title.toLowerCase().includes('tv') ? '/tv-shows' : '/movies')}
-            className="text-xs md:text-sm font-bold text-sage-400 hover:text-sage-300 transition-colors flex items-center gap-1 group"
+            className="text-xs font-medium text-white/55 hover:text-sage-400 transition-colors flex items-center gap-1 group"
           >
-            Explore all 
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            <span>Explore all</span>
+            <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
       </div>
 
       {/* Carousel Container */}
-      <div className="relative px-6 md:px-14 lg:px-20">
+      <div className="relative px-5 md:px-12 lg:px-16">
         {/* Left Arrow (Desktop Only) */}
         {canScrollLeft && (
           <button
+            type="button"
             onClick={() => scroll('left')}
-            className="hidden md:flex absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 border border-white/10 items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-sage-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="hidden md:flex absolute left-2 md:left-4 top-[42%] -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/85 border border-white/15 items-center justify-center text-white/75 hover:text-white hover:bg-black hover:border-sage-500/40 transition-all duration-200 shadow-xl opacity-0 group-hover/section:opacity-100 focus:opacity-100 cursor-pointer"
             aria-label="Scroll left"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={18} />
           </button>
         )}
 
         {/* Right Arrow (Desktop Only) */}
         {canScrollRight && (
           <button
+            type="button"
             onClick={() => scroll('right')}
-            className="hidden md:flex absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/90 border border-white/10 items-center justify-center text-white/60 hover:text-white hover:bg-black hover:border-sage-600/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.5)] opacity-0 group-hover/section:opacity-100 focus:opacity-100"
+            className="hidden md:flex absolute right-2 md:right-4 top-[42%] -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/85 border border-white/15 items-center justify-center text-white/75 hover:text-white hover:bg-black hover:border-sage-500/40 transition-all duration-200 shadow-xl opacity-0 group-hover/section:opacity-100 focus:opacity-100 cursor-pointer"
             aria-label="Scroll right"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={18} />
           </button>
         )}
 
-        {/* Scrollable Track with Partial Right Cutoff Hint */}
+        {/* Scrollable Track */}
         <div
           ref={scrollRef}
-          className="flex gap-3 md:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pr-12 md:pr-20"
+          className="flex gap-3.5 md:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
           style={{ scrollSnapType: 'x mandatory' }}
         >
           {activeData.map((movie) => (
@@ -164,8 +169,8 @@ export function CarouselRow({
               key={movie.id}
               className={`flex-shrink-0 ${
                 layout === 'landscape'
-                  ? 'w-[220px] sm:w-[240px] md:w-[260px] lg:w-[285px]'
-                  : 'w-[140px] sm:w-[155px] md:w-[175px] lg:w-[190px]'
+                  ? 'w-[220px] sm:w-[240px] md:w-[260px] lg:w-[280px]'
+                  : 'w-[140px] sm:w-[155px] md:w-[170px] lg:w-[185px]'
               }`}
               style={{ scrollSnapAlign: 'start' }}
             >

@@ -89,6 +89,13 @@ export default function WatchPage() {
     }
   }, []);
 
+  // Dynamic Browser Tab Name
+  useEffect(() => {
+    if (movie?.title) {
+      document.title = `Watching ${movie.title} | MoviesStream`;
+    }
+  }, [movie?.title]);
+
   // Fullscreen → Auto-Landscape Link
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -145,18 +152,24 @@ export default function WatchPage() {
         setMovie(data);
         setRecommendations(data.recommendations || []);
         
-        // Stream Providers: Viduki (Primary) + VidLink (Secondary)
+        // Stream Providers: Vidy (Primary Default), VidLink (Secondary), Viduki (3rd Backup)
         const sourcesList = [
           {
-            id: 'viduki',
-            name: 'Viduki (Primary)',
-            url: `https://viduki.net/1/movie/${data.id}?color=ef4444`,
+            id: 'vidy',
+            name: 'Vidy (Primary)',
+            url: `https://vidy.st/movie/${data.id}?color=84a98c`,
             quality: '1080p'
           },
           {
             id: 'vidlink',
             name: 'VidLink',
-            url: `https://vidlink.pro/movie/${data.id}?primaryColor=ef4444`,
+            url: `https://vidlink.pro/movie/${data.id}?primaryColor=84a98c`,
+            quality: '1080p'
+          },
+          {
+            id: 'viduki',
+            name: 'Viduki (Backup)',
+            url: `https://viduki.net/1/movie/${data.id}?color=84a98c`,
             quality: '1080p'
           }
         ];
@@ -191,13 +204,16 @@ export default function WatchPage() {
 
   // Get dynamic source URL respecting preferences
   const getSourceUrl = (sourceId: string) => {
-    if (sourceId === 'viduki') {
-      return `https://viduki.net/1/movie/${movie?.id}?color=ef4444`;
+    if (sourceId === 'vidy') {
+      return `https://vidy.st/movie/${movie?.id}?color=84a98c&autoplay=${autoPlay ? 'true' : 'false'}`;
     }
     if (sourceId === 'vidlink') {
-      return `https://vidlink.pro/movie/${movie?.id}?primaryColor=ef4444&autoplay=${autoPlay ? 1 : 0}`;
+      return `https://vidlink.pro/movie/${movie?.id}?primaryColor=84a98c&autoplay=${autoPlay ? 1 : 0}`;
     }
-    return `https://viduki.net/1/movie/${movie?.id}?color=ef4444`;
+    if (sourceId === 'viduki') {
+      return `https://viduki.net/1/movie/${movie?.id}?color=84a98c`;
+    }
+    return `https://vidy.st/movie/${movie?.id}?color=84a98c&autoplay=${autoPlay ? 'true' : 'false'}`;
   };
 
   if (loading) {
@@ -285,7 +301,7 @@ export default function WatchPage() {
               className="w-full h-full border-0"
               allowFullScreen
               referrerPolicy="no-referrer"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay *; clipboard-write; encrypted-media; fullscreen *; gyroscope; picture-in-picture"
             />
             
             {/* Custom Subtitle Overlay */}

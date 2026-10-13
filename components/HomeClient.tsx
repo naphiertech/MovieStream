@@ -34,7 +34,7 @@ export function HomeClient({
   sciFiMovies,
   comedyMovies
 }: HomeClientProps) {
-  const [layout, setLayout] = useState<'portrait' | 'landscape'>('landscape');
+  const [layout, setLayout] = useState<'portrait' | 'landscape'>('portrait');
 
   const isLandscape = layout === 'landscape';
 
@@ -79,44 +79,43 @@ export function HomeClient({
   }, [sciFiMovies, sciFiSpotlight]);
 
   return (
-    <div className="pb-20 space-y-4 md:space-y-8">
+    <div className="pb-16 space-y-2 md:space-y-3">
       {/* 1. StreamCraze Brightened Edge-Peek Carousel Hero */}
       <HeroSection movies={heroMedia} />
       
-      <div className="relative z-20 space-y-4 md:space-y-6">
-        {/* Dynamic Layout Style Control Bar */}
-        <div className="flex justify-between items-center px-6 md:px-14 lg:px-20 pt-2 pb-2 border-b border-white/5">
+      <div className="relative z-20 space-y-1 md:space-y-2">
+        {/* Dynamic Layout Style Control Bar (Synced with Catalog Pages & Image 2) */}
+        <div className="max-w-[1920px] mx-auto flex justify-between items-center px-5 md:px-12 lg:px-16 py-2.5 border-b border-white/[0.05]">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-sage-600 animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[2px] text-white/50">
-              Curated Catalog • Updated Today
+            <span className="w-2 h-2 rounded-full bg-sage-500 animate-pulse" />
+            <span className="text-xs font-medium text-white/55">
+              Curated catalog • Updated daily
             </span>
           </div>
 
-          <div className="flex items-center">
-            <span className="text-[10px] font-black uppercase tracking-[2px] text-white/30 mr-3 hidden sm:inline">Layout Style:</span>
-            <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-xl p-0.5">
-              <button
-                onClick={() => setLayout('landscape')}
-                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
-                  isLandscape
-                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
-                    : 'text-white/40 hover:text-white/70'
-                }`}
-              >
-                Landscape
-              </button>
-              <button
-                onClick={() => setLayout('portrait')}
-                className={`px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-[1px] md:transition-all md:duration-300 ${
-                  !isLandscape
-                    ? 'bg-sage-600 text-white shadow-[0_0_15px_rgba(132, 169, 140,0.3)]'
-                    : 'text-white/40 hover:text-white/70'
-                }`}
-              >
-                Portrait
-              </button>
-            </div>
+          <div className="flex items-center bg-[#141416] border border-white/[0.08] rounded-full p-1">
+            <button
+              type="button"
+              onClick={() => setLayout('landscape')}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+                isLandscape
+                  ? 'bg-white/[0.14] text-white font-semibold'
+                  : 'text-white/55 hover:text-white'
+              }`}
+            >
+              Landscape
+            </button>
+            <button
+              type="button"
+              onClick={() => setLayout('portrait')}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+                !isLandscape
+                  ? 'bg-white/[0.14] text-white font-semibold'
+                  : 'text-white/55 hover:text-white'
+              }`}
+            >
+              Portrait
+            </button>
           </div>
         </div>
 
@@ -149,7 +148,7 @@ export function HomeClient({
               sectionTitle="Action Blockbuster Showcase"
               movie={actionSpotlight}
               sideMovies={actionSideMovies}
-              exploreLink="/genres/Action"
+              exploreLink="/movies?genre=28"
             />
           </div>
         )}
@@ -182,7 +181,7 @@ export function HomeClient({
               sectionTitle="Captivating Sci-Fi Experience"
               movie={sciFiSpotlight}
               sideMovies={sciFiSideMovies}
-              exploreLink="/genres/Sci-Fi"
+              exploreLink="/movies?genre=878"
             />
           </div>
         )}
@@ -192,7 +191,7 @@ export function HomeClient({
           <CarouselRow 
             title="Latest Action Hits" 
             movies={distinctActionHits} 
-            viewAllLink="/genres/Action" 
+            viewAllLink="/movies?genre=28" 
             layout={layout} 
           />
         </div>
@@ -202,7 +201,7 @@ export function HomeClient({
           <CarouselRow 
             title="Trending Sci-Fi" 
             movies={distinctSciFiHits} 
-            viewAllLink="/genres/Sci-Fi" 
+            viewAllLink="/movies?genre=878" 
             layout={layout} 
           />
         </div>
@@ -212,7 +211,7 @@ export function HomeClient({
           <CarouselRow 
             title="Comedy Hits" 
             movies={comedyMovies} 
-            viewAllLink="/genres/Comedy" 
+            viewAllLink="/movies?genre=35" 
             layout={layout} 
           />
         </div>

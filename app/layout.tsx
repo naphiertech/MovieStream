@@ -4,13 +4,16 @@ import { ConditionalLayout } from '@/components/ConditionalLayout';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'MovieStream Pro - Premium Cinematic Streaming',
+  title: {
+    default: 'MoviesStream - Premium Cinematic Streaming',
+    template: '%s | MoviesStream',
+  },
   description: 'The elite destination for movies and TV shows online.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'MovieStream Pro',
+    title: 'MoviesStream',
   },
 };
 
