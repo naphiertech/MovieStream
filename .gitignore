@@ -8,4 +8,6 @@ coverage/
 .agents
 .open-next/
 .wrangler/
+.dev.vars*
+.pages-proxy/
 MovieStream.zip
