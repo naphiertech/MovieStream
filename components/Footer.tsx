@@ -76,7 +76,7 @@ export function Footer() {
           {/* Compact Social Icon Strip */}
           <div className="flex items-center gap-1.5 text-white/45">
             <a
-              href="https://naphier-portfolio.vercel.app/"
+              href="https://naphiernode.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Portfolio"
@@ -143,7 +143,7 @@ export function Footer() {
           <p className="flex items-center gap-1.5">
             <span>Made with ⚡ by</span>
             <a
-              href="https://naphier-portfolio.vercel.app/"
+              href="https://naphiernode.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sage-400 hover:text-white transition-colors font-semibold"
