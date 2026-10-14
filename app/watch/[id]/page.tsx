@@ -252,8 +252,8 @@ export default function WatchPage() {
       
       {/* Cinematic Header Overlay */}
       <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none">
-        <div className="bg-gradient-to-b from-black/80 to-transparent pt-10 pb-20 px-6 md:px-14">
-          <div className="container mx-auto flex items-center justify-between pointer-events-auto">
+        <div className="bg-gradient-to-b from-black/80 to-transparent pt-6 pb-16 px-6 md:px-14">
+          <div className="container mx-auto flex items-center pointer-events-auto">
             <Link 
               href={`/movie/${movie.id}`} 
               onClick={() => {
@@ -261,24 +261,11 @@ export default function WatchPage() {
                   unlockOrientation();
                 }
               }}
-              className="group flex items-center gap-3 bg-white/5 backdrop-blur-3xl border border-white/10 px-5 py-2.5 rounded-2xl text-white/50 hover:text-white hover:border-sage-600/40 transition-all duration-300"
+              className="group flex items-center gap-3 bg-black/60 md:backdrop-blur-3xl border border-white/10 px-5 py-2.5 rounded-2xl text-white/70 hover:text-white hover:border-sage-600/40 transition-all duration-300 shadow-lg"
             >
               <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
               <span className="text-[11px] font-black uppercase tracking-[2px]">Exit</span>
             </Link>
-            
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-white font-black text-lg md:text-2xl uppercase italic tracking-tight truncate max-w-[300px] md:max-w-xl drop-shadow-2xl font-outfit">
-                {movie.title}
-              </h1>
-              <div className="flex items-center gap-3 mt-1">
-                <span className="text-sage-400 text-[10px] font-black uppercase tracking-[2px]">{movie.releaseDate?.split('-')[0]}</span>
-                <div className="w-1 h-1 rounded-full bg-white/20" />
-                <span className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">{movie.duration}</span>
-              </div>
-            </div>
-
-            <div className="w-24 hidden sm:block" />
           </div>
         </div>
       </div>

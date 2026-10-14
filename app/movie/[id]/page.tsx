@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import NextImage from 'next/image';
 import Link from 'next/link';
-import { Play, Star, ArrowLeft, Plus } from 'lucide-react';
+import { Play, Star, Plus } from 'lucide-react';
 import { getMovieDetails, getRecommendations, getSimilar, PLACEHOLDERS } from '@/lib/tmdb';
 import { notFound } from 'next/navigation';
 import { ActorList } from '@/components/ActorList';
@@ -69,13 +69,6 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
       {/* Main Content — positioned at bottom of hero */}
       <div className="relative z-20 flex flex-col justify-end min-h-[70vh] md:min-h-[78vh] pb-6 md:pb-10">
         <div className="container mx-auto px-6 md:px-14 lg:px-20">
-          
-          {/* Back Button */}
-          <div className="fixed top-6 left-6 z-50">
-            <Link href="/" className="group inline-flex items-center justify-center w-11 h-11 bg-black/60 md:backdrop-blur-xl border border-white/10 rounded-full text-white/60 hover:text-white hover:border-white/30 md:transition-all md:duration-300">
-              <ArrowLeft size={18} className="md:group-hover:-translate-x-0.5 md:transition-transform" />
-            </Link>
-          </div>
 
           <div className="flex items-end gap-6 md:gap-8">
             {/* Compact Poster */}

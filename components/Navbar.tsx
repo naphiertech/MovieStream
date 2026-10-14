@@ -13,6 +13,7 @@ import {
   Tv,
   Flame,
   X,
+  ArrowLeft,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -39,6 +40,7 @@ export function Navbar() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const isDetailPage = Boolean(pathname?.startsWith('/movie/') || pathname?.startsWith('/tv/'));
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -167,47 +169,66 @@ export function Navbar() {
         }`}
       >
         <div className="px-5 md:px-12 lg:px-16 flex items-center justify-between max-w-[1920px] mx-auto">
-          {/* Left: Folded 'M' Ribbon Emblem */}
-          <Link
-            href="/"
-            aria-label="MovieStream Home"
-            className="group relative flex items-center cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
-          >
-            <svg
-              viewBox="0 0 40 40"
-              className="w-8 h-8 md:w-9 md:h-9 drop-shadow-[0_4px_14px_rgba(132,169,140,0.45)]"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+          {/* Left: Folded 'M' Ribbon Emblem + Optional Back Button */}
+          <div className="flex items-center gap-2.5 md:gap-3.5">
+            {isDetailPage && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.history.length > 1) {
+                    router.back();
+                  } else {
+                    router.push(pathname?.startsWith('/tv') ? '/tv-shows' : '/movies');
+                  }
+                }}
+                aria-label="Go back"
+                className="group flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-[#18181b]/85 backdrop-blur-xl border border-white/[0.08] hover:border-white/20 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer active:scale-95 shadow-md"
+              >
+                <ArrowLeft size={16} className="md:group-hover:-translate-x-0.5 md:transition-transform" />
+              </button>
+            )}
+
+            <Link
+              href="/"
+              aria-label="MovieStream Home"
+              className="group relative flex items-center cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
             >
-              <defs>
-                <linearGradient id="ms-stem-left" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6b8f74" />
-                  <stop offset="100%" stopColor="#354f52" />
-                </linearGradient>
-                <linearGradient id="ms-stem-right" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6b8f74" />
-                  <stop offset="100%" stopColor="#354f52" />
-                </linearGradient>
-                <linearGradient id="ms-ribbon-fold" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#a7c2af" />
-                  <stop offset="50%" stopColor="#84a98c" />
-                  <stop offset="100%" stopColor="#52796f" />
-                </linearGradient>
-              </defs>
-              {/* Left Stem */}
-              <path d="M5 4H12V36H5V4Z" fill="url(#ms-stem-left)" />
-              {/* Right Stem */}
-              <path d="M28 4H35V36H28V4Z" fill="url(#ms-stem-right)" />
-              {/* Right Inner Fold */}
-              <path d="M28 4H35L23 29H17L28 4Z" fill="#52796f" />
-              {/* Left Top-Over Fold Ribbon */}
-              <path
-                d="M5 4H12L23 29H17L5 4Z"
-                fill="url(#ms-ribbon-fold)"
-                style={{ filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.6))' }}
-              />
-            </svg>
-          </Link>
+              <svg
+                viewBox="0 0 40 40"
+                className="w-8 h-8 md:w-9 md:h-9 drop-shadow-[0_4px_14px_rgba(132,169,140,0.45)]"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient id="ms-stem-left" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6b8f74" />
+                    <stop offset="100%" stopColor="#354f52" />
+                  </linearGradient>
+                  <linearGradient id="ms-stem-right" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6b8f74" />
+                    <stop offset="100%" stopColor="#354f52" />
+                  </linearGradient>
+                  <linearGradient id="ms-ribbon-fold" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#a7c2af" />
+                    <stop offset="50%" stopColor="#84a98c" />
+                    <stop offset="100%" stopColor="#52796f" />
+                  </linearGradient>
+                </defs>
+                {/* Left Stem */}
+                <path d="M5 4H12V36H5V4Z" fill="url(#ms-stem-left)" />
+                {/* Right Stem */}
+                <path d="M28 4H35V36H28V4Z" fill="url(#ms-stem-right)" />
+                {/* Right Inner Fold */}
+                <path d="M28 4H35L23 29H17L28 4Z" fill="#52796f" />
+                {/* Left Top-Over Fold Ribbon */}
+                <path
+                  d="M5 4H12L23 29H17L5 4Z"
+                  fill="url(#ms-ribbon-fold)"
+                  style={{ filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.6))' }}
+                />
+              </svg>
+            </Link>
+          </div>
 
           {/* Right: Unified Floating Glass Pill Dock */}
           <div
