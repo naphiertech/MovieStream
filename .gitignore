@@ -11,3 +11,4 @@ coverage/
 .dev.vars*
 .pages-proxy/
 MovieStream.zip
+graphify-out/
