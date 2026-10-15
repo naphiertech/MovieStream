@@ -19,6 +19,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [inWatchlist, setInWatchlist] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -89,13 +90,18 @@ export function HeroSection({ movies }: HeroSectionProps) {
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX;
+    touchStartYRef.current = e.touches[0].clientY;
   };
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null) return;
-    const diff = e.changedTouches[0].clientX - touchStartXRef.current;
-    if (diff > 60) prevSlide();
-    else if (diff < -60) nextSlide();
+    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
+    const diffX = e.changedTouches[0].clientX - touchStartXRef.current;
+    const diffY = e.changedTouches[0].clientY - touchStartYRef.current;
+    if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+      if (diffX > 0) prevSlide();
+      else nextSlide();
+    }
     touchStartXRef.current = null;
+    touchStartYRef.current = null;
   };
 
   if (!movies || movies.length === 0) return null;
@@ -111,7 +117,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
   return (
     <section 
       aria-label="Featured Spotlight"
-      className="relative w-full min-h-[580px] md:min-h-[660px] lg:h-[78vh] max-h-[820px] bg-black overflow-hidden select-none flex items-end pt-20"
+      className="relative w-full min-h-[580px] md:min-h-[660px] lg:h-[78vh] max-h-[820px] bg-black overflow-hidden select-none flex items-end pt-20 touch-pan-y"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -153,11 +159,11 @@ export function HeroSection({ movies }: HeroSectionProps) {
 
           {/* ── Seamless Cinematic Vignettes (No harsh edges, perfect breathing room) ── */}
           {/* Left-to-right fade for text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 sm:via-black/70 md:via-black/55 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 sm:via-black/70 md:via-black/55 to-transparent z-10 pointer-events-none" />
           {/* Bottom fade into the page body */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 sm:via-transparent to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 sm:via-transparent to-transparent z-10 pointer-events-none" />
           {/* Top subtle bar fade for floating navbar legibility */}
-          <div className="absolute top-0 inset-x-0 h-36 bg-gradient-to-b from-black/80 via-black/30 to-transparent z-10" />
+          <div className="absolute top-0 inset-x-0 h-36 bg-gradient-to-b from-black/80 via-black/30 to-transparent z-10 pointer-events-none" />
         </motion.div>
       </AnimatePresence>
 

@@ -55,7 +55,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
   const accentTitle = titleParts[titleParts.length - 1];
 
   return (
-    <div className="min-h-screen bg-[#060606] selection:bg-sage-600/30 overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#060606] selection:bg-sage-600/30 overflow-x-clip relative">
       {/* Cinematic Hero Backdrop */}
       <div className="absolute top-0 left-0 w-full h-[75vh] md:h-[85vh] overflow-hidden pointer-events-none">
         <CinematicBackground 
