@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: '%s | MoviesStream',
   },
   description: 'The elite destination for movies and TV shows online.',
-  manifest: '/manifest.json',
+  manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
