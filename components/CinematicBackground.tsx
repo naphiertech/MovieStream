@@ -29,7 +29,7 @@ export function CinematicBackground({
     setIsReady(false);
 
     // Skip YouTube iframe on mobile — use static image only
-    if (isMobile) return;
+    if (isMobile || window.innerWidth < 768 || 'ontouchstart' in window) return;
 
     const fetchTrailer = async () => {
       try {
