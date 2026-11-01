@@ -15,6 +15,7 @@ export const dynamicParams = true; // On-demand static generation for any TV sho
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
+  if (!id || !/^\d+$/.test(id)) return { title: 'Series Details' };
   try {
     const show = await getTVDetails(id);
     return {
@@ -30,6 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function TVDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  if (!id || !/^\d+$/.test(id)) notFound();
   
   let show;
   let recommendations: any[] = [];

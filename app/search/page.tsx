@@ -48,6 +48,7 @@ function SearchContent() {
         });
         if (res.ok) {
           const data = await res.json();
+          if (searchPageCache.size >= 50) { const firstKey = searchPageCache.keys().next().value; if (firstKey !== undefined) searchPageCache.delete(firstKey); }
           searchPageCache.set(trimmed, data);
           setResults(data);
         }

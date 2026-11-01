@@ -112,6 +112,7 @@ export function Navbar() {
         if (response.ok) {
           const data = await response.json();
           const topSix = data.slice(0, 6);
+          if (navbarSearchCache.size >= 50) { const firstKey = navbarSearchCache.keys().next().value; if (firstKey !== undefined) navbarSearchCache.delete(firstKey); }
           navbarSearchCache.set(trimmed, topSix);
           setSuggestions(topSix);
           setShowSuggestions(true);

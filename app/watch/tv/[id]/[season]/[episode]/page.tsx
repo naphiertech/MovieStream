@@ -163,11 +163,8 @@ export default function TVWatchPage() {
   // Listen for ended messages from Vidy, VidLink, or Viduki iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      const isVidy = event.origin.includes('vidy.st');
-      const isVidLink = event.origin.includes('vidlink.pro');
-      const isViduki = event.origin.includes('viduki.net');
-      
-      if (isVidy || isVidLink || isViduki) {
+      const allowedOrigins = new Set(['https://vidy.st', 'https://www.vidy.st', 'https://vidlink.pro', 'https://www.vidlink.pro', 'https://viduki.net', 'https://www.viduki.net']);
+      if (allowedOrigins.has(event.origin)) {
         try {
           let data = event.data;
           if (typeof data === 'string' && data.startsWith('{')) {

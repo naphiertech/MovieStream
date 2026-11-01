@@ -22,8 +22,8 @@ export async function GET(
         'Vercel-CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
       },
     });
-  } catch (error: any) {
-    console.error(`[Movie Stream API] Failed to resolve movie stream for ID ${id}:`, error);
-    return NextResponse.json({ error: error.message || 'Failed to resolve stream' }, { status: 404 });
+  } catch (error) {
+    console.error(`[Movie Stream API] Failed to resolve movie stream for ID ${sanitizedId}:`, error);
+    return NextResponse.json({ error: 'Failed to resolve stream' }, { status: 404 });
   }
 }

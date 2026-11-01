@@ -52,6 +52,7 @@ export function SubtitleOverlay({ onClose }: SubtitleOverlayProps) {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024 || !file.name.toLowerCase().endsWith('.srt')) return;
       setFileName(file.name);
       const reader = new FileReader();
       reader.onload = (event) => {

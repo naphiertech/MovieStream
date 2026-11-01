@@ -24,8 +24,8 @@ export async function GET(
         'Vercel-CDN-Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
       },
     });
-  } catch (error: any) {
-    console.error(`[TV Stream API] Failed to resolve TV stream for ID ${id} S${season}E${episode}:`, error);
-    return NextResponse.json({ error: error.message || 'Failed to resolve stream' }, { status: 404 });
+  } catch (error) {
+    console.error(`[TV Stream API] Failed to resolve TV stream for ID ${sanitizedId} S${s}E${e}:`, error);
+    return NextResponse.json({ error: 'Failed to resolve stream' }, { status: 404 });
   }
 }

@@ -3,11 +3,17 @@ import { getMovieVideos } from '@/lib/tmdb';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ type: string, id: string }> }
+  { params }: { params: Promise<{ type: string; id: string }> }
 ) {
   try {
     const { type, id } = await params;
-    const videos = await getMovieVideos(id, type as any);
+    const sanitizedId = (id || '').trim();
+
+    if ((type !== 'movie' && type !== 'tv') || !/^\d+$/.test(sanitizedId)) {
+      return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
+    }
+
+    const videos = await getMovieVideos(sanitizedId, type);
     return NextResponse.json(videos, {
       headers: {
         'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400',
@@ -20,4 +26,3 @@ export async function GET(
     return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });
   }
 }
-
