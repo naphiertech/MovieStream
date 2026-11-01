@@ -5,6 +5,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { CarouselRow } from '@/components/CarouselRow';
 import { RankedCarousel } from '@/components/RankedCarousel';
 import { GenreRow } from '@/components/GenreRow';
+import { ProviderRow } from '@/components/ProviderRow';
 import { SpotlightBanner } from '@/components/SpotlightBanner';
 import { WatchHistory } from '@/components/WatchHistory';
 import { Movie } from '@/lib/tmdb';
@@ -121,6 +122,9 @@ export function HomeClient({
 
         {/* 2. Continue Watching (Client Local Storage) */}
         <WatchHistory />
+
+        {/* 2.5 Browse by Provider */}
+        <ProviderRow />
 
         {/* 3. Trending Today (Rotated Distinct Subset with Movies/Series Toggle) */}
         <CarouselRow 

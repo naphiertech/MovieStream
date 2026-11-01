@@ -14,6 +14,7 @@ interface InfiniteScrollGridProps {
   genreId?: string;
   year?: string;
   country?: string;
+  providerId?: string;
   layout?: 'portrait' | 'landscape';
 }
 
@@ -24,6 +25,7 @@ export function InfiniteScrollGrid({
   genreId,
   year,
   country,
+  providerId,
   layout,
 }: InfiniteScrollGridProps) {
   const sharedLayout = useCatalogLayout();
@@ -40,7 +42,7 @@ export function InfiniteScrollGrid({
     setPage(2);
     setHasMore(true);
     setLoading(false);
-  }, [initialItems, filter, genreId, year, country]);
+  }, [initialItems, type, filter, genreId, year, country, providerId]);
 
   const loadMore = useCallback(async () => {
     setLoading(true);
@@ -51,7 +53,8 @@ export function InfiniteScrollGrid({
         filter,
         genreId,
         year,
-        country
+        country,
+        providerId
       );
 
       if (newItems.length === 0) {
@@ -70,7 +73,7 @@ export function InfiniteScrollGrid({
     } finally {
       setLoading(false);
     }
-  }, [type, page, filter, genreId, year, country]);
+  }, [type, page, filter, genreId, year, country, providerId]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -123,4 +126,3 @@ export function InfiniteScrollGrid({
     </div>
   );
 }
-

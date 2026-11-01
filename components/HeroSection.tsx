@@ -117,10 +117,37 @@ export function HeroSection({ movies }: HeroSectionProps) {
   return (
     <section 
       aria-label="Featured Spotlight"
-      className="relative w-full min-h-[580px] md:min-h-[660px] lg:h-[78vh] max-h-[820px] bg-black overflow-hidden select-none flex items-end pt-20 touch-pan-y"
+      className="relative w-full min-h-[580px] md:min-h-[660px] lg:h-[78vh] max-h-[820px] select-none flex items-end pt-20 touch-pan-y"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
+      {/* ── Ambient Light Backdrop Layer (Bleeds downward behind upper catalog rows) ── */}
+      <AnimatePresence initial={false} mode="wait">
+        <motion.div
+          key={`ambient-${currentMovie.id}`}
+          initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={isMobile ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: isMobile ? 0 : 0.85, ease: 'easeInOut' }}
+          className="absolute inset-x-0 top-0 -bottom-[420px] md:-bottom-[560px] pointer-events-none z-0 overflow-hidden"
+          style={{
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 55%, rgba(0,0,0,0) 100%)',
+          }}
+        >
+          <Image
+            src={currentMovie.bannerUrl || currentMovie.posterUrl || PLACEHOLDERS.BANNER}
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover object-center scale-125 blur-[90px] saturate-[1.8] opacity-55 md:opacity-65"
+            referrerPolicy="no-referrer"
+            unoptimized={!currentMovie.bannerUrl}
+          />
+          <div className="absolute inset-0 bg-black/35" />
+        </motion.div>
+      </AnimatePresence>
+
       {/* ── Background Backdrop Layer with Smooth Crossfade ── */}
       <AnimatePresence initial={false} mode="wait">
         <motion.div
@@ -129,7 +156,11 @@ export function HeroSection({ movies }: HeroSectionProps) {
           animate={{ opacity: 1 }}
           exit={isMobile ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: isMobile ? 0 : 0.65, ease: 'easeInOut' }}
-          className="absolute inset-0 w-full h-full"
+          className="absolute inset-0 w-full h-full overflow-hidden z-10"
+          style={{
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)',
+          }}
         >
           {isPlayingTrailer && trailerKey ? (
             <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none bg-black">
@@ -143,27 +174,25 @@ export function HeroSection({ movies }: HeroSectionProps) {
               <div className="absolute inset-0 bg-black/25 pointer-events-none" />
             </div>
           ) : (
-            <div className="absolute inset-0 w-full h-full bg-black">
+            <div className="absolute inset-0 w-full h-full">
               <Image
                 src={currentMovie.bannerUrl || currentMovie.posterUrl || PLACEHOLDERS.BANNER}
                 alt={currentMovie.title}
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover object-[center_25%] md:object-[center_20%] opacity-90 brightness-[0.92]"
+                className="object-cover object-[center_25%] md:object-[center_20%] opacity-90 brightness-[0.95]"
                 referrerPolicy="no-referrer"
                 unoptimized={!currentMovie.bannerUrl}
               />
             </div>
           )}
 
-          {/* ── Seamless Cinematic Vignettes (No harsh edges, perfect breathing room) ── */}
-          {/* Left-to-right fade for text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 sm:via-black/70 md:via-black/55 to-transparent z-10 pointer-events-none" />
-          {/* Bottom fade into the page body */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 sm:via-transparent to-transparent z-10 pointer-events-none" />
+          {/* ── Seamless Cinematic Vignettes (Letting ambient hue breathe through) ── */}
+          {/* Left-to-right fade for text contrast without crushing ambient color */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent z-10 pointer-events-none" />
           {/* Top subtle bar fade for floating navbar legibility */}
-          <div className="absolute top-0 inset-x-0 h-36 bg-gradient-to-b from-black/80 via-black/30 to-transparent z-10 pointer-events-none" />
+          <div className="absolute top-0 inset-x-0 h-36 bg-gradient-to-b from-black/75 via-black/25 to-transparent z-10 pointer-events-none" />
         </motion.div>
       </AnimatePresence>
 

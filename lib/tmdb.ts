@@ -343,20 +343,100 @@ export const CATALOG_YEARS: string[] = Array.from(
   (_, idx) => (2026 - idx).toString()
 );
 
+export interface WatchProvider {
+  id: string;
+  name: string;
+  logoUrl: string;
+}
+
+export const WATCH_PROVIDERS: WatchProvider[] = [
+  {
+    id: '8',
+    name: 'Netflix',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/rK1KljqmbvO9HQa1PBFLILWah72.png`,
+  },
+  {
+    id: '9',
+    name: 'Amazon Prime Video',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/gMZdpavHmxFNnLpMHwVxfqeux2g.png`,
+  },
+  {
+    id: '337',
+    name: 'Disney Plus',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/5eZ872CghnHFLB1j8grszbrx0dx.png`,
+  },
+  {
+    id: '350',
+    name: 'Apple TV+',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/9icYBfYFcwgCbky5VdGUIKJ4C5i.png`,
+  },
+  {
+    id: '2',
+    name: 'Apple TV',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/qdEGArH3lKfFnAtYXMkSYk5wxuG.png`,
+  },
+  {
+    id: '15',
+    name: 'Hulu',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/44uAnmSqvA4yBOdbPWN8YgQHjWm.png`,
+  },
+  {
+    id: '1899',
+    name: 'HBO Max',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/skypuy7SXuugIQeYg0IglmzoKaS.png`,
+  },
+  {
+    id: '2303',
+    name: 'Paramount Plus',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/4N4BMd0Mm0kHAmF7RZgL5lW3cwc.png`,
+  },
+  {
+    id: '386',
+    name: 'Peacock Premium',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/a1UIdq5BrkcAxnxcUhFsNbXnxeu.png`,
+  },
+  {
+    id: '283',
+    name: 'Crunchyroll',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/uFL3c4Cq8M6WoLymlC5Y8bmGytV.png`,
+  },
+  {
+    id: '43',
+    name: 'Starz',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/h25xjouKmiSmFiiqw0aDXbxGZo7.png`,
+  },
+  {
+    id: '526',
+    name: 'AMC+',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/wsCUflcmL4dCkzBUaGP8cj1cTkh.png`,
+  },
+  {
+    id: '34',
+    name: 'MGM Plus',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/q63Uzpu7JAs566vA2G23Lk7LcID.png`,
+  },
+  {
+    id: '188',
+    name: 'YouTube Premium',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/eWHpKZihdiY617s5LipWJWvN28U.png`,
+  },
+];
+
 export interface DiscoverOptions {
   page?: number;
   filter?: string;
   genreId?: string;
   year?: string;
   country?: string;
+  providerId?: string;
 }
 
 export async function discoverMedia(
   type: 'movie' | 'tv',
   options: DiscoverOptions = {}
 ): Promise<Movie[]> {
-  const { page = 1, filter, genreId, year, country } = options;
-  const hasCustomFilters = Boolean(genreId || year || country);
+  const { page = 1, filter, genreId, year, country, providerId } = options;
+  const hasCustomFilters = Boolean(genreId || year || country || providerId);
 
   if (!hasCustomFilters) {
     if (type === 'movie') {
@@ -381,6 +461,11 @@ export async function discoverMedia(
     page: page.toString(),
     include_adult: 'false',
   };
+
+  if (providerId) {
+    params.with_watch_providers = providerId;
+    params.watch_region = 'US';
+  }
 
   if (genreId) {
     params.with_genres = genreId;

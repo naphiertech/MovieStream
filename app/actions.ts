@@ -8,7 +8,8 @@ export async function loadMoreContentAction(
   filter?: string,
   genreId?: string,
   year?: string,
-  country?: string
+  country?: string,
+  providerId?: string
 ): Promise<Movie[]> {
   return discoverMedia(type, {
     page,
@@ -16,6 +17,7 @@ export async function loadMoreContentAction(
     genreId,
     year,
     country,
+    providerId,
   });
 }
 
