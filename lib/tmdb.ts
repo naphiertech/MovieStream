@@ -420,6 +420,46 @@ export const WATCH_PROVIDERS: WatchProvider[] = [
     name: 'YouTube Premium',
     logoUrl: `${TMDB_IMAGE_BASE}/w154/eWHpKZihdiY617s5LipWJWvN28U.png`,
   },
+  {
+    id: '520',
+    name: 'Discovery+',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/tHseJEgZaUdVlLtBpOGmKPfzbQ8.png`,
+  },
+  {
+    id: '73',
+    name: 'Tubi',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/9dEuvA8wg5TSeFBZlPxSVxFdimJ.png`,
+  },
+  {
+    id: '300',
+    name: 'Pluto TV',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/fN4czqaMQNLeF6sSSIjGbAWzvwK.png`,
+  },
+  {
+    id: '538',
+    name: 'Plex',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/blAEhvx3XX8sV0fFVFk88FFjubs.png`,
+  },
+  {
+    id: '99',
+    name: 'Shudder',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/58O6yqUFM6qoOiBNAddJs7xNKc.png`,
+  },
+  {
+    id: '11',
+    name: 'MUBI',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/k7iSlvgWzZuO4zU5PcBjhABMuia.png`,
+  },
+  {
+    id: '151',
+    name: 'BritBox',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/eZeWGG6DDIi4Kmu1z9RfTeZtqZX.png`,
+  },
+  {
+    id: '344',
+    name: 'Rakuten Viki',
+    logoUrl: `${TMDB_IMAGE_BASE}/w154/AoNsevRecTdVv4xQEf1oLRGO2yh.png`,
+  },
 ];
 
 export interface DiscoverOptions {

@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Movie } from '@/lib/tmdb';
 import { MovieCard } from '@/components/MovieCard';
 import { useCatalogLayout } from '@/components/CatalogFilterBar';
-import { loadMoreContentAction } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
 
 interface InfiniteScrollGridProps {
@@ -31,33 +30,47 @@ export function InfiniteScrollGrid({
   const sharedLayout = useCatalogLayout();
   const activeLayout = layout ?? sharedLayout;
   const [items, setItems] = useState<Movie[]>(initialItems);
-  const [page, setPage] = useState(2);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(initialItems.length >= 20);
   const [loading, setLoading] = useState(false);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef(2);
+  const loadingRef = useRef(false);
+  const hasMoreRef = useRef(initialItems.length >= 20);
 
   useEffect(() => {
     setItems(initialItems);
-    setPage(2);
-    setHasMore(true);
+    pageRef.current = 2;
+    loadingRef.current = false;
+    const more = initialItems.length >= 20;
+    hasMoreRef.current = more;
+    setHasMore(more);
     setLoading(false);
   }, [initialItems, type, filter, genreId, year, country, providerId]);
 
   const loadMore = useCallback(async () => {
+    if (loadingRef.current || !hasMoreRef.current) return;
+    loadingRef.current = true;
     setLoading(true);
-    try {
-      const newItems = await loadMoreContentAction(
-        type,
-        page,
-        filter,
-        genreId,
-        year,
-        country,
-        providerId
-      );
 
-      if (newItems.length === 0) {
+    try {
+      const params = new URLSearchParams({
+        type,
+        page: pageRef.current.toString(),
+      });
+      if (filter) params.set('filter', filter);
+      if (genreId) params.set('genre', genreId);
+      if (year) params.set('year', year);
+      if (country) params.set('country', country);
+      if (providerId) params.set('provider', providerId);
+
+      const res = await fetch(`/api/discover?${params.toString()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const newItems: Movie[] = await res.json();
+
+      if (!Array.isArray(newItems) || newItems.length === 0) {
+        hasMoreRef.current = false;
         setHasMore(false);
       } else {
         setItems((prev) => {
@@ -65,35 +78,39 @@ export function InfiniteScrollGrid({
           const filtered = newItems.filter((i) => !existingIds.has(i.id));
           return [...prev, ...filtered];
         });
-        setPage((prev) => prev + 1);
+        pageRef.current += 1;
+        if (newItems.length < 20) {
+          hasMoreRef.current = false;
+          setHasMore(false);
+        }
       }
     } catch (error) {
       console.error('Error loading more content:', error);
-      setHasMore(false);
     } finally {
+      loadingRef.current = false;
       setLoading(false);
     }
-  }, [type, page, filter, genreId, year, country, providerId]);
+  }, [type, filter, genreId, year, country, providerId]);
 
   useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
+        if (entries[0]?.isIntersecting && hasMoreRef.current && !loadingRef.current) {
           loadMore();
         }
       },
       {
         threshold: 0,
-        rootMargin: '400px',
+        rootMargin: '600px',
       }
     );
 
-    if (sentinelRef.current) {
-      observer.observe(sentinelRef.current);
-    }
-
+    observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore, loading, loadMore]);
+  }, [loadMore, items.length]);
 
   const isLandscape = activeLayout === 'landscape';
 
@@ -107,7 +124,7 @@ export function InfiniteScrollGrid({
         }`}
       >
         {items.map((item) => (
-          <MovieCard key={item.id} movie={item} layout={activeLayout} />
+          <MovieCard key={`${item.type || type}-${item.id}`} movie={item} layout={activeLayout} />
         ))}
       </div>
 
@@ -116,12 +133,20 @@ export function InfiniteScrollGrid({
         ref={sentinelRef}
         className="flex items-center justify-center py-16 min-h-[80px]"
       >
-        {loading && (
+        {loading ? (
           <div className="flex items-center gap-2.5 text-white/50 text-xs font-medium">
             <Loader2 size={16} className="animate-spin text-sage-400" />
             <span>Loading more titles...</span>
           </div>
-        )}
+        ) : hasMore ? (
+          <button
+            type="button"
+            onClick={loadMore}
+            className="px-5 py-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-white/60 hover:text-white text-xs font-medium transition-colors cursor-pointer"
+          >
+            Load more
+          </button>
+        ) : null}
       </div>
     </div>
   );
