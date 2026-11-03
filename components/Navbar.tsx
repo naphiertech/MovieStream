@@ -140,25 +140,16 @@ export function Navbar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setShowSuggestions(false);
-      setIsSearchOpen(false);
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
-
-  const handleSuggestionClick = (suggestion: any) => {
-    setSearchQuery('');
-    setSuggestions([]);
+    const trimmed = searchQuery.trim();
     setShowSuggestions(false);
     setIsSearchOpen(false);
-
-    if (suggestion.type === 'tv') {
-      router.push(`/tv/${suggestion.id}`);
+    if (trimmed) {
+      router.push(`/search?q=${encodeURIComponent(trimmed)}`);
     } else {
-      router.push(`/movie/${suggestion.id}`);
+      router.push('/search');
     }
   };
+
 
   return (
     <>
@@ -275,12 +266,16 @@ export function Navbar() {
                   onSubmit={handleSearch}
                   className="flex items-center bg-white/[0.08] border border-white/[0.12] focus-within:border-sage-400/50 rounded-[9px] px-2.5 py-1 transition-all duration-200"
                 >
-                  <Search
-                    size={15}
-                    className={`mr-2 flex-shrink-0 ${
-                      isSearching ? 'text-sage-400 animate-pulse' : 'text-white/50'
-                    }`}
-                  />
+                  <button
+                    type="submit"
+                    aria-label="Submit search"
+                    className="mr-2 flex-shrink-0 text-white/50 hover:text-sage-400 transition-colors cursor-pointer"
+                  >
+                    <Search
+                      size={15}
+                      className={isSearching ? 'text-sage-400 animate-pulse' : ''}
+                    />
+                  </button>
                   <input
                     ref={searchInputRef}
                     type="text"
@@ -329,9 +324,15 @@ export function Navbar() {
               <div className="absolute top-full mt-2.5 right-0 w-[300px] sm:w-[360px] lg:w-[400px] bg-[#121214]/95 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.85)] z-50 animate-in fade-in zoom-in-95 duration-150">
                 <div className="p-2">
                   {suggestions.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => handleSuggestionClick(item)}
+                    <Link
+                      key={`${item.type || 'movie'}-${item.id}`}
+                      href={item.type === 'tv' ? `/tv/${item.id}` : `/movie/${item.id}`}
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSuggestions([]);
+                        setShowSuggestions(false);
+                        setIsSearchOpen(false);
+                      }}
                       className="w-full flex items-center gap-3.5 p-2 hover:bg-white/[0.06] rounded-xl transition-all group text-left cursor-pointer"
                     >
                       <div className="relative w-11 h-15 flex-shrink-0 overflow-hidden rounded-lg bg-white/5">
@@ -371,7 +372,7 @@ export function Navbar() {
                           </span>
                         </div>
                       </div>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               </div>
